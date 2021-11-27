@@ -1,8 +1,6 @@
 //! Calculate the moon's position for given Julian day.
 //! see J. Meeus, Astronomical Algorithms, chapter 47
-use super::super::jd;
-use super::super::util;
-use assert_approx_eq::assert_approx_eq;
+use crate::{earth, jd, sun, util};
 
 // SS: perturbation terms for longitude and radius
 const SIGMA_L_AND_R_COEFFICIENTS: [(i8, i8, i8, i8, i64, i64); 60] = [
@@ -83,20 +81,20 @@ const SIGMA_B_COEFFICIENTS: [(i8, i8, i8, i8, i64); 60] = [
     (2, -1, 0, -1, 8216),
     (2, 0, -2, -1, 4324),
     (2, 0, 1, 1, 4200),
-    (2, 1, 0, -1, 3359),
+    (2, 1, 0, -1, -3359),
     (2, -1, -1, 1, 2463),
     (2, -1, 0, 1, 2211),
     (2, -1, -1, -1, 2065),
-    (0, 1, -1, -1, 1870),
+    (0, 1, -1, -1, -1870),
     (4, 0, -1, -1, 1828),
-    (0, 1, 0, 1, 1794),
-    (0, 0, 0, 3, 1749),
-    (0, 1, -1, 1, 1565),
-    (1, 0, 0, 1, 1491),
-    (0, 1, 1, 1, 1475),
-    (0, 1, 1, -1, 1410),
-    (0, 1, 0, -1, 1344),
-    (1, 0, 0, -1, 1335),
+    (0, 1, 0, 1, -1794),
+    (0, 0, 0, 3, -1749),
+    (0, 1, -1, 1, -1565),
+    (1, 0, 0, 1, -1491),
+    (0, 1, 1, 1, -1475),
+    (0, 1, 1, -1, -1410),
+    (0, 1, 0, -1, -1344),
+    (1, 0, 0, -1, -1335),
     (0, 0, 3, 1, 1107),
     (4, 0, 0, -1, 1021),
     (4, 0, -1, 1, 833),
@@ -105,29 +103,29 @@ const SIGMA_B_COEFFICIENTS: [(i8, i8, i8, i8, i64); 60] = [
     (2, 0, 0, -3, 607),
     (2, 0, 2, -1, 596),
     (2, -1, 1, -1, 491),
-    (2, 0, -2, 1, 451),
+    (2, 0, -2, 1, -451),
     (0, 0, 3, -1, 439),
     (2, 0, 2, 1, 422),
     (2, 0, -3, -1, 421),
-    (2, 1, -1, 1, 366),
-    (2, 1, 0, 1, 351),
+    (2, 1, -1, 1, -366),
+    (2, 1, 0, 1, -351),
     (4, 0, 0, 1, 331),
     (2, -1, 1, 1, 315),
     (2, -2, 0, -1, 302),
-    (0, 0, 1, 3, 283),
-    (2, 1, 1, -1, 229),
+    (0, 0, 1, 3, -283),
+    (2, 1, 1, -1, -229),
     (1, 1, 0, -1, 223),
     (1, 1, 0, 1, 223),
-    (0, 1, -2, -1, 220),
-    (2, 1, -1, -1, 220),
-    (1, 0, 1, 1, 185),
+    (0, 1, -2, -1, -220),
+    (2, 1, -1, -1, -220),
+    (1, 0, 1, 1, -185),
     (2, -1, -2, -1, 181),
-    (0, 1, 2, 1, 177),
+    (0, 1, 2, 1, -177),
     (4, 0, -2, -1, 176),
     (4, -1, -1, -1, 166),
-    (1, 0, 1, -1, 164),
+    (1, 0, 1, -1, -164),
     (4, 0, 1, -1, 132),
-    (1, 0, -1, -1, 119),
+    (1, 0, -1, -1, -119),
     (4, -1, 0, -1, 115),
     (2, -2, 0, 1, 107),
 ];
@@ -164,30 +162,6 @@ fn mean_elongation(jd: f64) -> f64 {
 
     let mapped = util::map_to_0_to_360(mean_elongation);
     mapped
-}
-
-/// Calculate the sun's mean anomaly, eq (47.3).
-/// In: Julian day in dynamical time
-/// Out: Sun's mean anomaly in degrees, [0, 360)
-fn sun_mean_anomaly(jd: f64) -> f64 {
-    let t = jd::from_epoch_j2000(jd);
-
-    let t2 = t * t;
-    let t3 = t * t2;
-
-    let mean_anomaly = 357.5291092 + 35999.0502909 * t - 0.0001536 * t2 + t3 / 24_490_000.0;
-
-    let mapped = util::map_to_0_to_360(mean_anomaly);
-    mapped
-}
-
-/// Calculate Earth's eccentricity, eq (47.6).
-/// In: Julian day in dynamical time
-fn earth_eccentricity(jd: f64) -> f64 {
-    let t = jd::from_epoch_j2000(jd);
-    let t2 = t * t;
-
-    1.0 - 0.002516 * t - 0.0000074 * t2
 }
 
 /// Calculate the moon's mean anomaly, eq (47.4).
@@ -235,26 +209,25 @@ fn longitude(jd: f64) -> f64 {
 
     let l_prime = util::to_radians(mean_longitude(jd));
     let d = util::to_radians(mean_elongation(jd));
-    let m = util::to_radians(sun_mean_anomaly(jd));
+    let m = util::to_radians(sun::mean_anomaly(jd));
     let m_prime = util::to_radians(mean_anomaly(jd));
     let f = util::to_radians(argument_of_latitude(jd));
-    let e = earth_eccentricity(jd);
+    let e = earth::eccentricity(jd);
 
     // SS: perturbation term for moon's longitude
     let mut sigma_l = SIGMA_L_AND_R_COEFFICIENTS.iter().fold(0.0, |accum, &c| {
         let sin_arg = c.0 as f64 * d + c.1 as f64 * m + c.2 as f64 * m_prime + c.3 as f64 * f;
         let mut coeff = c.4 as f64;
 
-        let mut value = coeff * sin_arg.sin();
-
-        if c.1 == -1 || c.1 == 1 {
-            value *= e;
+        if c.1 != 0 {
+            coeff *= e;
         }
 
         if c.1 == -2 || c.1 == 2 {
-            value *= e * e;
+            coeff *= e;
         }
 
+        let value = coeff * sin_arg.sin();
         accum + value
     });
 
@@ -275,16 +248,16 @@ fn latitude(jd: f64) -> f64 {
     let a1 = util::to_radians(util::map_to_0_to_360(119.75 + 131.849 * t));
     let a3 = util::to_radians(util::map_to_0_to_360(313.45 + 481266.484 * t));
 
-    let l_prime = mean_longitude(jd);
-    let d = mean_elongation(jd);
-    let m = sun_mean_anomaly(jd);
-    let m_prime = mean_anomaly(jd);
-    let f = argument_of_latitude(jd);
-    let e = earth_eccentricity(jd);
+    let l_prime = util::to_radians(mean_longitude(jd));
+    let d = util::to_radians(mean_elongation(jd));
+    let m = util::to_radians(sun::mean_anomaly(jd));
+    let m_prime = util::to_radians(mean_anomaly(jd));
+    let f = util::to_radians(argument_of_latitude(jd));
+    let e = earth::eccentricity(jd);
 
     // SS: perturbation term for moon's latitude
     let mut sigma_b = SIGMA_B_COEFFICIENTS.iter().fold(0.0, |accum, &c| {
-        let cos_arg = c.0 as f64 * d + c.1 as f64 * m + c.2 as f64 * m_prime + c.3 as f64 * f;
+        let sin_arg = c.0 as f64 * d + c.1 as f64 * m + c.2 as f64 * m_prime + c.3 as f64 * f;
         let mut coeff = c.4 as f64;
 
         if c.1 != 0 {
@@ -295,7 +268,7 @@ fn latitude(jd: f64) -> f64 {
             coeff *= e;
         }
 
-        accum + coeff * cos_arg.cos()
+        accum + coeff * sin_arg.sin()
     });
 
     sigma_b -= 2235.0 * l_prime.sin();
@@ -313,10 +286,10 @@ fn latitude(jd: f64) -> f64 {
 /// Out: Moon's distance from Earth, in kilometers
 fn distance_from_earth(jd: f64) -> f64 {
     let d = mean_elongation(jd);
-    let m = sun_mean_anomaly(jd);
+    let m = sun::mean_anomaly(jd);
     let m_prime = mean_anomaly(jd);
     let f = argument_of_latitude(jd);
-    let e = earth_eccentricity(jd);
+    let e = earth::eccentricity(jd);
 
     // SS: perturbation term for moon's longitude
     let sigma_r = SIGMA_L_AND_R_COEFFICIENTS.iter().fold(0.0, |accum, &c| {
@@ -342,6 +315,7 @@ fn distance_from_earth(jd: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use assert_approx_eq::assert_approx_eq;
 
     #[test]
     fn mean_longitude_test() {
@@ -373,7 +347,7 @@ mod tests {
         let jd = jd::from_date(1992, 4, 12, 0.0);
 
         // Act
-        let mean_elongation = sun_mean_anomaly(jd);
+        let mean_elongation = sun::mean_anomaly(jd);
 
         // Assert
         assert_approx_eq!(97.643514, mean_elongation, 0.000_001)
@@ -413,6 +387,18 @@ mod tests {
 
         // Assert
         assert_approx_eq!(133.162655, longitude, 0.000_001)
+    }
+
+    #[test]
+    fn latitude_test() {
+        // SS: 1992 April 12, 0h TD
+        let jd = jd::from_date(1992, 4, 12, 0.0);
+
+        // Act
+        let latitude = latitude(jd);
+
+        // Assert
+        assert_approx_eq!(-3.229126, latitude, 0.000_001)
     }
 
 }

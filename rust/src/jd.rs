@@ -34,7 +34,7 @@ fn is_julian_calendar(y: i16, m: u8, d: u8) -> bool {
 
 pub fn from_epoch_j2000(jd: f64) -> f64 {
     // SS: Epoch J2000 = Jan. 1st, 2000 at 0hr UTC
-    let jd_epoch_j2000 =2_451_545.0;
+    let jd_epoch_j2000 = 2_451_545.0;
 
     // SS: convert to dynamical time TD
     let t = (jd - jd_epoch_j2000) / 36_525.0;

@@ -1,5 +1,7 @@
-pub mod jd;
-pub mod moon;
+mod earth;
+mod jd;
+mod moon;
+mod sun;
 mod util;
 
 #[cfg(test)]
