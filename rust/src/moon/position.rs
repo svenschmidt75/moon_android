@@ -2,6 +2,11 @@
 //! see J. Meeus, Astronomical Algorithms, chapter 47
 use crate::{earth, jd, sun, util};
 
+// SS: for exchanging with C API
+// #[repr(C)]
+// pub struct Position {
+// }
+
 // SS: perturbation terms for longitude and radius
 const SIGMA_L_AND_R_COEFFICIENTS: [(i8, i8, i8, i8, i64, i64); 60] = [
     (0, 0, 1, 0, 6288774, -20905355),
@@ -235,8 +240,10 @@ fn longitude(jd: f64) -> f64 {
     sigma_l += 1962.0 * (l_prime - f).sin();
     sigma_l += 318.0 * a2.sin();
 
+    let nutation_delta = earth::nutation(jd);
     let l_prime_degrees = util::to_degrees(l_prime);
-    l_prime_degrees + sigma_l / 1_000_000.0
+
+    l_prime_degrees + sigma_l / 1_000_000.0 + util::arcsec_to_degrees(nutation_delta)
 }
 
 /// Calculate the moon's latitude (beta), page 342
@@ -285,10 +292,10 @@ fn latitude(jd: f64) -> f64 {
 /// In: Julian day in dynamical time
 /// Out: Moon's distance from Earth, in kilometers
 fn distance_from_earth(jd: f64) -> f64 {
-    let d = mean_elongation(jd);
-    let m = sun::mean_anomaly(jd);
-    let m_prime = mean_anomaly(jd);
-    let f = argument_of_latitude(jd);
+    let d = util::to_radians(mean_elongation(jd));
+    let m = util::to_radians(sun::mean_anomaly(jd));
+    let m_prime = util::to_radians(mean_anomaly(jd));
+    let f = util::to_radians(argument_of_latitude(jd));
     let e = earth::eccentricity(jd);
 
     // SS: perturbation term for moon's longitude
@@ -386,7 +393,7 @@ mod tests {
         let longitude = longitude(jd);
 
         // Assert
-        assert_approx_eq!(133.162655, longitude, 0.000_001)
+        assert_approx_eq!(133.16726428105474, longitude, 0.000_001)
     }
 
     #[test]
@@ -399,6 +406,18 @@ mod tests {
 
         // Assert
         assert_approx_eq!(-3.229126, latitude, 0.000_001)
+    }
+
+    #[test]
+    fn distance_test() {
+        // SS: 1992 April 12, 0h TD
+        let jd = jd::from_date(1992, 4, 12, 0.0);
+
+        // Act
+        let distance = distance_from_earth(jd);
+
+        // Assert
+        assert_approx_eq!(368_409.7, distance, 0.1)
     }
 
 }

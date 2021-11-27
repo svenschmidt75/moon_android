@@ -1,1 +1,2 @@
-pub mod moon_position;
+pub mod position;
+pub mod phase;
