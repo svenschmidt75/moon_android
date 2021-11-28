@@ -28,22 +28,70 @@ pub fn arcsec_to_degrees(v: f64) -> f64 {
     v / (60.0 * 60.0)
 }
 
-/// Map degrees to degrees:min:sec
-/// In: value in [0, 360)
-pub fn degrees_to_arc(value: f64) -> (f64, f64, f64) {
-    let degrees = value.trunc();
-    let remainder = value - degrees;
-    let minutes = (remainder * 60.0).trunc();
+#[derive(Debug, Clone, Copy)]
+pub struct ArcSec {
+    pub(crate) degrees: i16,
+    pub(crate) minutes: i8,
+    pub(crate) seconds: f64,
+}
 
-    let remainder = remainder * 60.0 - minutes;
-    let seconds = (remainder * 60.0).trunc();
-    (degrees, minutes, seconds)
+impl From<f64> for ArcSec {
+    fn from(angle: f64) -> Self {
+        let degrees = angle.trunc() as i16;
+
+        let remainder = angle - degrees as f64;
+        let minutes = (remainder * 60.0).trunc() as i8;
+
+        let seconds = (remainder * 60.0 - minutes as f64) * 60.0;
+
+        Self {
+            degrees,
+            minutes,
+            seconds,
+        }
+    }
+}
+
+impl From<ArcSec> for f64 {
+    fn from(arcsec: ArcSec) -> Self {
+        arcsec.degrees as f64 + arcsec.minutes as f64 / 60.0 + arcsec.seconds as f64 / (60.0 * 60.0)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use assert_approx_eq::assert_approx_eq;
+
+    #[test]
+    fn arcsec_to_degrees_test() {
+        // Arrange
+        let arcsec = ArcSec {
+            degrees: 133,
+            minutes: 10,
+            seconds: 2.154,
+        };
+
+        // Act
+        let degrees: f64 = f64::from(arcsec);
+
+        // Assert
+        assert_approx_eq!(133.167265, degrees, 0.000_1)
+    }
+
+    #[test]
+    fn degrees_to_arc_test() {
+        // Arrange
+        let angle = 133.167265;
+
+        // Act
+        let arcsec = ArcSec::from(angle);
+
+        // Assert
+        assert_eq!(133, arcsec.degrees);
+        assert_eq!(10, arcsec.minutes);
+        assert_approx_eq!(2.154, arcsec.seconds, 0.001);
+    }
 
     #[test]
     fn map_negative_1() {
@@ -55,19 +103,5 @@ mod tests {
 
         // Assert
         assert_eq!(360.0 + angle, mapped)
-    }
-
-    #[test]
-    fn degrees_to_arc_test() {
-        // Arrange
-        let angle = 133.167265;
-
-        // Act
-        let (degrees, minutes, seconds) = degrees_to_arc(angle);
-
-        // Assert
-        assert_eq!(133.0, degrees);
-        assert_eq!(10.0, minutes);
-        assert_approx_eq!(2.0, seconds, 1.0);
     }
 }

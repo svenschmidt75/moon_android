@@ -105,7 +105,7 @@ pub fn nutation_in_longitude(jd: f64) -> f64 {
 }
 /// Nutation of the obliquity of the eclipse, Meeus chapter 22
 /// In: Julian day in dynamical time
-/// Out: correction term in degrees
+/// Out: correction term in arcsec
 pub fn nutation_in_obliquity(jd: f64) -> f64 {
     let t = jd::from_epoch_j2000(jd);
     let t2 = t * t;
@@ -182,5 +182,4 @@ mod tests {
         // Assert
         assert_approx_eq!(9.443, delta_epsilon, 0.001)
     }
-
 }
