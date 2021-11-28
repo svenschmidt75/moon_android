@@ -58,13 +58,37 @@ impl From<ArcSec> for f64 {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct RA {
+    pub(crate) hours: i16,
+    pub(crate) minutes: i8,
+    pub(crate) seconds: f64,
+}
+
+impl From<f64> for RA {
+    fn from(angle: f64) -> Self {
+        let degrees = angle.trunc() as i16;
+
+        let remainder = angle - degrees as f64;
+        let minutes = (remainder * 60.0).trunc() as i8;
+
+        let seconds = (remainder * 60.0 - minutes as f64) * 60.0;
+
+        Self {
+            hours: degrees,
+            minutes,
+            seconds,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
-    fn arcsec_to_degrees_test() {
+    fn arcsec_to_degrees_test_1() {
         // Arrange
         let arcsec = ArcSec {
             degrees: 133,
@@ -77,6 +101,22 @@ mod tests {
 
         // Assert
         assert_approx_eq!(133.167265, degrees, 0.000_1)
+    }
+
+    #[test]
+    fn arcsec_to_degrees_test_2() {
+        // Arrange
+        let arcsec = ArcSec {
+            degrees: 23,
+            minutes: 26,
+            seconds: 26.29,
+        };
+
+        // Act
+        let degrees: f64 = f64::from(arcsec);
+
+        // Assert
+        assert_approx_eq!(23.440636, degrees, 0.000_001)
     }
 
     #[test]

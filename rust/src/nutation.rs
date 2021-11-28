@@ -146,7 +146,7 @@ mod tests {
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
-    fn nutation_longitude__test_1() {
+    fn nutation_longitude_test_1() {
         // Arrange
         let jd = jd::from_date(1987, 4, 10, 0.0);
 

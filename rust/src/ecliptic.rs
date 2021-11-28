@@ -57,7 +57,7 @@ mod tests {
     }
 
     #[test]
-    fn true_obliquity_test() {
+    fn true_obliquity_test_1() {
         // Arrange
         let jd = jd::from_date(1987, 4, 10, 0.0);
 
@@ -67,4 +67,17 @@ mod tests {
         // Assert
         assert_approx_eq!(23.44356921, eps, 0.000_000_01)
     }
+
+    #[test]
+    fn true_obliquity_test_2() {
+        // Arrange
+        let jd = jd::from_date(1992, 4, 12, 0.0);
+
+        // Act
+        let eps = true_obliquity(jd);
+
+        // Assert
+        assert_approx_eq!(23.440636, eps, 0.000_001)
+    }
+
 }
