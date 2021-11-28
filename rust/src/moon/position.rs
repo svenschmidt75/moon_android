@@ -1,6 +1,6 @@
 //! Calculate the moon's position for given Julian day.
 //! see J. Meeus, Astronomical Algorithms, chapter 47
-use crate::{earth, jd, sun, util};
+use crate::{earth, jd, nutation, sun, util};
 
 // SS: for exchanging with C API
 // #[repr(C)]
@@ -240,7 +240,7 @@ fn longitude(jd: f64) -> f64 {
     sigma_l += 1962.0 * (l_prime - f).sin();
     sigma_l += 318.0 * a2.sin();
 
-    let nutation_delta = earth::nutation(jd);
+    let nutation_delta = nutation::nutation_in_longitude(jd);
     let l_prime_degrees = util::to_degrees(l_prime);
 
     l_prime_degrees + sigma_l / 1_000_000.0 + util::arcsec_to_degrees(nutation_delta)
@@ -419,5 +419,4 @@ mod tests {
         // Assert
         assert_approx_eq!(368_409.7, distance, 0.1)
     }
-
 }
