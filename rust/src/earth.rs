@@ -24,10 +24,12 @@ pub fn ecliptical_to_equatorial(jd: f64, longitude: f64, latitude: f64) -> (f64,
     let longitude_radians = util::to_radians(longitude);
     let latitude_radians = util::to_radians(latitude);
 
-    let ra_argument_x = longitude_radians.sin() * true_obliquity_radians.cos() - latitude_radians.tan() * true_obliquity_radians.sin();
+    let ra_argument_x = longitude_radians.sin() * true_obliquity_radians.cos()
+        - latitude_radians.tan() * true_obliquity_radians.sin();
     let ra_radians = ra_argument_x.atan2(longitude_radians.cos());
 
-    let dec_argument_x = latitude_radians.sin() * true_obliquity_radians.cos() + latitude_radians.cos() * true_obliquity_radians.sin() * longitude_radians.sin();
+    let dec_argument_x = latitude_radians.sin() * true_obliquity_radians.cos()
+        + latitude_radians.cos() * true_obliquity_radians.sin() * longitude_radians.sin();
     let dec_radians = dec_argument_x.asin();
 
     (util::to_degrees(ra_radians), util::to_degrees(dec_radians))
@@ -63,7 +65,7 @@ mod tests {
         let (ra, dec) = ecliptical_to_equatorial(jd, longitude, latitude);
 
         // Assert
-        assert_approx_eq!(134.688470, ra, 0.000_001);
-        assert_approx_eq!(13.768368, dec, 0.000_001);
+        assert_approx_eq!(8.9789280347415126, util::degrees_to_hours(ra), 0.000_001);
+        assert_approx_eq!(13.769657226951539, dec, 0.000_001);
     }
 }

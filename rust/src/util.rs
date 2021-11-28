@@ -28,6 +28,21 @@ pub fn arcsec_to_degrees(v: f64) -> f64 {
     v / (60.0 * 60.0)
 }
 
+/// Convert from degrees to hours
+/// In: angle in degrees [0, 360)
+pub fn degrees_to_hours(angle: f64) -> f64 {
+    // SS: 1 hours is 24 / 360 degrees
+    const F: f64 = 24.0 / 360.0;
+    angle * F
+}
+
+/// Convert from degrees to hours
+/// In: angle in radians [0, 2 pi)
+pub fn radians_to_hours(angle: f64) -> f64 {
+    const F: f64 = 24.0 / (2.0 * std::f64::consts::PI);
+    angle * F
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct ArcSec {
     pub(crate) degrees: i16,
@@ -67,18 +82,7 @@ pub struct RA {
 
 impl From<f64> for RA {
     fn from(angle: f64) -> Self {
-        let degrees = angle.trunc() as i16;
-
-        let remainder = angle - degrees as f64;
-        let minutes = (remainder * 60.0).trunc() as i8;
-
-        let seconds = (remainder * 60.0 - minutes as f64) * 60.0;
-
-        Self {
-            hours: degrees,
-            minutes,
-            seconds,
-        }
+        todo!()
     }
 }
 
@@ -143,5 +147,17 @@ mod tests {
 
         // Assert
         assert_eq!(360.0 + angle, mapped)
+    }
+
+    #[test]
+    fn degrees_to_hours_test() {
+        // Arrange
+        let angle = 134.688470;
+
+        // Act
+        let hours = degrees_to_hours(angle);
+
+        // Assert
+        assert_approx_eq!(8.979, hours, 0.001)
     }
 }
