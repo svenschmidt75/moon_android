@@ -1,11 +1,6 @@
 //! Calculate the moon's position for given Julian day.
 //! see J. Meeus, Astronomical Algorithms, chapter 47
-use crate::{earth, jd, nutation, sun, util};
-
-// SS: for exchanging with C API
-// #[repr(C)]
-// pub struct Position {
-// }
+use crate::{earth, jd, nutation, sun::sun, util};
 
 // SS: perturbation terms for longitude and radius
 const SIGMA_L_AND_R_COEFFICIENTS: [(i8, i8, i8, i8, i64, i64); 60] = [
