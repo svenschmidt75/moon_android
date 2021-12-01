@@ -4,7 +4,7 @@ use crate::{ecliptic, jd, util};
 /// Calculate Earth's eccentricity, eq (47.6).
 /// In: Julian day in dynamical time
 pub fn eccentricity(jd: f64) -> f64 {
-    let t = jd::from_epoch_j2000(jd);
+    let t = jd::centuries_from_epoch_j2000(jd);
     let t2 = t * t;
 
     1.0 - 0.002516 * t - 0.0000074 * t2

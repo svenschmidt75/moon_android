@@ -8,7 +8,7 @@ use crate::{jd, util};
 /// In: Julian day in dynamical time
 /// Out: Mean obliquity of the eclipse in degrees [0, 360)
 pub fn mean_obliquity(jd: f64) -> f64 {
-    let t = jd::from_epoch_j2000(jd);
+    let t = jd::centuries_from_epoch_j2000(jd);
     let u = t / 100.0;
 
     let arcsec = ArcSec {
@@ -79,5 +79,4 @@ mod tests {
         // Assert
         assert_approx_eq!(23.440636, eps, 0.000_001)
     }
-
 }

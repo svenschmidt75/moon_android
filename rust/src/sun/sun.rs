@@ -4,7 +4,7 @@ use crate::{jd, util};
 /// In: Julian day in dynamical time
 /// Out: Sun's mean anomaly in degrees, [0, 360)
 pub fn mean_anomaly(jd: f64) -> f64 {
-    let t = jd::from_epoch_j2000(jd);
+    let t = jd::centuries_from_epoch_j2000(jd);
 
     let t2 = t * t;
     let t3 = t * t2;

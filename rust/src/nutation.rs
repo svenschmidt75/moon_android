@@ -71,7 +71,7 @@ const NUTATION_PERTURBATION_TERMS: [(i8, i8, i8, i8, i8, i64, f64, i64, f64); 63
 /// In: Julian day in dynamical time
 /// Out: correction term in degrees
 pub fn nutation_in_longitude(jd: f64) -> f64 {
-    let t = jd::from_epoch_j2000(jd);
+    let t = jd::centuries_from_epoch_j2000(jd);
     let t2 = t * t;
     let t3 = t * t2;
 
@@ -107,7 +107,7 @@ pub fn nutation_in_longitude(jd: f64) -> f64 {
 /// In: Julian day in dynamical time
 /// Out: correction term in arcsec
 pub fn nutation_in_obliquity(jd: f64) -> f64 {
-    let t = jd::from_epoch_j2000(jd);
+    let t = jd::centuries_from_epoch_j2000(jd);
     let t2 = t * t;
     let t3 = t * t2;
 
