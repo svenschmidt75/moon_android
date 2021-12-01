@@ -1,9 +1,7 @@
 // VSOPT97D coefficients for earth
 // from http://cdsarc.u-strasbg.fr/viz-bin/Cat?cat=VI/81#/article
 
-use crate::{jd, util};
-
-const VSOP87B_L0_EARTH: [(f64, f64, f64); 559] = [
+const VSOP87D_L0_EARTH: [(f64, f64, f64); 559] = [
     (1.75347045673, 0.00000000000, 0.00000000000),
     (0.03341656456, 4.66925680417, 6283.07584999140),
     (0.00034894275, 4.62610241759, 12566.15169998280),
@@ -565,7 +563,7 @@ const VSOP87B_L0_EARTH: [(f64, f64, f64); 559] = [
     (0.00000000049, 2.44790934886, 13613.80427733600),
 ];
 
-const VSOP87B_L1_EARTH: [(f64, f64, f64); 341] = [
+const VSOP87D_L1_EARTH: [(f64, f64, f64); 341] = [
     (6283.31966747491, 0.00000000000, 0.00000000000),
     (0.00206058863, 2.67823455584, 6283.07584999140),
     (0.00004303430, 2.63512650414, 12566.15169998280),
@@ -909,7 +907,7 @@ const VSOP87B_L1_EARTH: [(f64, f64, f64); 341] = [
     (0.00000000025, 5.71466092822, 25934.12433108940),
 ];
 
-const VSOP87B_L2_EARTH: [(f64, f64, f64); 142] = [
+const VSOP87D_L2_EARTH: [(f64, f64, f64); 142] = [
     (0.00052918870, 0.00000000000, 0.00000000000),
     (0.00008719837, 1.07209665242, 6283.07584999140),
     (0.00000309125, 0.86728818832, 12566.15169998280),
@@ -1054,7 +1052,7 @@ const VSOP87B_L2_EARTH: [(f64, f64, f64); 142] = [
     (0.00000000010, 4.93364992366, 12352.85260454480),
 ];
 
-const VSOP87B_L3_EARTH: [(f64, f64, f64); 22] = [
+const VSOP87D_L3_EARTH: [(f64, f64, f64); 22] = [
     (0.00000289226, 5.84384198723, 6283.07584999140),
     (0.00000034955, 0.00000000000, 0.00000000000),
     (0.00000016819, 5.48766912348, 12566.15169998280),
@@ -1079,7 +1077,7 @@ const VSOP87B_L3_EARTH: [(f64, f64, f64); 22] = [
     (0.00000000005, 4.28412873331, 6275.96230299060),
 ];
 
-const VSOP87B_L4_EARTH: [(f64, f64, f64); 11] = [
+const VSOP87D_L4_EARTH: [(f64, f64, f64); 11] = [
     (0.00000114084, 3.14159265359, 0.00000000000),
     (0.00000007717, 4.13446589358, 6283.07584999140),
     (0.00000000765, 3.83803776214, 12566.15169998280),
@@ -1093,7 +1091,7 @@ const VSOP87B_L4_EARTH: [(f64, f64, f64); 11] = [
     (0.00000000002, 0.54912904658, 6438.49624942560),
 ];
 
-const VSOP87B_L5_EARTH: [(f64, f64, f64); 5] = [
+const VSOP87D_L5_EARTH: [(f64, f64, f64); 5] = [
     (0.00000000878, 3.14159265359, 0.00000000000),
     (0.00000000172, 2.76579069510, 6283.07584999140),
     (0.00000000050, 2.01353298182, 155.42039943420),
@@ -1101,16 +1099,16 @@ const VSOP87B_L5_EARTH: [(f64, f64, f64); 5] = [
     (0.00000000005, 1.75600058765, 18849.22754997420),
 ];
 
-static VSOP87B_L_EARTH: &[(&[(f64, f64, f64)], usize)] = &[
-    (&VSOP87B_L0_EARTH, VSOP87B_L0_EARTH.len()),
-    (&VSOP87B_L1_EARTH, VSOP87B_L1_EARTH.len()),
-    (&VSOP87B_L2_EARTH, VSOP87B_L2_EARTH.len()),
-    (&VSOP87B_L3_EARTH, VSOP87B_L3_EARTH.len()),
-    (&VSOP87B_L4_EARTH, VSOP87B_L4_EARTH.len()),
-    (&VSOP87B_L5_EARTH, VSOP87B_L5_EARTH.len()),
+pub(crate) static VSOP87D_L_EARTH: &[(&[(f64, f64, f64)], usize)] = &[
+    (&VSOP87D_L0_EARTH, VSOP87D_L0_EARTH.len()),
+    (&VSOP87D_L1_EARTH, VSOP87D_L1_EARTH.len()),
+    (&VSOP87D_L2_EARTH, VSOP87D_L2_EARTH.len()),
+    (&VSOP87D_L3_EARTH, VSOP87D_L3_EARTH.len()),
+    (&VSOP87D_L4_EARTH, VSOP87D_L4_EARTH.len()),
+    (&VSOP87D_L5_EARTH, VSOP87D_L5_EARTH.len()),
 ];
 
-const VSOP87B_B0_EARTH: [(f64, f64, f64); 184] = [
+const VSOP87D_B0_EARTH: [(f64, f64, f64); 184] = [
     (0.00000279620, 3.19870156017, 84334.66158130829),
     (0.00000101643, 5.42248619256, 5507.55323866740),
     (0.00000080445, 3.88013204458, 5223.69391980220),
@@ -1297,7 +1295,7 @@ const VSOP87B_B0_EARTH: [(f64, f64, f64); 184] = [
     (0.00000000039, 3.11239910690, 96900.81328129109),
 ];
 
-const VSOP87B_B1_EARTH: [(f64, f64, f64); 99] = [
+const VSOP87D_B1_EARTH: [(f64, f64, f64); 99] = [
     (0.00000009030, 3.89729061890, 5507.55323866740),
     (0.00000006177, 1.73038850355, 5223.69391980220),
     (0.00000003800, 5.24404145734, 2352.86615377180),
@@ -1399,7 +1397,7 @@ const VSOP87B_B1_EARTH: [(f64, f64, f64); 99] = [
     (0.00000000019, 0.85407021371, 14712.31711645800),
 ];
 
-const VSOP87B_B2_EARTH: [(f64, f64, f64); 49] = [
+const VSOP87D_B2_EARTH: [(f64, f64, f64); 49] = [
     (0.00000001662, 1.62703209173, 84334.66158130829),
     (0.00000000492, 2.41382223971, 1047.74731175470),
     (0.00000000344, 2.24353004539, 5507.55323866740),
@@ -1451,7 +1449,7 @@ const VSOP87B_B2_EARTH: [(f64, f64, f64); 49] = [
     (0.00000000009, 5.94191743597, 7632.94325965020),
 ];
 
-const VSOP87B_B3_EARTH: [(f64, f64, f64); 11] = [
+const VSOP87D_B3_EARTH: [(f64, f64, f64); 11] = [
     (0.00000000011, 0.23877262399, 7860.41939243920),
     (0.00000000009, 1.16069982609, 5507.55323866740),
     (0.00000000008, 1.65357552925, 5884.92684658320),
@@ -1465,7 +1463,7 @@ const VSOP87B_B3_EARTH: [(f64, f64, f64); 11] = [
     (0.00000000007, 2.73399865247, 6309.37416979120),
 ];
 
-const VSOP87B_B4_EARTH: [(f64, f64, f64); 5] = [
+const VSOP87D_B4_EARTH: [(f64, f64, f64); 5] = [
     (0.00000000004, 0.79662198849, 6438.49624942560),
     (0.00000000005, 0.84308705203, 1047.74731175470),
     (0.00000000005, 0.05711572303, 84334.66158130829),
@@ -1473,15 +1471,15 @@ const VSOP87B_B4_EARTH: [(f64, f64, f64); 5] = [
     (0.00000000003, 2.89822201212, 6127.65545055720),
 ];
 
-const VSOP87B_B_EARTH: [(&[(f64, f64, f64)], usize); 5] = [
-    (&VSOP87B_B0_EARTH, VSOP87B_B0_EARTH.len()),
-    (&VSOP87B_B1_EARTH, VSOP87B_B1_EARTH.len()),
-    (&VSOP87B_B2_EARTH, VSOP87B_B2_EARTH.len()),
-    (&VSOP87B_B3_EARTH, VSOP87B_B3_EARTH.len()),
-    (&VSOP87B_B4_EARTH, VSOP87B_B4_EARTH.len()),
+pub(crate) const VSOP87D_B_EARTH: [(&[(f64, f64, f64)], usize); 5] = [
+    (&VSOP87D_B0_EARTH, VSOP87D_B0_EARTH.len()),
+    (&VSOP87D_B1_EARTH, VSOP87D_B1_EARTH.len()),
+    (&VSOP87D_B2_EARTH, VSOP87D_B2_EARTH.len()),
+    (&VSOP87D_B3_EARTH, VSOP87D_B3_EARTH.len()),
+    (&VSOP87D_B4_EARTH, VSOP87D_B4_EARTH.len()),
 ];
 
-const VSOP87B_R0_EARTH: [(f64, f64, f64); 526] = [
+const VSOP87D_R0_EARTH: [(f64, f64, f64); 526] = [
     (1.00013988799, 0.00000000000, 0.00000000000),
     (0.01670699626, 3.09846350771, 6283.07584999140),
     (0.00013956023, 3.05524609620, 12566.15169998280),
@@ -2010,7 +2008,7 @@ const VSOP87B_R0_EARTH: [(f64, f64, f64); 526] = [
     (0.00000000050, 6.15760345261, 78051.34191383339),
 ];
 
-const VSOP87B_R1_EARTH: [(f64, f64, f64); 292] = [
+const VSOP87D_R1_EARTH: [(f64, f64, f64); 292] = [
     (0.00103018608, 1.10748969588, 6283.07584999140),
     (0.00001721238, 1.06442301418, 12566.15169998280),
     (0.00000702215, 3.14159265359, 0.00000000000),
@@ -2305,7 +2303,7 @@ const VSOP87B_R1_EARTH: [(f64, f64, f64); 292] = [
     (0.00000000020, 5.91915117116, 48739.85989708300),
 ];
 
-const VSOP87B_R2_EARTH: [(f64, f64, f64); 139] = [
+const VSOP87D_R2_EARTH: [(f64, f64, f64); 139] = [
     (0.00004359385, 5.78455133738, 6283.07584999140),
     (0.00000123633, 5.57934722157, 12566.15169998280),
     (0.00000012341, 3.14159265359, 0.00000000000),
@@ -2447,7 +2445,7 @@ const VSOP87B_R2_EARTH: [(f64, f64, f64); 139] = [
     (0.00000000009, 4.91488110218, 213.29909543800),
 ];
 
-const VSOP87B_R3_EARTH: [(f64, f64, f64); 27] = [
+const VSOP87D_R3_EARTH: [(f64, f64, f64); 27] = [
     (0.00000144595, 4.27319435148, 6283.07584999140),
     (0.00000006729, 3.91697608662, 12566.15169998280),
     (0.00000000774, 0.00000000000, 0.00000000000),
@@ -2477,7 +2475,7 @@ const VSOP87B_R3_EARTH: [(f64, f64, f64); 27] = [
     (0.00000000005, 3.71102966917, 6290.18939699220),
 ];
 
-const VSOP87B_R4_EARTH: [(f64, f64, f64); 10] = [
+const VSOP87D_R4_EARTH: [(f64, f64, f64); 10] = [
     (0.00000003858, 2.56384387339, 6283.07584999140),
     (0.00000000306, 2.26769501230, 12566.15169998280),
     (0.00000000053, 3.44031471924, 5573.14280143310),
@@ -2490,69 +2488,17 @@ const VSOP87B_R4_EARTH: [(f64, f64, f64); 10] = [
     (0.00000000003, 1.28175749811, 6286.59896834040),
 ];
 
-const VSOP87B_R5_EARTH: [(f64, f64, f64); 3] = [
+const VSOP87D_R5_EARTH: [(f64, f64, f64); 3] = [
     (0.00000000086, 1.21579741687, 6283.07584999140),
     (0.00000000012, 0.65617264033, 12566.15169998280),
     (0.00000000001, 0.38068797142, 18849.22754997420),
 ];
 
-const VSOP87B_R_EARTH: [(&[(f64, f64, f64)], usize); 6] = [
-    (&VSOP87B_R0_EARTH, VSOP87B_R0_EARTH.len()),
-    (&VSOP87B_R1_EARTH, VSOP87B_R1_EARTH.len()),
-    (&VSOP87B_R2_EARTH, VSOP87B_R2_EARTH.len()),
-    (&VSOP87B_R3_EARTH, VSOP87B_R3_EARTH.len()),
-    (&VSOP87B_R4_EARTH, VSOP87B_R4_EARTH.len()),
-    (&VSOP87B_R5_EARTH, VSOP87B_R5_EARTH.len()),
+const VSOP87D_R_EARTH: [(&[(f64, f64, f64)], usize); 6] = [
+    (&VSOP87D_R0_EARTH, VSOP87D_R0_EARTH.len()),
+    (&VSOP87D_R1_EARTH, VSOP87D_R1_EARTH.len()),
+    (&VSOP87D_R2_EARTH, VSOP87D_R2_EARTH.len()),
+    (&VSOP87D_R3_EARTH, VSOP87D_R3_EARTH.len()),
+    (&VSOP87D_R4_EARTH, VSOP87D_R4_EARTH.len()),
+    (&VSOP87D_R5_EARTH, VSOP87D_R5_EARTH.len()),
 ];
-
-/// Calculate the mean heliocentric longitude using the VSOP87
-/// theory. Meeus, chapter 32, eq. (32.2)
-pub fn mean_ecliptical_longitude(jd: f64) -> f64 {
-    let millennia_from_J2000 = jd::millennia_from_epoch_j2000(jd);
-
-    let mut total_sum = 0.0;
-    let mut tau = 1.0;
-    for (coeff, len) in VSOP87B_L_EARTH {
-        let mut sum = 0.0;
-
-        for &(a, b, c) in coeff.iter() {
-            let local_sum = a * (b + c * millennia_from_J2000).cos();
-            sum += local_sum;
-        }
-
-        total_sum += (sum * tau);
-        tau *= millennia_from_J2000;
-    }
-
-    util::map_to_0_to_360(total_sum)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use assert_approx_eq::assert_approx_eq;
-
-    #[test]
-    fn mean_ecliptical_longitude_test_1() {
-        // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12, 0.0);
-
-        // Act
-        let mean_elongation = mean_ecliptical_longitude(jd);
-
-        // Assert
-        assert_approx_eq!(97.643514, mean_elongation, 0.000_001)
-    }
-
-    #[test]
-    fn mean_ecliptical_longitude_test_2() {
-        // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13, 0.0);
-
-        // Act
-        let mean_elongation = mean_ecliptical_longitude(jd);
-
-        // Assert
-        assert_approx_eq!(97.643514, mean_elongation, 0.000_001)
-    }
-}

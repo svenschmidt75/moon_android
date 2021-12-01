@@ -1,6 +1,9 @@
 //! Utility functions
 
-/// Map angle in degrees to range [0, 260)
+const DEGREES_TO_RADIANS: f64 = std::f64::consts::PI / 180.0;
+const RADIANS_TO_DEGREES: f64 = 1.0 / DEGREES_TO_RADIANS;
+
+/// Map angle in degrees to range [0, 360)
 pub fn map_to_0_to_360(angle: f64) -> f64 {
     let mut m = angle % 360.0;
     if m < 0.0 {
@@ -9,8 +12,18 @@ pub fn map_to_0_to_360(angle: f64) -> f64 {
     m
 }
 
-const DEGREES_TO_RADIANS: f64 = std::f64::consts::PI / 180.0;
-const RADIANS_TO_DEGREES: f64 = 1.0 / DEGREES_TO_RADIANS;
+/// Map angle in radians to range [0, 2 pi)
+pub fn map_to_0_to_2pi(angle: f64) -> f64 {
+    let mut m = angle % (2.0 * std::f64::consts::PI);
+    if m < 0.0 {
+        m += 2.0 * std::f64::consts::PI;
+    }
+    m
+}
+
+pub fn map_to_neg90_to_90(angle: f64) -> f64 {
+    angle % 90.0
+}
 
 /// Convert from degrees [0, 360) to [0, 2 pi)
 pub fn to_radians(angle: f64) -> f64 {
