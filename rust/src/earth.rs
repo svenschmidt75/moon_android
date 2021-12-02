@@ -10,7 +10,7 @@ pub fn eccentricity(jd: f64) -> f64 {
     1.0 - 0.002516 * t - 0.0000074 * t2
 }
 
-/// Convert from eliptical coordinates (longitude, latitude) to
+/// Convert from ecliptical coordinates (longitude, latitude) to
 /// equatorial coordinates (right ascension, declination).
 /// In: Julian day
 /// longitude: Longitude in degrees [0, 360)
