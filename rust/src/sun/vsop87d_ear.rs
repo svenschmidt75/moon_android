@@ -2494,7 +2494,7 @@ const VSOP87D_R5_EARTH: [(f64, f64, f64); 3] = [
     (0.00000000001, 0.38068797142, 18849.22754997420),
 ];
 
-const VSOP87D_R_EARTH: [(&[(f64, f64, f64)], usize); 6] = [
+pub(crate) const VSOP87D_R_EARTH: [(&[(f64, f64, f64)], usize); 6] = [
     (&VSOP87D_R0_EARTH, VSOP87D_R0_EARTH.len()),
     (&VSOP87D_R1_EARTH, VSOP87D_R1_EARTH.len()),
     (&VSOP87D_R2_EARTH, VSOP87D_R2_EARTH.len()),

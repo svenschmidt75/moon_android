@@ -37,6 +37,7 @@ pub fn centuries_from_epoch_j2000(jd: f64) -> f64 {
     let jd_epoch_j2000 = 2_451_545.0;
 
     // SS: convert to dynamical time TD
+    // 365.25 = 1 year => 36525 = 100 years
     let t = (jd - jd_epoch_j2000) / 36_525.0;
     t
 }
@@ -46,6 +47,7 @@ pub fn millennia_from_epoch_j2000(jd: f64) -> f64 {
     let jd_epoch_j2000 = 2_451_545.0;
 
     // SS: convert to dynamical time TD
+    // 365.25 = 1 year => 365_250 = 1000 years = 1 millennium
     let t = (jd - jd_epoch_j2000) / 365_250.0;
     t
 }

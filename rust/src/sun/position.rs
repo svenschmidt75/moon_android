@@ -51,6 +51,30 @@ pub fn heliocentric_ecliptical_latitude(jd: f64) -> f64 {
     util::map_to_neg90_to_90(util::to_degrees(total_sum))
 }
 
+/// Calculate the distance Earth-Sun using the VSOP87
+/// theory. Meeus, chapter 32, eq. (32.2)
+/// In: Julian day
+/// Out: Distance of the Earth to the sun in km
+pub fn distance_earth_sun(jd: f64) -> f64 {
+    let millennia_from_j2000 = jd::millennia_from_epoch_j2000(jd);
+
+    let mut total_sum = 0.0;
+    let mut tau = 1.0;
+    for (coeff, _) in vsop87d_ear::VSOP87D_R_EARTH {
+        let mut sum = 0.0;
+
+        for &(a, b, c) in coeff.iter() {
+            let local_sum = a * (b + c * millennia_from_j2000).cos();
+            sum += local_sum;
+        }
+
+        total_sum += sum * tau;
+        tau *= millennia_from_j2000;
+    }
+
+    total_sum
+}
+
 /// Calculate the geocentric ecliptical longitude
 /// Meeus, chapter 25, page 166
 /// In: heliocentric ecliptical longitude in degrees [0, 360)
@@ -70,7 +94,7 @@ pub fn geocentric_ecliptical_latitude(jd: f64) -> f64 {
 }
 
 /// Calculate the geocentric ecliptical longitude and latitude in the FK5
-/// system. Meeus, chapter 25, page 166
+/// system. Meeus, chapter 32, page 219, eq. (32.3)
 /// In: geocentric ecliptical longitude in degrees [0, 360), from VSOP87
 /// In: geocentric ecliptical longitude in degrees [-90, 90), from VSOP87
 /// Out: geocentric ecliptical longitude in degrees [0, 360), corrected for FK5, w.r.t. mean equinox of the date
@@ -85,20 +109,13 @@ pub fn geocentric_ecliptical_to_fk5(jd: f64, longitude: f64, latitude: f64) -> (
         - 0.000_31 * centuries_from_j2000 * centuries_from_j2000;
     lambda_prime = util::to_radians(util::map_to_0_to_360(lambda_prime));
 
-    let longitude_correction = ArcSec {
-        degrees: 0,
-        minutes: 0,
-        seconds: 0.09033,
-    };
-    let delta_longitude = f64::from(longitude_correction);
+    let delta_longitude = -0.09033
+        + 0.03916 * (lambda_prime.cos() + lambda_prime.sin()) * util::to_radians(latitude).tan();
+    let delta_longitude = util::arcsec_to_degrees(delta_longitude);
     ecliptical_longitude += delta_longitude;
 
-    let latitude_correction = ArcSec {
-        degrees: 0,
-        minutes: 0,
-        seconds: 0.03916,
-    };
-    let delta_latitude = f64::from(latitude_correction) * (lambda_prime.cos() - lambda_prime.sin());
+    let delta_latitude = 0.03916 * (lambda_prime.cos() - lambda_prime.sin());
+    let delta_latitude = util::arcsec_to_degrees(delta_latitude);
     ecliptical_latitude += delta_latitude;
 
     (ecliptical_longitude, ecliptical_latitude)
@@ -131,6 +148,18 @@ mod tests {
 
         // Assert
         assert_approx_eq!(199.907, longitude, 0.001)
+    }
+
+    #[test]
+    fn distance_earth_sun_test() {
+        // SS: 1992 October 13, 0h TD
+        let jd = jd::from_date(1992, 10, 13, 0.0);
+
+        // Act
+        let distance = distance_earth_sun(jd);
+
+        // Assert
+        assert_approx_eq!(0.9976085202355933, distance, 0.000_001)
     }
 
     #[test]
@@ -168,7 +197,7 @@ mod tests {
         let (long, lat) = geocentric_ecliptical_to_fk5(jd, longitude, latitude);
 
         // Assert
-        assert_approx_eq!(199.90732233371614, long, 0.000_001);
+        assert_approx_eq!(199.90727215033252, long, 0.000_001);
         assert_approx_eq!(0.00020014657618539123, lat, 0.000_001);
     }
 }
