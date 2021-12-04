@@ -59,6 +59,15 @@ pub fn heliocentric_ecliptical_latitude(jd: f64) -> f64 {
 /// In: Julian day
 /// Out: Distance of the Earth to the sun in km
 pub fn distance_earth_sun(jd: f64) -> f64 {
+    let distance_ae = distance_earth_sun_ae(jd);
+    distance_ae * AU
+}
+
+/// Calculate the distance Earth-Sun using the VSOP87
+/// theory. Meeus, chapter 32, eq. (32.2)
+/// In: Julian day
+/// Out: Distance of the Earth, in AU
+pub fn distance_earth_sun_ae(jd: f64) -> f64 {
     let millennia_from_j2000 = jd::millennia_from_epoch_j2000(jd);
 
     let mut total_sum = 0.0;
@@ -75,7 +84,7 @@ pub fn distance_earth_sun(jd: f64) -> f64 {
         tau *= millennia_from_j2000;
     }
 
-    total_sum * AU
+    total_sum
 }
 
 /// Calculate the geocentric ecliptical longitude
@@ -168,7 +177,7 @@ pub fn apparent_geometric_longitude(jd: f64) -> f64 {
     let latitude = geocentric_ecliptical_latitude(jd);
     let (long, _) = geocentric_ecliptical_to_fk5(jd, longitude, latitude);
 
-    let r = distance_earth_sun(jd);
+    let r = distance_earth_sun_ae(jd);
 
     // SS: correction due to nutation
     let delta_psi = util::arcsec_to_degrees(nutation_in_longitude(jd));
@@ -224,7 +233,7 @@ mod tests {
         let jd = jd::from_date(1992, 10, 13, 0.0);
 
         // Act
-        let distance = distance_earth_sun(jd);
+        let distance = distance_earth_sun_ae(jd);
 
         // Assert
         assert_approx_eq!(0.9976085202355933, distance, 0.000_001)

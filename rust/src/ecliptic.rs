@@ -77,6 +77,6 @@ mod tests {
         let eps = true_obliquity(jd);
 
         // Assert
-        assert_approx_eq!(23.440636, eps, 0.000_001)
+        assert_approx_eq!(23.44063489239479, eps, 0.000_001)
     }
 }

@@ -6,11 +6,10 @@ use crate::sun::position::{
 };
 use crate::{jd, moon, util};
 
-const SYNODIC_MONTH: f64 = 29.53058868;
-const SYNODIC_MONTH_OVER_2: f64 = SYNODIC_MONTH / 2.0;
-
 /// Calculate the phase angle or age of the moon.
 /// Meeus, chapter 48, eq. (48.1) or Duffett-Smith and Zwart, chapter 67, page 171
+/// In: Julian day
+/// Out: Phase angle, in degrees [0, 360)
 pub fn phase_angle(jd: f64) -> f64 {
     // SS: position of the moon, from Earth
     let longitude = moon::position::longitude(jd);
@@ -33,9 +32,8 @@ pub fn phase_angle(jd: f64) -> f64 {
     .acos();
 
     // SS: phase angle
-    let tani = (r * psi.sin()) / (delta - r * psi.cos());
     let phase_angle = (r * psi.sin()).atan2(delta - r * psi.cos());
-    phase_angle
+    util::to_degrees(phase_angle)
 }
 
 pub fn fraction_illuminated(jd: f64) -> f64 {
@@ -50,26 +48,25 @@ mod tests {
 
     #[test]
     fn phase_angle_test() {
-        // SS: 2021 Nov. 29, 12:33am TD
-        let jd = jd::from_date(2021, 11, 29, 0.525);
+        // Arrange
         let jd = jd::from_date(1992, 4, 12, 0.0);
 
         // Act
         let phase_angle = phase_angle(jd);
 
         // Assert
-        assert_approx_eq!(63.9091644374556, phase_angle, 0.000_001)
+        assert_approx_eq!(69.07565471001595, phase_angle, 0.000_001)
     }
 
     #[test]
     fn fraction_illuminated_test() {
-        // SS: 2021 Nov. 29, 12:33am TD
-        let jd = jd::from_date(2021, 11, 29, 0.525);
+        // Arrange
+        let jd = jd::from_date(1992, 4, 12, 0.0);
 
         // Act
         let fraction_illuminated = fraction_illuminated(jd);
 
         // Assert
-        assert_approx_eq!(1.0 - 0.7198977625352061, fraction_illuminated, 0.000_001)
+        assert_approx_eq!(0.6785674578465415, fraction_illuminated, 0.000_001)
     }
 }
