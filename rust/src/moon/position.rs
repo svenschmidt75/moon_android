@@ -201,7 +201,7 @@ fn argument_of_latitude(jd: f64) -> f64 {
 /// Calculate the moon's longitude (lambda), page 342
 /// In: Julian day in dynamical time
 /// Out: Moon's longitude in degrees, [0, 360)
-fn longitude(jd: f64) -> f64 {
+pub(crate) fn longitude(jd: f64) -> f64 {
     let t = jd::centuries_from_epoch_j2000(jd);
 
     let a1 = util::to_radians(util::map_to_0_to_360(119.75 + 131.849 * t));
@@ -244,7 +244,7 @@ fn longitude(jd: f64) -> f64 {
 /// Calculate the moon's latitude (beta), page 342
 /// In: Julian day in dynamical time
 /// Out: Moon's latitude in degrees, [0, 360)
-fn latitude(jd: f64) -> f64 {
+pub(crate) fn latitude(jd: f64) -> f64 {
     let t = jd::centuries_from_epoch_j2000(jd);
 
     let a1 = util::to_radians(util::map_to_0_to_360(119.75 + 131.849 * t));
@@ -286,7 +286,7 @@ fn latitude(jd: f64) -> f64 {
 /// Calculate the moon's distance (delta) from earth, page 342
 /// In: Julian day in dynamical time
 /// Out: Moon's distance from Earth, in kilometers
-fn distance_from_earth(jd: f64) -> f64 {
+pub fn distance_from_earth(jd: f64) -> f64 {
     let d = util::to_radians(mean_elongation(jd));
     let m = util::to_radians(sun::mean_anomaly(jd));
     let m_prime = util::to_radians(mean_anomaly(jd));

@@ -1,3 +1,5 @@
+#![allow(clippy::excessive_precision)]
+
 // VSOPT97D coefficients for earth
 // from http://cdsarc.u-strasbg.fr/viz-bin/Cat?cat=VI/81#/article
 

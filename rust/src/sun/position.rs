@@ -1,6 +1,9 @@
+use crate::nutation::nutation_in_longitude;
 use crate::sun::vsop87d_ear;
-use crate::util::ArcSec;
 use crate::{jd, util};
+
+/// Astronomical unit, in km
+const AU: f64 = 149_597_870.0;
 
 /// Calculate the heliocentril ecliptical longitude using the VSOP87
 /// theory. Meeus, chapter 32, eq. (32.2)
@@ -72,7 +75,7 @@ pub fn distance_earth_sun(jd: f64) -> f64 {
         tau *= millennia_from_j2000;
     }
 
-    total_sum
+    total_sum * AU
 }
 
 /// Calculate the geocentric ecliptical longitude
@@ -119,6 +122,71 @@ pub fn geocentric_ecliptical_to_fk5(jd: f64, longitude: f64, latitude: f64) -> (
     ecliptical_latitude += delta_latitude;
 
     (ecliptical_longitude, ecliptical_latitude)
+}
+
+/// Daily variation of the geocentric longitude. Meeus chapter 25,
+/// page 168.
+/// In: Julian day
+/// Out: variation, in arcsec
+fn variation_geocentric_longitude(jd: f64) -> f64 {
+    let tau = jd::millennia_from_epoch_j2000(jd);
+    let tau2 = tau * tau;
+    let tau3 = tau2 * tau;
+
+    let delta_lambda = 3548.193
+        + 118.568 * util::to_radians(87.5287 + 359993.7286 * tau).sin()
+        + 2.476 * util::to_radians(85.0561 + 719987.4571 * tau).sin()
+        + 1.376 * util::to_radians(27.8502 + 4452671.1152 * tau).sin()
+        + 0.119 * util::to_radians(73.1375 + 450368.8564 * tau).sin()
+        + 0.114 * util::to_radians(337.2264 + 329644.6718 * tau).sin()
+        + 0.086 * util::to_radians(222.5400 + 659289.3436 * tau).sin()
+        + 0.078 * util::to_radians(162.8136 + 9224659.7915 * tau).sin()
+        + 0.054 * util::to_radians(82.5823 + 1079981.1857 * tau).sin()
+        + 0.052 * util::to_radians(171.5189 + 225184.4282 * tau).sin()
+        + 0.034 * util::to_radians(30.3214 + 4092677.3866 * tau).sin()
+        + 0.033 * util::to_radians(119.8105 + 337181.4711 * tau).sin()
+        + 0.023 * util::to_radians(247.5418 + 299295.6151 * tau).sin()
+        + 0.023 * util::to_radians(325.1526 + 315559.5560 * tau).sin()
+        + 0.021 * util::to_radians(155.1241 + 675553.2846 * tau).sin()
+        + 7.311 * tau * util::to_radians(333.4515 + 359993.7286 * tau).sin()
+        + 0.305 * tau * util::to_radians(330.9814 + 719987.4571 * tau).sin()
+        + 0.010 * tau * util::to_radians(328.5170 + 1079981.1857 * tau).sin()
+        + 0.309 * tau2 * util::to_radians(241.4518 + 359993.7286 * tau).sin()
+        + 0.021 * tau2 * util::to_radians(205.0482 + 719987.4571 * tau).sin()
+        + 0.004 * tau2 * util::to_radians(297.8610 + 4452671.1152 * tau).sin()
+        + 0.010 * tau3 * util::to_radians(154.7066 + 359993.7286 * tau).sin();
+
+    delta_lambda
+}
+
+/// Calculate the corrections in geocentric longitude of the sun due to
+/// both nutation and aberration. Meeus, chapter 25, pages 167, 168
+/// In: Julian day
+/// Out: Apparent geocentric longitude of the sun, in degrees [0, 360)
+pub fn apparent_geometric_longitude(jd: f64) -> f64 {
+    let longitude = geocentric_ecliptical_longitude(jd);
+    let latitude = geocentric_ecliptical_latitude(jd);
+    let (long, _) = geocentric_ecliptical_to_fk5(jd, longitude, latitude);
+
+    let r = distance_earth_sun(jd);
+
+    // SS: correction due to nutation
+    let delta_psi = util::arcsec_to_degrees(nutation_in_longitude(jd));
+
+    let delta_lambda = util::arcsec_to_degrees(variation_geocentric_longitude(jd));
+    let aberration_correction = -0.005_775_518 * r * delta_lambda;
+
+    util::map_to_0_to_360(long + delta_psi + aberration_correction)
+}
+
+/// Apparent geocentric latitude of the sun. Meeus, chapter 25, pages 167, 168
+/// In: Julian day
+/// Out: Apparent geocentric latitude of the sun, in degrees [-90, 90)
+pub fn apparent_geometric_latitude(jd: f64) -> f64 {
+    let longitude = geocentric_ecliptical_longitude(jd);
+    let latitude = geocentric_ecliptical_latitude(jd);
+    let (_, lat) = geocentric_ecliptical_to_fk5(jd, longitude, latitude);
+    util::map_to_neg90_to_90(lat)
 }
 
 #[cfg(test)]
@@ -190,14 +258,11 @@ mod tests {
     fn geocentric_ecliptical_to_fk5_test() {
         // SS: 1992 October 13, 0h TD
         let jd = jd::from_date(1992, 10, 13, 0.0);
-        let longitude = geocentric_ecliptical_longitude(jd);
-        let latitude = geocentric_ecliptical_latitude(jd);
 
         // Act
-        let (long, lat) = geocentric_ecliptical_to_fk5(jd, longitude, latitude);
+        let longitude = apparent_geometric_longitude(jd);
 
         // Assert
-        assert_approx_eq!(199.90727215033252, long, 0.000_001);
-        assert_approx_eq!(0.00020014657618539123, lat, 0.000_001);
+        assert_approx_eq!(199.90598818016153, longitude, 0.000_001);
     }
 }

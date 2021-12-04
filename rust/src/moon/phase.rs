@@ -1,29 +1,41 @@
 //! Phase of the moon
-use crate::{jd, util};
+use crate::earth::ecliptical_to_equatorial;
+use crate::sun::position::{
+    apparent_geometric_latitude, apparent_geometric_longitude, distance_earth_sun,
+    geocentric_ecliptical_latitude,
+};
+use crate::{jd, moon, util};
 
 const SYNODIC_MONTH: f64 = 29.53058868;
 const SYNODIC_MONTH_OVER_2: f64 = SYNODIC_MONTH / 2.0;
 
-/// Calculate the phase of the moon.
+/// Calculate the phase angle or age of the moon.
+/// Meeus, chapter 48, eq. (48.1) or Duffett-Smith and Zwart, chapter 67, page 171
 pub fn phase_angle(jd: f64) -> f64 {
-    // SS: JD of a new moon, Jan. 21st, 19:20, 5:25
-    let new_moon_jd = jd::from_date(1920, 1, 21, 0.225694444);
+    // SS: position of the moon, from Earth
+    let longitude = moon::position::longitude(jd);
+    let latitude = moon::position::latitude(jd);
+    let delta = moon::position::distance_from_earth(jd);
+    let (ra_moon, dec_moon) = ecliptical_to_equatorial(jd, longitude, latitude);
+    let (ra_moon, dec_moon) = (util::to_radians(ra_moon), util::to_radians(dec_moon));
 
-    // SS: number of days since new moon
-    let delta_jd = jd - new_moon_jd;
+    // SS: position of the sun, from Earth
+    let longitude = apparent_geometric_longitude(jd);
+    let latitude = apparent_geometric_latitude(jd);
+    let r = distance_earth_sun(jd);
+    let (ra_sun, dec_sun) = ecliptical_to_equatorial(jd, longitude, latitude);
+    let (ra_sun, dec_sun) = (util::to_radians(ra_sun), util::to_radians(dec_sun));
 
-    // SS: days into the moon phase from new moon
-    let phase_days = delta_jd % SYNODIC_MONTH;
+    // SS: geocentric elongation of the moon from the sun
+    // Meeus, eq. (48.2)
+    let psi = (dec_sun.sin() * dec_moon.sin()
+        + dec_sun.cos() * dec_moon.cos() * (ra_sun - ra_moon).cos())
+    .acos();
 
-    let phase_angle = if phase_days > 15.0 {
-        // SS: past full moon
-        SYNODIC_MONTH_OVER_2 - (phase_days % SYNODIC_MONTH_OVER_2)
-    } else {
-        phase_days
-    };
-
-    //    phase_angle / SYNODIC_MONTH * 360.0
-    phase_angle / SYNODIC_MONTH_OVER_2 * 100.0
+    // SS: phase angle
+    let tani = (r * psi.sin()) / (delta - r * psi.cos());
+    let phase_angle = (r * psi.sin()).atan2(delta - r * psi.cos());
+    phase_angle
 }
 
 pub fn fraction_illuminated(jd: f64) -> f64 {
@@ -40,6 +52,7 @@ mod tests {
     fn phase_angle_test() {
         // SS: 2021 Nov. 29, 12:33am TD
         let jd = jd::from_date(2021, 11, 29, 0.525);
+        let jd = jd::from_date(1992, 4, 12, 0.0);
 
         // Act
         let phase_angle = phase_angle(jd);
