@@ -82,7 +82,8 @@ pub fn nutation_in_longitude(jd: f64) -> ArcSec {
     let m = Degrees::new(357.52772 + (35_999.050340 * t) - (0.0001603 * t2) - (t3 / 300_000.0));
     let m = util::map_to_0_to_360(m);
 
-    let m_prime = Degrees::new(134.96298 + (477_198.867398 * t) + (0.0086972 * t2) + (t3 / 56_250.0));
+    let m_prime =
+        Degrees::new(134.96298 + (477_198.867398 * t) + (0.0086972 * t2) + (t3 / 56_250.0));
     let m_prime = util::map_to_0_to_360(m_prime);
 
     let f = Degrees::new(93.27191 + (483_202.017538 * t) - (0.0036825 * t2) + (t3 / 327_270.0));

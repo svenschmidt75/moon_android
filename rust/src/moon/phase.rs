@@ -101,7 +101,7 @@ mod tests {
         let phase_angle = phase_angle(jd);
 
         // Assert
-        assert_approx_eq!(69.07565471001595, phase_angle.0, 0.000_1)
+        assert_approx_eq!(69.07565471001595, phase_angle.0, 0.000_001)
     }
 
     #[test]

@@ -261,7 +261,8 @@ pub(crate) fn geocentric_latitude(jd: f64) -> Degrees {
 
     // SS: perturbation term for moon's latitude
     let mut sigma_b = SIGMA_B_COEFFICIENTS.iter().fold(0.0, |accum, &c| {
-        let sin_arg = c.0 as f64 * d.0 + c.1 as f64 * m.0 + c.2 as f64 * m_prime.0 + c.3 as f64 * f.0;
+        let sin_arg =
+            c.0 as f64 * d.0 + c.1 as f64 * m.0 + c.2 as f64 * m_prime.0 + c.3 as f64 * f.0;
         let mut coeff = c.4 as f64;
 
         if c.1 != 0 {
@@ -297,7 +298,8 @@ pub fn distance_from_earth(jd: f64) -> f64 {
 
     // SS: perturbation term for moon's longitude
     let sigma_r = SIGMA_L_AND_R_COEFFICIENTS.iter().fold(0.0, |accum, &c| {
-        let cos_arg = c.0 as f64 * d.0 + c.1 as f64 * m.0 + c.2 as f64 * m_prime.0 + c.3 as f64 * f.0;
+        let cos_arg =
+            c.0 as f64 * d.0 + c.1 as f64 * m.0 + c.2 as f64 * m_prime.0 + c.3 as f64 * f.0;
         let mut coeff = c.5 as f64;
 
         if c.1 != 0 {
