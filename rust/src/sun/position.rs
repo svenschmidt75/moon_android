@@ -1,5 +1,6 @@
 use crate::nutation::nutation_in_longitude;
 use crate::sun::vsop87d_ear;
+use crate::util::Degrees;
 use crate::{jd, util};
 
 /// Astronomical unit, in km
@@ -172,7 +173,7 @@ fn variation_geocentric_longitude(jd: f64) -> f64 {
 /// both nutation and aberration. Meeus, chapter 25, pages 167, 168
 /// In: Julian day
 /// Out: Apparent geocentric longitude of the sun, in degrees [0, 360)
-pub fn apparent_geometric_longitude(jd: f64) -> f64 {
+pub fn apparent_geometric_longitude(jd: f64) -> Degrees {
     let longitude = geocentric_ecliptical_longitude(jd);
     let latitude = geocentric_ecliptical_latitude(jd);
     let (long, _) = geocentric_ecliptical_to_fk5(jd, longitude, latitude);
@@ -185,17 +186,19 @@ pub fn apparent_geometric_longitude(jd: f64) -> f64 {
     let delta_lambda = util::arcsec_to_degrees(variation_geocentric_longitude(jd));
     let aberration_correction = -0.005_775_518 * r * delta_lambda;
 
-    util::map_to_0_to_360(long + delta_psi + aberration_correction)
+    Degrees::from(util::map_to_0_to_360(
+        long + delta_psi + aberration_correction,
+    ))
 }
 
 /// Apparent geocentric latitude of the sun. Meeus, chapter 25, pages 167, 168
 /// In: Julian day
 /// Out: Apparent geocentric latitude of the sun, in degrees [-90, 90)
-pub fn apparent_geometric_latitude(jd: f64) -> f64 {
+pub fn apparent_geometric_latitude(jd: f64) -> Degrees {
     let longitude = geocentric_ecliptical_longitude(jd);
     let latitude = geocentric_ecliptical_latitude(jd);
     let (_, lat) = geocentric_ecliptical_to_fk5(jd, longitude, latitude);
-    util::map_to_neg90_to_90(lat)
+    Degrees::new(util::map_to_neg90_to_90(lat))
 }
 
 #[cfg(test)]

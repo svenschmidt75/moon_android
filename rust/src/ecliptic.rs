@@ -1,7 +1,7 @@
 //! Calculations related to the ecliptic
 
 use crate::nutation::nutation_in_obliquity;
-use crate::util::ArcSec;
+use crate::util::{ArcSec, Degrees};
 use crate::{jd, util};
 
 /// Mean obliquity of the eclipse, Meeus chapter 22
@@ -35,7 +35,7 @@ pub fn mean_obliquity(jd: f64) -> f64 {
 /// In: Julian day in dynamical time
 /// Out: True obliquity of the eclipse in degrees [0, 360)
 pub fn true_obliquity(jd: f64) -> f64 {
-    let nutation_effect = util::arcsec_to_degrees(nutation_in_obliquity(jd));
+    let nutation_effect = util::Degrees::from(nutation_in_obliquity(jd));
     mean_obliquity(jd) + nutation_effect
 }
 

@@ -1,4 +1,5 @@
 //! Earth related calculations
+use crate::util::{Degrees, Radians};
 use crate::{ecliptic, jd, util};
 
 /// Calculate Earth's eccentricity, eq (47.6).
@@ -17,12 +18,16 @@ pub fn eccentricity(jd: f64) -> f64 {
 /// latitude: Latitude in degrees [0, 360)
 /// Out: right ascension in degrees [0, 360)
 /// declination in degrees [0, 360)
-pub fn ecliptical_to_equatorial(jd: f64, longitude: f64, latitude: f64) -> (f64, f64) {
+pub fn ecliptical_to_equatorial(
+    jd: f64,
+    longitude: Degrees,
+    latitude: Degrees,
+) -> (Degrees, Degrees) {
     let true_obliquity = ecliptic::true_obliquity(jd);
-    let true_obliquity_radians = util::to_radians(true_obliquity);
+    let true_obliquity_radians: Radians = true_obliquity.into();
 
-    let longitude_radians = util::to_radians(longitude);
-    let latitude_radians = util::to_radians(latitude);
+    let longitude_radians: Radians = longitude.into();
+    let latitude_radians: Radians = latitude.into();
 
     let ra_argument_x = longitude_radians.sin() * true_obliquity_radians.cos()
         - latitude_radians.tan() * true_obliquity_radians.sin();
@@ -32,7 +37,7 @@ pub fn ecliptical_to_equatorial(jd: f64, longitude: f64, latitude: f64) -> (f64,
         + latitude_radians.cos() * true_obliquity_radians.sin() * longitude_radians.sin();
     let dec_radians = dec_argument_x.asin();
 
-    (util::to_degrees(ra_radians), util::to_degrees(dec_radians))
+    (ra_radians, dec_radians)
 }
 
 #[cfg(test)]
@@ -65,7 +70,7 @@ mod tests {
         let (ra, dec) = ecliptical_to_equatorial(jd, longitude, latitude);
 
         // Assert
-        assert_approx_eq!(8.9789280347415126, util::degrees_to_hours(ra), 0.000_001);
+        assert_approx_eq!(8.9789280347415126, util::RA::from(ra).0, 0.000_001);
         assert_approx_eq!(13.769657226951539, dec, 0.000_001);
     }
 }

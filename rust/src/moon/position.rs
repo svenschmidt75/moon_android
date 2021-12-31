@@ -1,5 +1,6 @@
 //! Calculate the moon's position for given Julian day.
 //! see J. Meeus, Astronomical Algorithms, chapter 47
+use crate::util::Degrees;
 use crate::{earth, jd, nutation, sun::sun, util};
 
 // SS: perturbation terms for longitude and radius
@@ -201,7 +202,7 @@ fn argument_of_latitude(jd: f64) -> f64 {
 /// Calculate the moon's longitude (lambda), page 342
 /// In: Julian day in dynamical time
 /// Out: Moon's longitude in degrees, [0, 360)
-pub(crate) fn longitude(jd: f64) -> f64 {
+pub(crate) fn geocentric_longitude(jd: f64) -> Degrees {
     let t = jd::centuries_from_epoch_j2000(jd);
 
     let a1 = util::to_radians(util::map_to_0_to_360(119.75 + 131.849 * t));
@@ -238,13 +239,13 @@ pub(crate) fn longitude(jd: f64) -> f64 {
     let nutation_delta = nutation::nutation_in_longitude(jd);
     let l_prime_degrees = util::to_degrees(l_prime);
 
-    l_prime_degrees + sigma_l / 1_000_000.0 + util::arcsec_to_degrees(nutation_delta)
+    Degrees::new(l_prime_degrees + sigma_l / 1_000_000.0 + util::arcsec_to_degrees(nutation_delta))
 }
 
 /// Calculate the moon's latitude (beta), page 342
 /// In: Julian day in dynamical time
 /// Out: Moon's latitude in degrees, [0, 360)
-pub(crate) fn latitude(jd: f64) -> f64 {
+pub(crate) fn geocentric_latitude(jd: f64) -> Degrees {
     let t = jd::centuries_from_epoch_j2000(jd);
 
     let a1 = util::to_radians(util::map_to_0_to_360(119.75 + 131.849 * t));
@@ -280,7 +281,7 @@ pub(crate) fn latitude(jd: f64) -> f64 {
     sigma_b += 127.0 * (l_prime - m_prime).sin();
     sigma_b -= 115.0 * (l_prime + m_prime).sin();
 
-    sigma_b / 1_000_000.0
+    Degrees::new(sigma_b / 1_000_000.0)
 }
 
 /// Calculate the moon's distance (delta) from earth, page 342
@@ -385,7 +386,7 @@ mod tests {
         let jd = jd::from_date(1992, 4, 12, 0.0);
 
         // Act
-        let longitude = longitude(jd);
+        let longitude = geocentric_longitude(jd);
 
         // Assert
         assert_approx_eq!(133.16726428105474, longitude, 0.000_001)
@@ -397,7 +398,7 @@ mod tests {
         let jd = jd::from_date(1992, 4, 12, 0.0);
 
         // Act
-        let latitude = latitude(jd);
+        let latitude = geocentric_latitude(jd);
 
         // Assert
         assert_approx_eq!(-3.229126, latitude, 0.000_001)
