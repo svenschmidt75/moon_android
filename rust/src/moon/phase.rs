@@ -73,7 +73,8 @@ pub fn phase_description(jd: f64) -> &'static str {
         "Waning Gibbous"
     } else if phase_angle >= 180.0 + 45.0 + SECTION && phase_angle < 270.0 + SECTION {
         "Last Quarter"
-    } else { //if phase_angle >= 270.0 + SECTION && phase_angle < 180.0 + 45.0 - SECTION {
+    } else {
+        //if phase_angle >= 270.0 + SECTION && phase_angle < 180.0 + 45.0 - SECTION {
         "Waning Crescent"
     };
 
@@ -103,7 +104,7 @@ mod tests {
     }
 
     #[test]
-    fn fraction_illuminated_test1() {
+    fn fraction_illuminated_test_1() {
         // Arrange
         let jd = jd::from_date(1992, 4, 12, 0.0);
 
@@ -115,7 +116,7 @@ mod tests {
     }
 
     #[test]
-    fn fraction_illuminated_test2() {
+    fn fraction_illuminated_test_2() {
         // Arrange
 
         // SS: Dec. 4th, 2021, 12:26PM local Denver time
@@ -126,6 +127,20 @@ mod tests {
 
         // Assert
         assert_approx_eq!(0.373, percent_illuminated, 0.001)
+    }
+
+    #[test]
+    fn fraction_illuminated_test_3() {
+        // Arrange
+
+        // SS: Dec. 30th, 2021, 9:30PM local Denver time
+        let jd = 2_459_580.187;
+
+        // Act
+        let percent_illuminated = fraction_illuminated(jd) * 100.0;
+
+        // Assert
+        assert_approx_eq!(6.4943, percent_illuminated, 0.001)
     }
 
     #[test]
@@ -154,5 +169,19 @@ mod tests {
 
         // Assert
         assert_eq!("Waxing Crescent", phase_desc)
+    }
+
+    #[test]
+    fn phase_description_test_3() {
+        // Arrange
+
+        // SS: Dec. 30th, 2021, 9:30PM local Denver time
+        let jd = 2_459_580.187;
+
+        // Act
+        let phase_desc = phase_description(jd);
+
+        // Assert
+        assert_eq!("Waning Crescent", phase_desc)
     }
 }
