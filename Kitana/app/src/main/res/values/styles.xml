@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="app_bar_overlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="popup_overlay" parent="Theme.AppCompat.Light" />
+</resources>
