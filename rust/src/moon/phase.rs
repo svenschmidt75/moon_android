@@ -55,27 +55,25 @@ pub fn phase_angle_360(jd: f64) -> Degrees {
 /// In: Julian day
 /// Out: Textual description
 pub fn phase_description(jd: f64) -> &'static str {
-    let illuminated_fraction = fraction_illuminated(jd);
+    let phase_angle = phase_angle_360(jd).0;
 
-    const SECTION: f64 = 1.0 / 12.0;
+    const SECTION: f64 = 360.0 / (2.0 * 8.0);
 
-    let desc = if illuminated_fraction <= SECTION {
+    let desc = if phase_angle >= 360.0 - 45.0 + SECTION && phase_angle < 45.0 - SECTION {
         "New Moon"
-    } else if illuminated_fraction <= 2.0 * SECTION {
+    } else if phase_angle >= SECTION && phase_angle < 45.0 + SECTION {
         "Waxing Crescent"
-    } else if illuminated_fraction >= 45.0 - SECTION && illuminated_fraction < 45.0 + SECTION {
+    } else if phase_angle >= 90.0 - SECTION && phase_angle < 90.0 + SECTION {
         "First Quarter"
-    } else if illuminated_fraction >= 45.0 + SECTION && illuminated_fraction < 90.0 - SECTION {
-        "Waning Crescent"
-    } else if illuminated_fraction >= 90.0 - SECTION && illuminated_fraction < 90.0 + SECTION {
-        "Full Moon"
-    } else if illuminated_fraction >= 90.0 + SECTION && illuminated_fraction < 135.0 - SECTION {
-        "Waxing Crescent"
-    } else if illuminated_fraction >= 135.0 - SECTION && illuminated_fraction < 135.0 + SECTION {
-        "First Quarter"
-    } else if illuminated_fraction >= 135.0 + SECTION && illuminated_fraction < 180.0 - SECTION {
+    } else if phase_angle >= 90.0 + SECTION && phase_angle < 90.0 + 45.0 + SECTION {
         "Waxing Gibbous"
-    } else {
+    } else if phase_angle >= 180.0 - SECTION && phase_angle < 180.0 + SECTION {
+        "Full Moon"
+    } else if phase_angle >= 180.0 + SECTION && phase_angle < 180.0 + 45.0 + SECTION {
+        "Waning Gibbous"
+    } else if phase_angle >= 180.0 + 45.0 + SECTION && phase_angle < 270.0 + SECTION {
+        "Last Quarter"
+    } else { //if phase_angle >= 270.0 + SECTION && phase_angle < 180.0 + 45.0 - SECTION {
         "Waning Crescent"
     };
 
@@ -143,24 +141,6 @@ mod tests {
         // Assert
         assert_eq!("New Moon", phase_desc)
     }
-    //
-    // #[test]
-    // fn phase_description_test_7() {
-    //     // Arrange
-    //
-    //     // SS: Dec. 4th, 2021, 12:26PM local Denver time
-    //     let mut jd = 2_459_553.3;
-    //
-    //     for i in 0..30 {
-    //         // Act
-    //         let phase_desc = phase_angle2(jd + i as f64);
-    //
-    //         println!("{}", phase_desc);
-    //     }
-    //
-    //     // Assert
-    //     //        assert_eq!("New Moon", phase_desc)
-    // }
 
     #[test]
     fn phase_description_test_2() {
