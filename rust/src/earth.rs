@@ -37,7 +37,10 @@ pub fn ecliptical_to_equatorial(
         + latitude_radians.0.cos() * true_obliquity_radians.0.sin() * longitude_radians.0.sin();
     let dec_radians = dec_argument_x.asin();
 
-    (Degrees::from(Radians::new(ra_radians)), Degrees::from(Radians::new(dec_radians)))
+    (
+        Degrees::from(Radians::new(ra_radians)),
+        Degrees::from(Radians::new(dec_radians)),
+    )
 }
 
 #[cfg(test)]

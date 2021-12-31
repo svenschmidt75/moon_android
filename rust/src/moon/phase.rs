@@ -1,7 +1,7 @@
 //! Phase of the moon
 use crate::earth::ecliptical_to_equatorial;
 use crate::sun::position::{
-    apparent_geometric_latitude, apparent_geometric_longitude, distance_earth_sun
+    apparent_geometric_latitude, apparent_geometric_longitude, distance_earth_sun,
 };
 use crate::util::{Degrees, Radians};
 use crate::{jd, moon, util};
