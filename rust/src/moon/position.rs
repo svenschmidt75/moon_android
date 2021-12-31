@@ -261,7 +261,7 @@ pub(crate) fn geocentric_latitude(jd: f64) -> Degrees {
     let e = earth::eccentricity(jd);
 
     // SS: perturbation term for moon's latitude
-    let mut sigma_b = SIGMA_B_COEFFICIENTS.iter().fold(0.0, |accum, &c| {
+    let mut sigma_b = SIGMA_B_COEFFICIENTS.iter().fold (0.0, |accum, &c| {
         let sin_arg = c.0 as f64 * d + c.1 as f64 * m + c.2 as f64 * m_prime + c.3 as f64 * f;
         let mut coeff = c.4 as f64;
 
