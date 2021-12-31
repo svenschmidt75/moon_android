@@ -10,9 +10,9 @@ pub fn mean_anomaly(jd: f64) -> Degrees {
     let t2 = t * t;
     let t3 = t * t2;
 
-    let mean_anomaly = 357.5291092 + 35999.0502909 * t - 0.0001536 * t2 + t3 / 24_490_000.0;
+    let mean_anomaly = Degrees::new(357.5291092 + 35999.0502909 * t - 0.0001536 * t2 + t3 / 24_490_000.0);
 
-    let mapped = util::map_to_0_to_360(Degrees::from(mean_anomaly));
+    let mapped = util::map_to_0_to_360(mean_anomaly);
     mapped
 }
 
@@ -30,6 +30,6 @@ mod tests {
         let mean_elongation = mean_anomaly(jd);
 
         // Assert
-        assert_approx_eq!(97.643514, mean_elongation, 0.000_001)
+        assert_approx_eq!(97.643514, mean_elongation.0, 0.000_001)
     }
 }

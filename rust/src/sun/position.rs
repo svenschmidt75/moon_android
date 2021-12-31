@@ -121,7 +121,7 @@ pub fn geocentric_ecliptical_to_fk5(
     let mut ecliptical_latitude = latitude;
 
     let centuries_from_j2000 = jd::centuries_from_epoch_j2000(jd);
-    let mut lambda_prime = ecliptical_longitude.0
+    let lambda_prime = ecliptical_longitude.0
         - 1.397 * centuries_from_j2000
         - 0.000_31 * centuries_from_j2000 * centuries_from_j2000;
     let lambda_prime = Radians::from(util::map_to_0_to_360(Degrees::new(lambda_prime)));
@@ -148,27 +148,27 @@ fn variation_geocentric_longitude(jd: f64) -> ArcSec {
     let tau3 = tau2 * tau;
 
     let delta_lambda = 3548.193
-        + 118.568 * Radians::new(87.5287 + 359993.7286 * tau).sin()
-        + 2.476 * Radians::new(85.0561 + 719987.4571 * tau).sin()
-        + 1.376 * Radians::new(27.8502 + 4452671.1152 * tau).sin()
-        + 0.119 * Radians::new(73.1375 + 450368.8564 * tau).sin()
-        + 0.114 * Radians::new(337.2264 + 329644.6718 * tau).sin()
-        + 0.086 * Radians::new(222.5400 + 659289.3436 * tau).sin()
-        + 0.078 * Radians::new(162.8136 + 9224659.7915 * tau).sin()
-        + 0.054 * Radians::new(82.5823 + 1079981.1857 * tau).sin()
-        + 0.052 * Radians::new(171.5189 + 225184.4282 * tau).sin()
-        + 0.034 * Radians::new(30.3214 + 4092677.3866 * tau).sin()
-        + 0.033 * Radians::new(119.8105 + 337181.4711 * tau).sin()
-        + 0.023 * Radians::new(247.5418 + 299295.6151 * tau).sin()
-        + 0.023 * Radians::new(325.1526 + 315559.5560 * tau).sin()
-        + 0.021 * Radians::new(155.1241 + 675553.2846 * tau).sin()
-        + 7.311 * tau * Radians::new(333.4515 + 359993.7286 * tau).sin()
-        + 0.305 * tau * Radians::new(330.9814 + 719987.4571 * tau).sin()
-        + 0.010 * tau * Radians::new(328.5170 + 1079981.1857 * tau).sin()
-        + 0.309 * tau2 * Radians::new(241.4518 + 359993.7286 * tau).sin()
-        + 0.021 * tau2 * Radians::new(205.0482 + 719987.4571 * tau).sin()
-        + 0.004 * tau2 * Radians::new(297.8610 + 4452671.1152 * tau).sin()
-        + 0.010 * tau3 * Radians::new(154.7066 + 359993.7286 * tau).sin();
+        + 118.568 * Radians::new(87.5287 + 359993.7286 * tau).0.sin()
+        + 2.476 * Radians::new(85.0561 + 719987.4571 * tau).0.sin()
+        + 1.376 * Radians::new(27.8502 + 4452671.1152 * tau).0.sin()
+        + 0.119 * Radians::new(73.1375 + 450368.8564 * tau).0.sin()
+        + 0.114 * Radians::new(337.2264 + 329644.6718 * tau).0.sin()
+        + 0.086 * Radians::new(222.5400 + 659289.3436 * tau).0.sin()
+        + 0.078 * Radians::new(162.8136 + 9224659.7915 * tau).0.sin()
+        + 0.054 * Radians::new(82.5823 + 1079981.1857 * tau).0.sin()
+        + 0.052 * Radians::new(171.5189 + 225184.4282 * tau).0.sin()
+        + 0.034 * Radians::new(30.3214 + 4092677.3866 * tau).0.sin()
+        + 0.033 * Radians::new(119.8105 + 337181.4711 * tau).0.sin()
+        + 0.023 * Radians::new(247.5418 + 299295.6151 * tau).0.sin()
+        + 0.023 * Radians::new(325.1526 + 315559.5560 * tau).0.sin()
+        + 0.021 * Radians::new(155.1241 + 675553.2846 * tau).0.sin()
+        + 7.311 * tau * Radians::new(333.4515 + 359993.7286 * tau).0.sin()
+        + 0.305 * tau * Radians::new(330.9814 + 719987.4571 * tau).0.sin()
+        + 0.010 * tau * Radians::new(328.5170 + 1079981.1857 * tau).0.sin()
+        + 0.309 * tau2 * Radians::new(241.4518 + 359993.7286 * tau).0.sin()
+        + 0.021 * tau2 * Radians::new(205.0482 + 719987.4571 * tau).0.sin()
+        + 0.004 * tau2 * Radians::new(297.8610 + 4452671.1152 * tau).0.sin()
+        + 0.010 * tau3 * Radians::new(154.7066 + 359993.7286 * tau).0.sin();
 
     ArcSec::new(delta_lambda)
 }
@@ -219,7 +219,7 @@ mod tests {
         let longitude = heliocentric_ecliptical_longitude(jd);
 
         // Assert
-        assert_approx_eq!(19.907, longitude, 0.001)
+        assert_approx_eq!(19.907, longitude.0, 0.001)
     }
 
     #[test]
@@ -231,7 +231,7 @@ mod tests {
         let longitude = geocentric_ecliptical_longitude(jd);
 
         // Assert
-        assert_approx_eq!(199.907, longitude, 0.001)
+        assert_approx_eq!(199.907, longitude.0, 0.001)
     }
 
     #[test]
@@ -255,7 +255,7 @@ mod tests {
         let latitude = heliocentric_ecliptical_latitude(jd);
 
         // Assert
-        assert_approx_eq!(-0.00020664594475074705, latitude, 0.001)
+        assert_approx_eq!(-0.00020664594475074705, latitude.0, 0.001)
     }
 
     #[test]
@@ -267,7 +267,7 @@ mod tests {
         let latitude = geocentric_ecliptical_latitude(jd);
 
         // Assert
-        assert_approx_eq!(0.00020664594475074705, latitude, 0.001)
+        assert_approx_eq!(0.00020664594475074705, latitude.0, 0.001)
     }
 
     #[test]
@@ -279,6 +279,6 @@ mod tests {
         let longitude = apparent_geometric_longitude(jd);
 
         // Assert
-        assert_approx_eq!(199.90598818016153, longitude, 0.000_001);
+        assert_approx_eq!(199.90598818016153, longitude.0, 0.000_001);
     }
 }

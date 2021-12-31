@@ -1,6 +1,6 @@
 //! Utility functions
 
-use std::ops::{Add, Mul, Sub};
+use std::ops::{Add, AddAssign, Mul, Neg, Sub};
 
 const DEGREES_TO_RADIANS: f64 = std::f64::consts::PI / 180.0;
 const RADIANS_TO_DEGREES: f64 = 1.0 / DEGREES_TO_RADIANS;
@@ -27,39 +27,8 @@ pub fn map_to_neg90_to_90(angle: Degrees) -> Degrees {
     Degrees(angle.0 % 90.0)
 }
 
-/// Convert from degrees [0, 360) to [0, 2 pi)
-// pub fn to_radians(angle: f64) -> f64 {
-//     angle * DEGREES_TO_RADIANS
-// }
-
-/// Convert from radians [0, 2 pi) to [0, 360)
-// pub fn to_degrees(angle: f64) -> f64 {
-//     angle * RADIANS_TO_DEGREES
-// }
-
-/// Convert from arcsec to degrees
-// pub fn arcsec_to_degrees(v: f64) -> f64 {
-//     // SS: a degree has 3600 arcsec
-//     v / (60.0 * 60.0)
-// }
-
-/// Convert from degrees to hours
-/// In: angle in degrees [0, 360)
-// pub fn degrees_to_hours(angle: f64) -> f64 {
-//     // SS: 1 hours is 24 / 360 degrees
-//     const F: f64 = 24.0 / 360.0;
-//     angle * F
-// }
-
-/// Convert from degrees to hours
-/// In: angle in radians [0, 2 pi)
-// pub fn radians_to_hours(angle: f64) -> f64 {
-//     const F: f64 = 24.0 / (2.0 * std::f64::consts::PI);
-//     angle * F
-// }
-
 #[derive(Debug, Clone, Copy)]
-pub struct ArcSec(f64);
+pub struct ArcSec(pub(crate) f64);
 
 impl ArcSec {
     pub fn new(arcsec: f64) -> Self {
@@ -89,6 +58,12 @@ impl Add for Degrees {
     }
 }
 
+impl AddAssign for Degrees {
+    fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0;
+    }
+}
+
 impl Sub for Degrees {
     type Output = Self;
 
@@ -98,10 +73,18 @@ impl Sub for Degrees {
 }
 
 impl Mul<f64> for Degrees {
-    type Output = ();
+    type Output = Degrees;
 
     fn mul(self, rhs: f64) -> Self::Output {
         Self(self.0 * rhs)
+    }
+}
+
+impl Neg for Degrees {
+    type Output = Degrees;
+
+    fn neg(self) -> Self::Output {
+        Self(-self.0)
     }
 }
 
@@ -111,6 +94,14 @@ pub struct Radians(pub(crate) f64);
 impl Radians {
     pub fn new(radians: f64) -> Self {
         Self(radians)
+    }
+}
+
+impl Add for Radians {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0)
     }
 }
 
@@ -152,13 +143,13 @@ impl From<ArcSec> for Degrees {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct RA(f64);
+pub struct RA(pub(crate) f64);
 
 impl From<Degrees> for RA {
     fn from(angle: Degrees) -> Self {
         // SS: 1 hours is 24 / 360 degrees
         const F: f64 = 24.0 / 360.0;
-        Self(angle * F)
+        Self(angle.0 * F)
     }
 }
 

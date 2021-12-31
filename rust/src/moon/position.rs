@@ -261,7 +261,7 @@ pub(crate) fn geocentric_latitude(jd: f64) -> Degrees {
 
     // SS: perturbation term for moon's latitude
     let mut sigma_b = SIGMA_B_COEFFICIENTS.iter().fold(0.0, |accum, &c| {
-        let sin_arg = c.0 as f64 * d + c.1 as f64 * m + c.2 as f64 * m_prime + c.3 as f64 * f;
+        let sin_arg = c.0 as f64 * d.0 + c.1 as f64 * m.0 + c.2 as f64 * m_prime.0 + c.3 as f64 * f.0;
         let mut coeff = c.4 as f64;
 
         if c.1 != 0 {
@@ -275,12 +275,12 @@ pub(crate) fn geocentric_latitude(jd: f64) -> Degrees {
         accum + coeff * sin_arg.sin()
     });
 
-    sigma_b -= 2235.0 * l_prime.sin();
-    sigma_b += 382.0 * a3.sin();
-    sigma_b += 175.0 * (a1 - f).sin();
-    sigma_b += 175.0 * (a1 + f).sin();
-    sigma_b += 127.0 * (l_prime - m_prime).sin();
-    sigma_b -= 115.0 * (l_prime + m_prime).sin();
+    sigma_b -= 2235.0 * l_prime.0.sin();
+    sigma_b += 382.0 * a3.0.sin();
+    sigma_b += 175.0 * (a1 - f).0.sin();
+    sigma_b += 175.0 * (a1 + f).0.sin();
+    sigma_b += 127.0 * (l_prime - m_prime).0.sin();
+    sigma_b -= 115.0 * (l_prime + m_prime).0.sin();
 
     Degrees::new(sigma_b / 1_000_000.0)
 }
@@ -297,7 +297,7 @@ pub fn distance_from_earth(jd: f64) -> f64 {
 
     // SS: perturbation term for moon's longitude
     let sigma_r = SIGMA_L_AND_R_COEFFICIENTS.iter().fold(0.0, |accum, &c| {
-        let cos_arg = c.0 as f64 * d + c.1 as f64 * m + c.2 as f64 * m_prime + c.3 as f64 * f;
+        let cos_arg = c.0 as f64 * d.0 + c.1 as f64 * m.0 + c.2 as f64 * m_prime.0 + c.3 as f64 * f.0;
         let mut coeff = c.5 as f64;
 
         if c.1 != 0 {
@@ -330,7 +330,7 @@ mod tests {
         let mean_longitude = mean_longitude(jd);
 
         // Assert
-        assert_approx_eq!(134.290182, mean_longitude, 0.000_001)
+        assert_approx_eq!(134.290182, mean_longitude.0, 0.000_001)
     }
 
     #[test]
@@ -342,7 +342,7 @@ mod tests {
         let mean_elongation = mean_elongation(jd);
 
         // Assert
-        assert_approx_eq!(113.842304, mean_elongation, 0.000_001)
+        assert_approx_eq!(113.842304, mean_elongation.0, 0.000_001)
     }
 
     #[test]
@@ -354,7 +354,7 @@ mod tests {
         let mean_elongation = sun::mean_anomaly(jd);
 
         // Assert
-        assert_approx_eq!(97.643514, mean_elongation, 0.000_001)
+        assert_approx_eq!(97.643514, mean_elongation.0, 0.000_001)
     }
 
     #[test]
@@ -366,7 +366,7 @@ mod tests {
         let mean_elongation = mean_anomaly(jd);
 
         // Assert
-        assert_approx_eq!(5.150833, mean_elongation, 0.000_001)
+        assert_approx_eq!(5.150833, mean_elongation.0, 0.000_001)
     }
 
     #[test]
@@ -378,7 +378,7 @@ mod tests {
         let argument_of_latitude = argument_of_latitude(jd);
 
         // Assert
-        assert_approx_eq!(219.889721, argument_of_latitude, 0.000_001)
+        assert_approx_eq!(219.889721, argument_of_latitude.0, 0.000_001)
     }
 
     #[test]
@@ -390,7 +390,7 @@ mod tests {
         let longitude = geocentric_longitude(jd);
 
         // Assert
-        assert_approx_eq!(133.16726428105474, longitude, 0.000_001)
+        assert_approx_eq!(133.16726428105474, longitude.0, 0.000_001)
     }
 
     #[test]
@@ -402,7 +402,7 @@ mod tests {
         let latitude = geocentric_latitude(jd);
 
         // Assert
-        assert_approx_eq!(-3.229126, latitude, 0.000_001)
+        assert_approx_eq!(-3.229126, latitude.0, 0.000_001)
     }
 
     #[test]

@@ -76,28 +76,28 @@ pub fn nutation_in_longitude(jd: f64) -> ArcSec {
     let t2 = t * t;
     let t3 = t * t2;
 
-    let d = 297.85036 + (445267.111480 * t) - (0.0019142 * t2) + (t3 / 189_474.0);
+    let d = Degrees::new(297.85036 + (445267.111480 * t) - (0.0019142 * t2) + (t3 / 189_474.0));
     let d = util::map_to_0_to_360(d);
 
-    let m = 357.52772 + (35_999.050340 * t) - (0.0001603 * t2) - (t3 / 300_000.0);
+    let m = Degrees::new(357.52772 + (35_999.050340 * t) - (0.0001603 * t2) - (t3 / 300_000.0));
     let m = util::map_to_0_to_360(m);
 
-    let m_prime = 134.96298 + (477_198.867398 * t) + (0.0086972 * t2) + (t3 / 56_250.0);
+    let m_prime = Degrees::new(134.96298 + (477_198.867398 * t) + (0.0086972 * t2) + (t3 / 56_250.0));
     let m_prime = util::map_to_0_to_360(m_prime);
 
-    let f = 93.27191 + (483_202.017538 * t) - (0.0036825 * t2) + (t3 / 327_270.0);
+    let f = Degrees::new(93.27191 + (483_202.017538 * t) - (0.0036825 * t2) + (t3 / 327_270.0));
     let f = util::map_to_0_to_360(f);
 
-    let omega = 125.04452 - (1934.136261 * t) + (0.0020708 * t2) + (t3 / 450_000.0);
+    let omega = Degrees::new(125.04452 - (1934.136261 * t) + (0.0020708 * t2) + (t3 / 450_000.0));
     let omega = util::map_to_0_to_360(omega);
 
     let delta_psi = NUTATION_PERTURBATION_TERMS.iter().fold(0.0, |accum, &c| {
-        let sin_arg = c.0 as f64 * d
-            + c.1 as f64 * m
-            + c.2 as f64 * m_prime
-            + c.3 as f64 * f
-            + c.4 as f64 * omega;
-        let sin_arg = Radians::from(sin_arg);
+        let sin_arg = c.0 as f64 * d.0
+            + c.1 as f64 * m.0
+            + c.2 as f64 * m_prime.0
+            + c.3 as f64 * f.0
+            + c.4 as f64 * omega.0;
+        let sin_arg = Radians::from(Degrees::new(sin_arg));
         let value = (c.5 as f64 + c.6 * t) * sin_arg.0.sin() * 0.0001;
         accum + value
     });
@@ -156,7 +156,7 @@ mod tests {
         let delta_psi = nutation_in_longitude(jd);
 
         // Assert
-        assert_approx_eq!(-3.788, delta_psi, 0.001)
+        assert_approx_eq!(-3.788, delta_psi.0, 0.001)
     }
 
     #[test]
@@ -170,7 +170,7 @@ mod tests {
         let delta_psi = Degrees::from(nutation_in_longitude(jd));
 
         // Assert
-        assert_approx_eq!(0.00461, delta_psi, 0.001)
+        assert_approx_eq!(0.00461, delta_psi.0, 0.001)
     }
 
     #[test]
@@ -182,6 +182,6 @@ mod tests {
         let delta_epsilon = nutation_in_obliquity(jd);
 
         // Assert
-        assert_approx_eq!(9.443, delta_epsilon, 0.001)
+        assert_approx_eq!(9.443, delta_epsilon.0, 0.001)
     }
 }

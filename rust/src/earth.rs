@@ -66,14 +66,14 @@ mod tests {
     pub fn ecliptical_to_equatorial_test() {
         // Arrange
         let jd = jd::from_date(1992, 4, 12, 0.0);
-        let longitude = 133.162655;
-        let latitude = -3.229126;
+        let longitude = Degrees::new(133.162655);
+        let latitude = Degrees::new(-3.229126);
 
         // Act
         let (ra, dec) = ecliptical_to_equatorial(jd, longitude, latitude);
 
         // Assert
         assert_approx_eq!(8.9789280347415126, util::RA::from(ra).0, 0.000_001);
-        assert_approx_eq!(13.769657226951539, dec, 0.000_001);
+        assert_approx_eq!(13.769657226951539, dec.0, 0.000_001);
     }
 }
