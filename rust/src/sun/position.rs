@@ -1,16 +1,16 @@
 use crate::nutation::nutation_in_longitude;
 use crate::sun::vsop87d_ear;
-use crate::util::Degrees;
+use crate::util::{ArcSec, Degrees, Radians};
 use crate::{jd, util};
 
 /// Astronomical unit, in km
 const AU: f64 = 149_597_870.0;
 
-/// Calculate the heliocentril ecliptical longitude using the VSOP87
+/// Calculate the heliocentric ecliptical longitude using the VSOP87
 /// theory. Meeus, chapter 32, eq. (32.2)
 /// In: Julian day
 /// Out: Longitude in degrees [0, 360)
-pub fn heliocentric_ecliptical_longitude(jd: f64) -> f64 {
+pub fn heliocentric_ecliptical_longitude(jd: f64) -> Degrees {
     let millennia_from_j2000 = jd::millennia_from_epoch_j2000(jd);
 
     let mut total_sum = 0.0;
@@ -27,14 +27,14 @@ pub fn heliocentric_ecliptical_longitude(jd: f64) -> f64 {
         tau *= millennia_from_j2000;
     }
 
-    util::map_to_0_to_360(util::to_degrees(total_sum))
+    util::map_to_0_to_360(Degrees::from(Radians::new(total_sum)))
 }
 
 /// Calculate the heliocentril ecliptical latitude using the VSOP87
 /// theory. Meeus, chapter 32, eq. (32.2)
 /// In: Julian day
 /// Out: Latitude in degrees [0, 360)
-pub fn heliocentric_ecliptical_latitude(jd: f64) -> f64 {
+pub fn heliocentric_ecliptical_latitude(jd: f64) -> Degrees {
     let millennia_from_j2000 = jd::millennia_from_epoch_j2000(jd);
 
     let mut total_sum = 0.0;
@@ -52,7 +52,7 @@ pub fn heliocentric_ecliptical_latitude(jd: f64) -> f64 {
     }
 
     // SS: latitude is defined for [-90, 90]
-    util::map_to_neg90_to_90(util::to_degrees(total_sum))
+    util::map_to_neg90_to_90(Degrees::from(Radians::new(total_sum)))
 }
 
 /// Calculate the distance Earth-Sun using the VSOP87
@@ -92,16 +92,16 @@ pub fn distance_earth_sun_ae(jd: f64) -> f64 {
 /// Meeus, chapter 25, page 166
 /// In: heliocentric ecliptical longitude in degrees [0, 360)
 /// Out: geocentric ecliptical longitude in degrees [0, 360)
-pub fn geocentric_ecliptical_longitude(jd: f64) -> f64 {
+pub fn geocentric_ecliptical_longitude(jd: f64) -> Degrees {
     let heliocentric_ecliptical_longitude = heliocentric_ecliptical_longitude(jd);
-    util::map_to_0_to_360(heliocentric_ecliptical_longitude + 180.0)
+    util::map_to_0_to_360(heliocentric_ecliptical_longitude + Degrees::new(180.0))
 }
 
 /// Calculate the geocentric ecliptical latitude
 /// Meeus, chapter 25, page 166
 /// In: heliocentric ecliptical latitude in degrees [-90, 90)
 /// Out: geocentric ecliptical latitude in degrees [-90, 90)
-pub fn geocentric_ecliptical_latitude(jd: f64) -> f64 {
+pub fn geocentric_ecliptical_latitude(jd: f64) -> Degrees {
     let heliocentric_ecliptical_latitude = heliocentric_ecliptical_latitude(jd);
     -heliocentric_ecliptical_latitude
 }
@@ -112,23 +112,27 @@ pub fn geocentric_ecliptical_latitude(jd: f64) -> f64 {
 /// In: geocentric ecliptical longitude in degrees [-90, 90), from VSOP87
 /// Out: geocentric ecliptical longitude in degrees [0, 360), corrected for FK5, w.r.t. mean equinox of the date
 /// Out: geocentric ecliptical latitude in degrees [-90, 90), corrected for FK5, w.r.t. mean equinox of the date
-pub fn geocentric_ecliptical_to_fk5(jd: f64, longitude: f64, latitude: f64) -> (f64, f64) {
+pub fn geocentric_ecliptical_to_fk5(
+    jd: f64,
+    longitude: Degrees,
+    latitude: Degrees,
+) -> (Degrees, Degrees) {
     let mut ecliptical_longitude = longitude;
     let mut ecliptical_latitude = latitude;
 
     let centuries_from_j2000 = jd::centuries_from_epoch_j2000(jd);
-    let mut lambda_prime = ecliptical_longitude
+    let mut lambda_prime = ecliptical_longitude.0
         - 1.397 * centuries_from_j2000
         - 0.000_31 * centuries_from_j2000 * centuries_from_j2000;
-    lambda_prime = util::to_radians(util::map_to_0_to_360(lambda_prime));
+    let lambda_prime = Radians::from(util::map_to_0_to_360(Degrees::new(lambda_prime)));
 
     let delta_longitude = -0.09033
-        + 0.03916 * (lambda_prime.cos() + lambda_prime.sin()) * util::to_radians(latitude).tan();
-    let delta_longitude = util::arcsec_to_degrees(delta_longitude);
+        + 0.03916 * (lambda_prime.0.cos() + lambda_prime.0.sin()) * Radians::from(latitude).0.tan();
+    let delta_longitude = Degrees::from(ArcSec::new(delta_longitude));
     ecliptical_longitude += delta_longitude;
 
-    let delta_latitude = 0.03916 * (lambda_prime.cos() - lambda_prime.sin());
-    let delta_latitude = util::arcsec_to_degrees(delta_latitude);
+    let delta_latitude = 0.03916 * (lambda_prime.0.cos() - lambda_prime.0.sin());
+    let delta_latitude = Degrees::from(ArcSec::new(delta_latitude));
     ecliptical_latitude += delta_latitude;
 
     (ecliptical_longitude, ecliptical_latitude)
@@ -138,35 +142,35 @@ pub fn geocentric_ecliptical_to_fk5(jd: f64, longitude: f64, latitude: f64) -> (
 /// page 168.
 /// In: Julian day
 /// Out: variation, in arcsec
-fn variation_geocentric_longitude(jd: f64) -> f64 {
+fn variation_geocentric_longitude(jd: f64) -> ArcSec {
     let tau = jd::millennia_from_epoch_j2000(jd);
     let tau2 = tau * tau;
     let tau3 = tau2 * tau;
 
     let delta_lambda = 3548.193
-        + 118.568 * util::to_radians(87.5287 + 359993.7286 * tau).sin()
-        + 2.476 * util::to_radians(85.0561 + 719987.4571 * tau).sin()
-        + 1.376 * util::to_radians(27.8502 + 4452671.1152 * tau).sin()
-        + 0.119 * util::to_radians(73.1375 + 450368.8564 * tau).sin()
-        + 0.114 * util::to_radians(337.2264 + 329644.6718 * tau).sin()
-        + 0.086 * util::to_radians(222.5400 + 659289.3436 * tau).sin()
-        + 0.078 * util::to_radians(162.8136 + 9224659.7915 * tau).sin()
-        + 0.054 * util::to_radians(82.5823 + 1079981.1857 * tau).sin()
-        + 0.052 * util::to_radians(171.5189 + 225184.4282 * tau).sin()
-        + 0.034 * util::to_radians(30.3214 + 4092677.3866 * tau).sin()
-        + 0.033 * util::to_radians(119.8105 + 337181.4711 * tau).sin()
-        + 0.023 * util::to_radians(247.5418 + 299295.6151 * tau).sin()
-        + 0.023 * util::to_radians(325.1526 + 315559.5560 * tau).sin()
-        + 0.021 * util::to_radians(155.1241 + 675553.2846 * tau).sin()
-        + 7.311 * tau * util::to_radians(333.4515 + 359993.7286 * tau).sin()
-        + 0.305 * tau * util::to_radians(330.9814 + 719987.4571 * tau).sin()
-        + 0.010 * tau * util::to_radians(328.5170 + 1079981.1857 * tau).sin()
-        + 0.309 * tau2 * util::to_radians(241.4518 + 359993.7286 * tau).sin()
-        + 0.021 * tau2 * util::to_radians(205.0482 + 719987.4571 * tau).sin()
-        + 0.004 * tau2 * util::to_radians(297.8610 + 4452671.1152 * tau).sin()
-        + 0.010 * tau3 * util::to_radians(154.7066 + 359993.7286 * tau).sin();
+        + 118.568 * Radians::new(87.5287 + 359993.7286 * tau).sin()
+        + 2.476 * Radians::new(85.0561 + 719987.4571 * tau).sin()
+        + 1.376 * Radians::new(27.8502 + 4452671.1152 * tau).sin()
+        + 0.119 * Radians::new(73.1375 + 450368.8564 * tau).sin()
+        + 0.114 * Radians::new(337.2264 + 329644.6718 * tau).sin()
+        + 0.086 * Radians::new(222.5400 + 659289.3436 * tau).sin()
+        + 0.078 * Radians::new(162.8136 + 9224659.7915 * tau).sin()
+        + 0.054 * Radians::new(82.5823 + 1079981.1857 * tau).sin()
+        + 0.052 * Radians::new(171.5189 + 225184.4282 * tau).sin()
+        + 0.034 * Radians::new(30.3214 + 4092677.3866 * tau).sin()
+        + 0.033 * Radians::new(119.8105 + 337181.4711 * tau).sin()
+        + 0.023 * Radians::new(247.5418 + 299295.6151 * tau).sin()
+        + 0.023 * Radians::new(325.1526 + 315559.5560 * tau).sin()
+        + 0.021 * Radians::new(155.1241 + 675553.2846 * tau).sin()
+        + 7.311 * tau * Radians::new(333.4515 + 359993.7286 * tau).sin()
+        + 0.305 * tau * Radians::new(330.9814 + 719987.4571 * tau).sin()
+        + 0.010 * tau * Radians::new(328.5170 + 1079981.1857 * tau).sin()
+        + 0.309 * tau2 * Radians::new(241.4518 + 359993.7286 * tau).sin()
+        + 0.021 * tau2 * Radians::new(205.0482 + 719987.4571 * tau).sin()
+        + 0.004 * tau2 * Radians::new(297.8610 + 4452671.1152 * tau).sin()
+        + 0.010 * tau3 * Radians::new(154.7066 + 359993.7286 * tau).sin();
 
-    delta_lambda
+    ArcSec::new(delta_lambda)
 }
 
 /// Calculate the corrections in geocentric longitude of the sun due to
@@ -181,10 +185,10 @@ pub fn apparent_geometric_longitude(jd: f64) -> Degrees {
     let r = distance_earth_sun_ae(jd);
 
     // SS: correction due to nutation
-    let delta_psi = util::arcsec_to_degrees(nutation_in_longitude(jd));
+    let delta_psi = Degrees::from(nutation_in_longitude(jd));
 
-    let delta_lambda = util::arcsec_to_degrees(variation_geocentric_longitude(jd));
-    let aberration_correction = -0.005_775_518 * r * delta_lambda;
+    let delta_lambda = Degrees::from(variation_geocentric_longitude(jd));
+    let aberration_correction = delta_lambda * (-0.005_775_518 * r);
 
     Degrees::from(util::map_to_0_to_360(
         long + delta_psi + aberration_correction,
@@ -198,7 +202,7 @@ pub fn apparent_geometric_latitude(jd: f64) -> Degrees {
     let longitude = geocentric_ecliptical_longitude(jd);
     let latitude = geocentric_ecliptical_latitude(jd);
     let (_, lat) = geocentric_ecliptical_to_fk5(jd, longitude, latitude);
-    Degrees::new(util::map_to_neg90_to_90(lat))
+    util::map_to_neg90_to_90(lat)
 }
 
 #[cfg(test)]

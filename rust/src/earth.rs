@@ -29,15 +29,15 @@ pub fn ecliptical_to_equatorial(
     let longitude_radians: Radians = longitude.into();
     let latitude_radians: Radians = latitude.into();
 
-    let ra_argument_x = longitude_radians.sin() * true_obliquity_radians.cos()
-        - latitude_radians.tan() * true_obliquity_radians.sin();
-    let ra_radians = ra_argument_x.atan2(longitude_radians.cos());
+    let ra_argument_x = longitude_radians.0.sin() * true_obliquity_radians.0.cos()
+        - latitude_radians.0.tan() * true_obliquity_radians.0.sin();
+    let ra_radians = ra_argument_x.atan2(longitude_radians.0.cos());
 
-    let dec_argument_x = latitude_radians.sin() * true_obliquity_radians.cos()
-        + latitude_radians.cos() * true_obliquity_radians.sin() * longitude_radians.sin();
+    let dec_argument_x = latitude_radians.0.sin() * true_obliquity_radians.0.cos()
+        + latitude_radians.0.cos() * true_obliquity_radians.0.sin() * longitude_radians.0.sin();
     let dec_radians = dec_argument_x.asin();
 
-    (ra_radians, dec_radians)
+    (Degrees::from(Radians::new(ra_radians)), Degrees::from(Radians::new(dec_radians)))
 }
 
 #[cfg(test)]

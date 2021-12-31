@@ -1,8 +1,7 @@
 //! Phase of the moon
 use crate::earth::ecliptical_to_equatorial;
 use crate::sun::position::{
-    apparent_geometric_latitude, apparent_geometric_longitude, distance_earth_sun,
-    geocentric_ecliptical_latitude,
+    apparent_geometric_latitude, apparent_geometric_longitude, distance_earth_sun
 };
 use crate::util::{Degrees, Radians};
 use crate::{jd, moon, util};
@@ -144,24 +143,24 @@ mod tests {
         // Assert
         assert_eq!("New Moon", phase_desc)
     }
-
-    #[test]
-    fn phase_description_test_7() {
-        // Arrange
-
-        // SS: Dec. 4th, 2021, 12:26PM local Denver time
-        let mut jd = 2_459_553.3;
-
-        for i in 0..30 {
-            // Act
-            let phase_desc = phase_angle2(jd + i as f64);
-
-            println!("{}", phase_desc);
-        }
-
-        // Assert
-        //        assert_eq!("New Moon", phase_desc)
-    }
+    //
+    // #[test]
+    // fn phase_description_test_7() {
+    //     // Arrange
+    //
+    //     // SS: Dec. 4th, 2021, 12:26PM local Denver time
+    //     let mut jd = 2_459_553.3;
+    //
+    //     for i in 0..30 {
+    //         // Act
+    //         let phase_desc = phase_angle2(jd + i as f64);
+    //
+    //         println!("{}", phase_desc);
+    //     }
+    //
+    //     // Assert
+    //     //        assert_eq!("New Moon", phase_desc)
+    // }
 
     #[test]
     fn phase_description_test_2() {

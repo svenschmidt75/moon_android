@@ -1,22 +1,18 @@
 //! Calculations related to the ecliptic
 
+use crate::jd;
 use crate::nutation::nutation_in_obliquity;
 use crate::util::{ArcSec, Degrees};
-use crate::{jd, util};
 
 /// Mean obliquity of the eclipse, Meeus chapter 22
 /// In: Julian day in dynamical time
 /// Out: Mean obliquity of the eclipse in degrees [0, 360)
-pub fn mean_obliquity(jd: f64) -> f64 {
+pub fn mean_obliquity(jd: f64) -> Degrees {
     let t = jd::centuries_from_epoch_j2000(jd);
     let u = t / 100.0;
 
-    let arcsec = ArcSec {
-        degrees: 23,
-        minutes: 26,
-        seconds: 21.448,
-    };
-    let eps_base: f64 = f64::from(arcsec);
+    let arcsec = ArcSec::new_from_degrees(23, 26, 21.448);
+    let eps_base: f64 = Degrees::from(arcsec).0;
 
     let eps_0 = eps_base
         + u / (60.0 * 60.0)
@@ -28,14 +24,14 @@ pub fn mean_obliquity(jd: f64) -> f64 {
                                 + u * (-39.05
                                     + u * (7.12 + u * (27.87 + u * (5.79 + u * (2.45))))))))));
 
-    eps_0
+    Degrees::new(eps_0)
 }
 /// True obliquity of the eclipse, taking into account the
 /// nutation effect. Meeus chapter 22
 /// In: Julian day in dynamical time
 /// Out: True obliquity of the eclipse in degrees [0, 360)
-pub fn true_obliquity(jd: f64) -> f64 {
-    let nutation_effect = util::Degrees::from(nutation_in_obliquity(jd));
+pub fn true_obliquity(jd: f64) -> Degrees {
+    let nutation_effect = Degrees::from(nutation_in_obliquity(jd));
     mean_obliquity(jd) + nutation_effect
 }
 
@@ -53,7 +49,7 @@ mod tests {
         let eps = mean_obliquity(jd);
 
         // Assert
-        assert_approx_eq!(23.44094629, eps, 0.000_000_001)
+        assert_approx_eq!(23.44094629, eps.0, 0.000_000_001)
     }
 
     #[test]

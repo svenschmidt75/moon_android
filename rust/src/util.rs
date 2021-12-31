@@ -1,6 +1,6 @@
 //! Utility functions
 
-use std::ops::Sub;
+use std::ops::{Add, Mul, Sub};
 
 const DEGREES_TO_RADIANS: f64 = std::f64::consts::PI / 180.0;
 const RADIANS_TO_DEGREES: f64 = 1.0 / DEGREES_TO_RADIANS;
@@ -81,11 +81,27 @@ impl Degrees {
     }
 }
 
+impl Add for Degrees {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
+}
+
 impl Sub for Degrees {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        Degrees(self.0 - rhs.0)
+        Self(self.0 - rhs.0)
+    }
+}
+
+impl Mul<f64> for Degrees {
+    type Output = ();
+
+    fn mul(self, rhs: f64) -> Self::Output {
+        Self(self.0 * rhs)
     }
 }
 
@@ -98,9 +114,17 @@ impl Radians {
     }
 }
 
+impl Sub for Radians {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self(self.0 - rhs.0)
+    }
+}
+
 impl From<Degrees> for Radians {
-    fn from(degrees: ArcSec) -> Self {
-        let radians = degrees * DEGREES_TO_RADIANS;
+    fn from(degrees: Degrees) -> Self {
+        let radians = degrees.0 * DEGREES_TO_RADIANS;
         Self(radians)
     }
 }
@@ -113,8 +137,8 @@ impl From<Radians> for Degrees {
 }
 
 impl From<Degrees> for ArcSec {
-    fn from(degrees: ArcSec) -> Self {
-        let degrees = arcsec * 3600.0;
+    fn from(degrees: Degrees) -> Self {
+        let degrees = degrees.0 * 3600.0;
         Self(degrees)
     }
 }
