@@ -4,7 +4,7 @@ use crate::sun::position::{
     apparent_geometric_latitude, apparent_geometric_longitude, distance_earth_sun,
 };
 use crate::util::{Degrees, Radians};
-use crate::{jd, moon, util};
+use crate::{jd, moon};
 
 /// Calculate the phase angle or age of the moon.
 /// Meeus, chapter 48, eq. (48.1) or Duffett-Smith and Zwart, chapter 67, page 171
@@ -33,7 +33,7 @@ pub fn phase_angle(jd: f64) -> Degrees {
 
     // SS: phase angle
     let phase_angle = (r * psi.sin()).atan2(delta - r * psi.cos());
-    util::map_to_0_to_360(Degrees::from(Radians::new(phase_angle)))
+    Degrees::from(Radians::new(phase_angle)).map_to_0_to_360()
 }
 
 /// Calculate the phase angle or age of the moon.
@@ -47,7 +47,7 @@ pub fn phase_angle_360(jd: f64) -> Degrees {
     // SS: position of the sun, from Earth
     let longitude_sun = apparent_geometric_longitude(jd);
 
-    let phase_angle = util::map_to_0_to_360(longitude_moon - longitude_sun);
+    let phase_angle = (longitude_moon - longitude_sun).map_to_0_to_360();
     phase_angle
 }
 

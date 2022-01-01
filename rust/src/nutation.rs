@@ -1,6 +1,6 @@
 //! Solar system related calculations.
+use crate::jd;
 use crate::util::{ArcSec, Degrees, Radians};
-use crate::{jd, util};
 
 const NUTATION_PERTURBATION_TERMS: [(i8, i8, i8, i8, i8, i64, f64, i64, f64); 63] = [
     (0, 0, 0, 0, 1, -171996, -174.2, 92025, 8.9),
@@ -76,21 +76,20 @@ pub fn nutation_in_longitude(jd: f64) -> ArcSec {
     let t2 = t * t;
     let t3 = t * t2;
 
-    let d = Degrees::new(297.85036 + (445267.111480 * t) - (0.0019142 * t2) + (t3 / 189_474.0));
-    let d = util::map_to_0_to_360(d);
-
-    let m = Degrees::new(357.52772 + (35_999.050340 * t) - (0.0001603 * t2) - (t3 / 300_000.0));
-    let m = util::map_to_0_to_360(m);
+    let d = Degrees::new(297.85036 + (445267.111480 * t) - (0.0019142 * t2) + (t3 / 189_474.0))
+        .map_to_0_to_360();
+    let m = Degrees::new(357.52772 + (35_999.050340 * t) - (0.0001603 * t2) - (t3 / 300_000.0))
+        .map_to_0_to_360();
 
     let m_prime =
-        Degrees::new(134.96298 + (477_198.867398 * t) + (0.0086972 * t2) + (t3 / 56_250.0));
-    let m_prime = util::map_to_0_to_360(m_prime);
+        Degrees::new(134.96298 + (477_198.867398 * t) + (0.0086972 * t2) + (t3 / 56_250.0))
+            .map_to_0_to_360();
 
-    let f = Degrees::new(93.27191 + (483_202.017538 * t) - (0.0036825 * t2) + (t3 / 327_270.0));
-    let f = util::map_to_0_to_360(f);
+    let f = Degrees::new(93.27191 + (483_202.017538 * t) - (0.0036825 * t2) + (t3 / 327_270.0))
+        .map_to_0_to_360();
 
-    let omega = Degrees::new(125.04452 - (1934.136261 * t) + (0.0020708 * t2) + (t3 / 450_000.0));
-    let omega = util::map_to_0_to_360(omega);
+    let omega = Degrees::new(125.04452 - (1934.136261 * t) + (0.0020708 * t2) + (t3 / 450_000.0))
+        .map_to_0_to_360();
 
     let delta_psi = NUTATION_PERTURBATION_TERMS.iter().fold(0.0, |accum, &c| {
         let sin_arg = c.0 as f64 * d.0
@@ -113,21 +112,17 @@ pub fn nutation_in_obliquity(jd: f64) -> ArcSec {
     let t2 = t * t;
     let t3 = t * t2;
 
-    let d = Degrees::new(297.85036 + (445267.111480 * t) - (0.0019142 * t2) + (t3 / 189_474.0));
-    let d = util::map_to_0_to_360(d);
-
-    let m = Degrees::new(357.52772 + (35_999.050340 * t) - (0.0001603 * t2) - (t3 / 300_000.0));
-    let m = util::map_to_0_to_360(m);
-
+    let d = Degrees::new(297.85036 + (445267.111480 * t) - (0.0019142 * t2) + (t3 / 189_474.0))
+        .map_to_0_to_360();
+    let m = Degrees::new(357.52772 + (35_999.050340 * t) - (0.0001603 * t2) - (t3 / 300_000.0))
+        .map_to_0_to_360();
     let m_prime =
-        Degrees::new(134.96298 + (477_198.867398 * t) + (0.0086972 * t2) + (t3 / 56_250.0));
-    let m_prime = util::map_to_0_to_360(m_prime);
-
-    let f = Degrees::new(93.27191 + (483_202.017538 * t) - (0.0036825 * t2) + (t3 / 327_270.0));
-    let f = util::map_to_0_to_360(f);
-
-    let omega = Degrees::new(125.04452 - (1934.136261 * t) + (0.0020708 * t2) + (t3 / 450_000.0));
-    let omega = util::map_to_0_to_360(omega);
+        Degrees::new(134.96298 + (477_198.867398 * t) + (0.0086972 * t2) + (t3 / 56_250.0))
+            .map_to_0_to_360();
+    let f = Degrees::new(93.27191 + (483_202.017538 * t) - (0.0036825 * t2) + (t3 / 327_270.0))
+        .map_to_0_to_360();
+    let omega = Degrees::new(125.04452 - (1934.136261 * t) + (0.0020708 * t2) + (t3 / 450_000.0))
+        .map_to_0_to_360();
 
     let delta_epsilon = NUTATION_PERTURBATION_TERMS.iter().fold(0.0, |accum, &c| {
         let cos_arg = c.0 as f64 * d.0

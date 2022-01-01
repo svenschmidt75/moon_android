@@ -1,7 +1,7 @@
 //! Calculate the moon's position for given Julian day.
 //! see J. Meeus, Astronomical Algorithms, chapter 47
 use crate::util::{Degrees, Radians};
-use crate::{earth, jd, nutation, sun::sun, util};
+use crate::{earth, jd, nutation, sun::sun};
 
 // SS: perturbation terms for longitude and radius
 const SIGMA_L_AND_R_COEFFICIENTS: [(i8, i8, i8, i8, i64, i64); 60] = [
@@ -144,7 +144,7 @@ fn mean_longitude(jd: f64) -> Degrees {
     let mean_longitude =
         218.3164477 + 481_267.88123421 * t - 0.0015786 * t2 + t3 / 538_841.0 - t4 / 65_194_000.0;
 
-    let mapped = util::map_to_0_to_360(Degrees::new(mean_longitude));
+    let mapped = Degrees::new(mean_longitude).map_to_0_to_360();
     mapped
 }
 
@@ -161,7 +161,7 @@ fn mean_elongation(jd: f64) -> Degrees {
     let mean_elongation =
         297.8501921 + 445_267.1114034 * t - 0.0018819 * t2 + t3 / 545_868.0 - t4 / 113_065_000.0;
 
-    let mapped = util::map_to_0_to_360(Degrees::new(mean_elongation));
+    let mapped = Degrees::new(mean_elongation).map_to_0_to_360();
     mapped
 }
 
@@ -178,7 +178,7 @@ fn mean_anomaly(jd: f64) -> Degrees {
     let mean_anomaly =
         134.9633964 + 477198.8675055 * t + 0.0087414 * t2 + t3 / 69_699.0 - t4 / 14_712_000.0;
 
-    let mapped = util::map_to_0_to_360(Degrees::new(mean_anomaly));
+    let mapped = Degrees::new(mean_anomaly).map_to_0_to_360();
     mapped
 }
 
@@ -195,7 +195,7 @@ fn argument_of_latitude(jd: f64) -> Degrees {
     let argument_of_latitude =
         93.2720950 + 483202.0175233 * t - 0.0036539 * t2 - t3 / 3_526_000.0 + t4 / 863_310_000.0;
 
-    let mapped = util::map_to_0_to_360(Degrees::new(argument_of_latitude));
+    let mapped = Degrees::new(argument_of_latitude).map_to_0_to_360();
     mapped
 }
 
@@ -205,8 +205,8 @@ fn argument_of_latitude(jd: f64) -> Degrees {
 pub(crate) fn geocentric_longitude(jd: f64) -> Degrees {
     let t = jd::centuries_from_epoch_j2000(jd);
 
-    let a1 = Radians::from(util::map_to_0_to_360(Degrees::new(119.75 + 131.849 * t)));
-    let a2 = Radians::from(util::map_to_0_to_360(Degrees::new(53.09 + 479264.290 * t)));
+    let a1 = Radians::from(Degrees::new(119.75 + 131.849 * t).map_to_0_to_360());
+    let a2 = Radians::from(Degrees::new(53.09 + 479264.290 * t).map_to_0_to_360());
 
     let l_prime = Radians::from(mean_longitude(jd));
     let d = Radians::from(mean_elongation(jd));
@@ -249,8 +249,8 @@ pub(crate) fn geocentric_longitude(jd: f64) -> Degrees {
 pub(crate) fn geocentric_latitude(jd: f64) -> Degrees {
     let t = jd::centuries_from_epoch_j2000(jd);
 
-    let a1 = Radians::from(util::map_to_0_to_360(Degrees::new(119.75 + 131.849 * t)));
-    let a3 = Radians::from(util::map_to_0_to_360(Degrees::new(313.45 + 481266.484 * t)));
+    let a1 = Radians::from(Degrees::new(119.75 + 131.849 * t).map_to_0_to_360());
+    let a3 = Radians::from(Degrees::new(313.45 + 481266.484 * t).map_to_0_to_360());
 
     let l_prime = Radians::from(mean_longitude(jd));
     let d = Radians::from(mean_elongation(jd));

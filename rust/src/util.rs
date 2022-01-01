@@ -5,28 +5,6 @@ use std::ops::{Add, AddAssign, Mul, Neg, Sub};
 const DEGREES_TO_RADIANS: f64 = std::f64::consts::PI / 180.0;
 const RADIANS_TO_DEGREES: f64 = 1.0 / DEGREES_TO_RADIANS;
 
-/// Map angle in degrees to range [0, 360)
-pub fn map_to_0_to_360(angle: Degrees) -> Degrees {
-    let mut m = angle.0 % 360.0;
-    if m < 0.0 {
-        m += 360.0;
-    }
-    Degrees::new(m)
-}
-
-/// Map angle in radians to range [0, 2 pi)
-pub fn map_to_0_to_2pi(angle: Radians) -> Radians {
-    let mut m = angle.0 % (2.0 * std::f64::consts::PI);
-    if m < 0.0 {
-        m += 2.0 * std::f64::consts::PI;
-    }
-    Radians::new(m)
-}
-
-pub fn map_to_neg90_to_90(angle: Degrees) -> Degrees {
-    Degrees(angle.0 % 90.0)
-}
-
 #[derive(Debug, Clone, Copy)]
 pub struct ArcSec(pub(crate) f64);
 
@@ -47,6 +25,19 @@ pub struct Degrees(pub(crate) f64);
 impl Degrees {
     pub fn new(degrees: f64) -> Self {
         Self(degrees)
+    }
+
+    /// Map angle in degrees to range [0, 360)
+    pub fn map_to_0_to_360(self: Self) -> Self {
+        let mut m = self.0 % 360.0;
+        if m < 0.0 {
+            m += 360.0;
+        }
+        Self::new(m)
+    }
+
+    pub fn map_to_neg90_to_90(self: Self) -> Self {
+        Self(self.0 % 90.0)
     }
 }
 
@@ -94,6 +85,15 @@ pub struct Radians(pub(crate) f64);
 impl Radians {
     pub fn new(radians: f64) -> Self {
         Self(radians)
+    }
+
+    /// Map angle in radians to range [0, 2 pi)
+    pub fn map_to_0_to_2pi(self: Radians) -> Radians {
+        let mut m = self.0 % (2.0 * std::f64::consts::PI);
+        if m < 0.0 {
+            m += 2.0 * std::f64::consts::PI;
+        }
+        Radians::new(m)
     }
 }
 

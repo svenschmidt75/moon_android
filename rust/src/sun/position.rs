@@ -1,7 +1,7 @@
+use crate::jd;
 use crate::nutation::nutation_in_longitude;
 use crate::sun::vsop87d_ear;
 use crate::util::{ArcSec, Degrees, Radians};
-use crate::{jd, util};
 
 /// Astronomical unit, in km
 const AU: f64 = 149_597_870.0;
@@ -27,7 +27,7 @@ pub fn heliocentric_ecliptical_longitude(jd: f64) -> Degrees {
         tau *= millennia_from_j2000;
     }
 
-    util::map_to_0_to_360(Degrees::from(Radians::new(total_sum)))
+    Degrees::from(Radians::new(total_sum)).map_to_0_to_360()
 }
 
 /// Calculate the heliocentril ecliptical latitude using the VSOP87
@@ -52,7 +52,7 @@ pub fn heliocentric_ecliptical_latitude(jd: f64) -> Degrees {
     }
 
     // SS: latitude is defined for [-90, 90]
-    util::map_to_neg90_to_90(Degrees::from(Radians::new(total_sum)))
+    Degrees::from(Radians::new(total_sum)).map_to_neg90_to_90()
 }
 
 /// Calculate the distance Earth-Sun using the VSOP87
@@ -94,7 +94,7 @@ pub fn distance_earth_sun_ae(jd: f64) -> f64 {
 /// Out: geocentric ecliptical longitude in degrees [0, 360)
 pub fn geocentric_ecliptical_longitude(jd: f64) -> Degrees {
     let heliocentric_ecliptical_longitude = heliocentric_ecliptical_longitude(jd);
-    util::map_to_0_to_360(heliocentric_ecliptical_longitude + Degrees::new(180.0))
+    heliocentric_ecliptical_longitude + Degrees::new(180.0).map_to_0_to_360()
 }
 
 /// Calculate the geocentric ecliptical latitude
@@ -124,7 +124,7 @@ pub fn geocentric_ecliptical_to_fk5(
     let lambda_prime = ecliptical_longitude.0
         - 1.397 * centuries_from_j2000
         - 0.000_31 * centuries_from_j2000 * centuries_from_j2000;
-    let lambda_prime = Radians::from(util::map_to_0_to_360(Degrees::new(lambda_prime)));
+    let lambda_prime = Radians::from(Degrees::new(lambda_prime).map_to_0_to_360());
 
     let delta_longitude = -0.09033
         + 0.03916 * (lambda_prime.0.cos() + lambda_prime.0.sin()) * Radians::from(latitude).0.tan();
@@ -260,9 +260,7 @@ pub fn apparent_geometric_longitude(jd: f64) -> Degrees {
     let delta_lambda = Degrees::from(variation_geocentric_longitude(jd));
     let aberration_correction = delta_lambda * (-0.005_775_518 * r);
 
-    Degrees::from(util::map_to_0_to_360(
-        long + delta_psi + aberration_correction,
-    ))
+    Degrees::from(long + delta_psi + aberration_correction).map_to_0_to_360()
 }
 
 /// Apparent geocentric latitude of the sun. Meeus, chapter 25, pages 167, 168
@@ -272,7 +270,7 @@ pub fn apparent_geometric_latitude(jd: f64) -> Degrees {
     let longitude = geocentric_ecliptical_longitude(jd);
     let latitude = geocentric_ecliptical_latitude(jd);
     let (_, lat) = geocentric_ecliptical_to_fk5(jd, longitude, latitude);
-    util::map_to_neg90_to_90(lat)
+    lat.map_to_neg90_to_90()
 }
 
 #[cfg(test)]
