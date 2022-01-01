@@ -59,7 +59,9 @@ pub fn phase_description(jd: f64) -> &'static str {
 
     const SECTION: f64 = 360.0 / (2.0 * 8.0);
 
-    let desc = if phase_angle >= 360.0 - 45.0 + SECTION && phase_angle < 45.0 - SECTION {
+    let s = SECTION;
+
+    let desc = if phase_angle < SECTION {
         "New Moon"
     } else if phase_angle >= SECTION && phase_angle < 45.0 + SECTION {
         "Waxing Crescent"
