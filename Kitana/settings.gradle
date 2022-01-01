@@ -8,3 +8,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Kitana"
 include ':app'
+include ':core'
