@@ -65,15 +65,15 @@ pub fn phase_description(jd: f64) -> &'static str {
         "New Moon"
     } else if phase_angle >= SECTION && phase_angle < 45.0 + SECTION {
         "Waxing Crescent"
-    } else if phase_angle >= 90.0 - SECTION && phase_angle < 90.0 + SECTION {
+    } else if phase_angle >= 45.0 + SECTION && phase_angle < 90.0 + SECTION {
         "First Quarter"
-    } else if phase_angle >= 90.0 + SECTION && phase_angle < 90.0 + 45.0 + SECTION {
+    } else if phase_angle >= 90.0 + SECTION && phase_angle < 180.0 - SECTION {
         "Waxing Gibbous"
     } else if phase_angle >= 180.0 - SECTION && phase_angle < 180.0 + SECTION {
         "Full Moon"
-    } else if phase_angle >= 180.0 + SECTION && phase_angle < 180.0 + 45.0 + SECTION {
+    } else if phase_angle >= 180.0 + SECTION && phase_angle < 270.0 - SECTION {
         "Waning Gibbous"
-    } else if phase_angle >= 180.0 + 45.0 + SECTION && phase_angle < 270.0 + SECTION {
+    } else if phase_angle >= 270.0 - SECTION && phase_angle < 270.0 + SECTION {
         "Last Quarter"
     } else {
         //if phase_angle >= 270.0 + SECTION && phase_angle < 180.0 + 45.0 - SECTION {
