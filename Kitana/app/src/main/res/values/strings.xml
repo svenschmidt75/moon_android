@@ -2,4 +2,10 @@
     <string name="app_name">Kitana</string>
     <string name="date_time">Date/Time</string>
     <string name="navigation_drawer_title">Kitana</string>
+    <string name="local_date_and_time">Local Date and Time</string>
+    <string name="date">Date:</string>
+    <string name="local_date_and_time_select_date">Select Date</string>
+    <string name="local_date_and_time_select_time">Select Time</string>
+    <string name="local_date_and_time_utc">UTC:</string>
+    <string name="local_date_and_time_julian_day">Julian Day:</string>
 </resources>

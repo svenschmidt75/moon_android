@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kitana">
         <activity
+            android:name=".DateTimeActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainContent"
             android:exported="false" />
         <activity
