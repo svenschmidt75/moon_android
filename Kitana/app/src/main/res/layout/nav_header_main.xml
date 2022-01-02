@@ -3,13 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="200dp"
     android:background="@drawable/nav_header_main_background"
-    android:gravity="bottom"
+    android:gravity="center"
     android:orientation="vertical"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Navigation Drawer Header" />
+        android:text="@string/navigation_drawer_title" />
 
 </LinearLayout>

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Kitana</string>
+    <string name="date_time">Date/Time</string>
+    <string name="navigation_drawer_title">Kitana</string>
 </resources>
