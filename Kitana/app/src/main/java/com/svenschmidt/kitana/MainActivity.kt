@@ -24,6 +24,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        if (main_drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            main_drawer_layout.closeDrawer(GravityCompat.START)
+        }
+    }
+
     private fun toggleDrawer() {
 
         if (main_drawer_layout.isDrawerOpen(GravityCompat.START)) {
