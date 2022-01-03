@@ -9,4 +9,5 @@
     <string name="local_date_and_time_utc">UTC:</string>
     <string name="local_date_and_time_julian_day">Julian Day:</string>
     <string name="local_date_and_time_use_current_time">Use Current Time</string>
+    <string name="local_date_and_time_local_time">Local Time:</string>
 </resources>
