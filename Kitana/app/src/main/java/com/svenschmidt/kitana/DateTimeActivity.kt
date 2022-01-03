@@ -18,6 +18,7 @@ class DateTimeActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
 
         viewModel = ViewModelProvider(this).get(DateTimeViewModel::class.java)
+        binding.viewmodel = viewModel
     }
 
 }
