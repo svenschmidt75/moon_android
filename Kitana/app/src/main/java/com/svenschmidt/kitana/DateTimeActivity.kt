@@ -3,11 +3,14 @@ package com.svenschmidt.kitana
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
+import android.view.View.VISIBLE
 import android.widget.Button
 import android.widget.DatePicker
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.svenschmidt.kitana.databinding.ActivityDateTimeBinding
 import com.svenschmidt.kitana.viewmodel.DateTimeViewModel
 import java.util.*
@@ -37,7 +40,7 @@ class DateTimeActivity : AppCompatActivity() {
                         month: Int,
                         dayOfMonth: Int
                     ) {
-//                        viewModel
+//                        viewModel.setDate()
                     }
                 },
                 cal.get(Calendar.YEAR),

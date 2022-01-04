@@ -177,9 +177,8 @@
                     android:layout_marginTop="15dp"
                     android:layout_weight="1"
                     android:gravity="start"
+                    android:text="@={viewmodel.julianDay}"
                     android:textColor="@android:color/darker_gray"
-                    app:layout_constraintStart_toEndOf="@+id/textView3"
-                    app:layout_constraintTop_toTopOf="@+id/textView3"
                     tools:text="Julian Day" />
 
             </LinearLayout>
@@ -193,6 +192,7 @@
             android:background="@color/divider_background" />
 
         <CheckBox
+            android:id="@+id/local_date_and_time_update_date_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"

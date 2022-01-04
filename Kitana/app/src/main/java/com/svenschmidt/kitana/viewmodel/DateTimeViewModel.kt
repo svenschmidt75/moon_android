@@ -19,27 +19,20 @@ class DateTimeViewModel(application: Application): AndroidViewModel(application)
     val updateDateTime = MutableLiveData<Boolean>()
     val localTime = MutableLiveData<String>()
     val utcTime = MutableLiveData<String>()
+    val julianDay = MutableLiveData<String>()
 
     init {
         DaggerViewModelComponent.builder().build().inject(this)
-    }
 
-    var selectDateTimeEnabled: Boolean = true
+        // SS: initialize UI with current date/time
+        updateDateTime(dateTimeProvider.getLocalUTCTimeMillis())
+    }
 
     fun onUpdateDateTime() {
         if (updateDateTime.value!!) {
             dateTimeProvider.start { _, now ->
                 val nowUTC = now as Long
-
-                // SS: get local time
-                val formatter = SimpleDateFormat("yyyy-MMM-dd HH:mm:ss", Locale.getDefault())
-                var formatted = formatter.format(Date(nowUTC))
-                localTime.postValue(formatted)
-
-                // SS: get UTC time
-                formatter.timeZone = TimeZone.getTimeZone("UTC")
-                formatted = formatter.format(Date(nowUTC))
-                utcTime.postValue(formatted)
+                updateDateTime(nowUTC)
             }
         }
         else {
@@ -48,5 +41,16 @@ class DateTimeViewModel(application: Application): AndroidViewModel(application)
 
     }
 
+    private fun updateDateTime(nowUTC: Long) {
+        // SS: get local time
+        val formatter = SimpleDateFormat("yyyy-MMM-dd HH:mm:ss", Locale.getDefault())
+        var formatted = formatter.format(Date(nowUTC))
+        localTime.postValue(formatted)
+
+        // SS: get UTC time
+        formatter.timeZone = TimeZone.getTimeZone("UTC")
+        formatted = formatter.format(Date(nowUTC))
+        utcTime.postValue(formatted)
+    }
 
 }

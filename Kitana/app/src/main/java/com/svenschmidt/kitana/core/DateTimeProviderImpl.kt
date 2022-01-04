@@ -5,7 +5,7 @@ import java.util.*
 interface DateTimeProvider {
     fun start(observer: Observer)
     fun stop()
-
+    fun getLocalUTCTimeMillis(): Long
 }
 
 class DateTimeProviderImpl: DateTimeProvider, Observable() {
@@ -22,12 +22,16 @@ class DateTimeProviderImpl: DateTimeProvider, Observable() {
         isRunning = false
     }
 
+    override fun getLocalUTCTimeMillis(): Long {
+        return System.currentTimeMillis()
+    }
+
     override fun start(observer: Observer) {
         timer = Timer()
         isRunning = true
         timer.schedule(object : TimerTask() {
             override fun run() {
-                val nowUTC = System.currentTimeMillis()
+                val nowUTC = getLocalUTCTimeMillis()
                 observer.update(this@DateTimeProviderImpl, nowUTC)
             }
 
