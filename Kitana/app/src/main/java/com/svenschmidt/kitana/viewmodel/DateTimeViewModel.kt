@@ -16,7 +16,7 @@ class DateTimeViewModel(application: Application): AndroidViewModel(application)
     @Inject
     lateinit var dateTimeProvider: DateTimeProvider
 
-    val useCurrentTime = MutableLiveData<Boolean>()
+    val updateDateTime = MutableLiveData<Boolean>()
     val localTime = MutableLiveData<String>()
     val utcTime = MutableLiveData<String>()
 
@@ -26,8 +26,8 @@ class DateTimeViewModel(application: Application): AndroidViewModel(application)
 
     var selectDateTimeEnabled: Boolean = true
 
-    fun onUseCurrentTime() {
-        if (useCurrentTime.value!!) {
+    fun onUpdateDateTime() {
+        if (updateDateTime.value!!) {
             dateTimeProvider.start { _, now ->
                 val nowUTC = now as Long
 

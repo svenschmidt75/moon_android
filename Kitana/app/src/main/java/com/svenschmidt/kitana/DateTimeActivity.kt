@@ -27,10 +27,6 @@ class DateTimeActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(DateTimeViewModel::class.java)
         binding.viewmodel = viewModel
 
-        binding.localDateAndTimeSelectDate.setOnClickListener { it ->
-            println()
-        }
-
         binding.localDateAndTimeSelectDate.setOnClickListener {
             DatePickerDialog(
                 this,

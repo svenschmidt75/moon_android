@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
         <variable
             name="viewmodel"
             type="com.svenschmidt.kitana.viewmodel.DateTimeViewModel" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         tools:context=".DateTimeActivity">
 
         <TextView
@@ -23,99 +26,181 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/local_date_and_time_select_date"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/local_date_and_time_select_date"
-            android:textSize="14sp"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="15dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/local_date_and_time_title" />
+            android:gravity="top"
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/local_date_and_time_select_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:text="@string/local_date_and_time_select_time"
-            android:textSize="14sp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/local_date_and_time_select_date" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/local_date_and_time_local_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="15dp"
-            android:text="@string/local_date_and_time_local_time"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/local_date_and_time_select_time" />
+                <Button
+                    android:id="@+id/local_date_and_time_select_date"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:text="@string/local_date_and_time_select_date"
+                    android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/local_date_and_time_local_time_edit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="15dp"
-            android:enabled="false"
-            app:layout_constraintStart_toEndOf="@+id/local_date_and_time_local_time"
-            app:layout_constraintTop_toBottomOf="@+id/local_date_and_time_select_time"
-            tools:text="Local Time"
-            android:text="@={viewmodel.localTime}"/>
+                <Button
+                    android:id="@+id/local_date_and_time_select_time"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="@string/local_date_and_time_select_time"
+                    android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/local_date_and_time_utc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="15dp"
-            android:text="@string/local_date_and_time_utc"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/local_date_and_time_local_time" />
+            </LinearLayout>
 
-        <TextView
-            android:id="@+id/local_date_and_time_utc_edit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:enabled="false"
-            android:layout_marginTop="15dp"
-            android:text="@={viewmodel.utcTime}"
-            app:layout_constraintStart_toEndOf="@+id/local_date_and_time_utc"
-            app:layout_constraintTop_toBottomOf="@+id/local_date_and_time_local_time"
-            tools:text="UTC" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top|center"
+                android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="15dp"
-            android:text="@string/local_date_and_time_julian_day"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/local_date_and_time_utc" />
+                <Button
+                    android:id="@+id/local_date_and_time_use_current_time"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/local_date_and_time_use_current_time"
+                    android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/local_date_and_time_julian_day_edit"
-            android:layout_width="wrap_content"
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="16dp"
+            android:background="@color/divider_background" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:enabled="false"
-            app:layout_constraintStart_toEndOf="@+id/textView3"
-            app:layout_constraintTop_toTopOf="@+id/textView3"
-            tools:text="Julian Day" />
+            android:gravity="top"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/local_date_and_time_local_time"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="@string/local_date_and_time_local_time" />
+
+                <TextView
+                    android:id="@+id/local_date_and_time_local_time_edit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="@={viewmodel.localTime}"
+                    android:textColor="@android:color/darker_gray"
+                    tools:text="Local Time" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/local_date_and_time_utc"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="@string/local_date_and_time_utc" />
+
+                <TextView
+                    android:id="@+id/local_date_and_time_utc_edit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="@={viewmodel.utcTime}"
+                    android:textColor="@android:color/darker_gray"
+                    tools:text="UTC" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="@string/local_date_and_time_julian_day" />
+
+                <TextView
+                    android:id="@+id/local_date_and_time_julian_day_edit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:textColor="@android:color/darker_gray"
+                    app:layout_constraintStart_toEndOf="@+id/textView3"
+                    app:layout_constraintTop_toTopOf="@+id/textView3"
+                    tools:text="Julian Day" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_margin="16dp"
+            android:background="@color/divider_background" />
 
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/local_date_and_time_use_current_time"
             android:layout_marginTop="15dp"
+            android:checked="@={viewmodel.updateDateTime}"
+            android:onClick="@{() -> viewmodel.onUpdateDateTime()}"
+            android:text="@string/local_date_and_time_update_date_time"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView3"
-            android:checked="@={viewmodel.useCurrentTime}"
-            android:onClick="@{() -> viewmodel.onUseCurrentTime()}"/>
+            app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </layout>
