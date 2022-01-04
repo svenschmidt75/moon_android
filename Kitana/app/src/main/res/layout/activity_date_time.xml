@@ -24,17 +24,18 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/local_date_and_time_select_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/local_date_and_time_select_date"
             android:textSize="14sp"
             android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/local_date_and_time_title" />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/local_date_and_time_select_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
@@ -42,25 +43,27 @@
             android:textSize="14sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button" />
+            app:layout_constraintTop_toBottomOf="@+id/local_date_and_time_select_date" />
 
         <TextView
             android:id="@+id/local_date_and_time_local_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
             android:text="@string/local_date_and_time_local_time"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button2" />
+            app:layout_constraintTop_toBottomOf="@+id/local_date_and_time_select_time" />
 
         <TextView
             android:id="@+id/local_date_and_time_local_time_edit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
             android:enabled="false"
             app:layout_constraintStart_toEndOf="@+id/local_date_and_time_local_time"
-            app:layout_constraintTop_toBottomOf="@+id/button2"
+            app:layout_constraintTop_toBottomOf="@+id/local_date_and_time_select_time"
             tools:text="Local Time"
             android:text="@={viewmodel.localTime}"/>
 
@@ -69,6 +72,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
             android:text="@string/local_date_and_time_utc"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/local_date_and_time_local_time" />
@@ -78,6 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:enabled="false"
+            android:layout_marginTop="15dp"
             android:text="@={viewmodel.utcTime}"
             app:layout_constraintStart_toEndOf="@+id/local_date_and_time_utc"
             app:layout_constraintTop_toBottomOf="@+id/local_date_and_time_local_time"
@@ -88,6 +93,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
+            android:layout_marginTop="15dp"
             android:text="@string/local_date_and_time_julian_day"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/local_date_and_time_utc" />
@@ -105,6 +111,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/local_date_and_time_use_current_time"
+            android:layout_marginTop="15dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView3"
             android:checked="@={viewmodel.useCurrentTime}"

@@ -24,6 +24,8 @@ class DateTimeViewModel(application: Application): AndroidViewModel(application)
         DaggerViewModelComponent.builder().build().inject(this)
     }
 
+    var selectDateTimeEnabled: Boolean = true
+
     fun onUseCurrentTime() {
         if (useCurrentTime.value!!) {
             dateTimeProvider.start { _, now ->
