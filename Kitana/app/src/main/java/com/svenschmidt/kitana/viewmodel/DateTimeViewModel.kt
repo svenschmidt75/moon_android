@@ -5,8 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.svenschmidt.kitana.core.DateTimeProvider
 import com.svenschmidt.kitana.di.DaggerViewModelComponent
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
@@ -25,32 +26,49 @@ class DateTimeViewModel(application: Application): AndroidViewModel(application)
         DaggerViewModelComponent.builder().build().inject(this)
 
         // SS: initialize UI with current date/time
-        updateDateTime(dateTimeProvider.getLocalUTCTimeMillis())
+        val dateTime = dateTimeProvider.getLocalDateTime()
+        dateTimeProvider.setLocalDateTime(dateTime)
+        updateDateTime(dateTime)
     }
 
     fun onUpdateDateTime() {
         if (updateDateTime.value!!) {
             dateTimeProvider.start { _, now ->
-                val nowUTC = now as Long
-                updateDateTime(nowUTC)
+                updateDateTime(now as LocalDateTime)
             }
         }
         else {
             dateTimeProvider.stop()
         }
-
     }
 
-    private fun updateDateTime(nowUTC: Long) {
+    private fun updateDateTime(dateTime: LocalDateTime) {
         // SS: get local time
-        val formatter = SimpleDateFormat("yyyy-MMM-dd HH:mm:ss", Locale.getDefault())
-        var formatted = formatter.format(Date(nowUTC))
+        var formatted = dateTime.format(DateTimeFormatter.ofPattern("yyyy-MMM-dd HH:mm:ss", Locale.getDefault()))
         localTime.postValue(formatted)
 
         // SS: get UTC time
-        formatter.timeZone = TimeZone.getTimeZone("UTC")
-        formatted = formatter.format(Date(nowUTC))
+        val utcDateTime = dateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
+        formatted = utcDateTime.format(DateTimeFormatter.ofPattern("yyyy-MMM-dd HH:mm:ss", Locale.getDefault()))
         utcTime.postValue(formatted)
+    }
+
+    fun setDate(year: Int, month: Int, dayOfMonth: Int) {
+        val dateTime = dateTimeProvider.getLocalDateTime()
+        val updatedDateTime = LocalDateTime.of(year, month + 1, dayOfMonth, dateTime.hour, dateTime.minute, dateTime.second)
+        dateTimeProvider.setLocalDateTime(updatedDateTime)
+
+        // SS: update UI
+        updateDateTime(updatedDateTime)
+    }
+
+    fun setTime(hourOfDay: Int, minute: Int) {
+        val dateTime = dateTimeProvider.getLocalDateTime()
+        val updatedDateTime = LocalDateTime.of(dateTime.year, dateTime.month, dateTime.dayOfMonth, hourOfDay, minute, dateTime.second)
+        dateTimeProvider.setLocalDateTime(updatedDateTime)
+
+        // SS: update UI
+        updateDateTime(updatedDateTime)
     }
 
 }

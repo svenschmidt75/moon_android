@@ -1,11 +1,13 @@
 package com.svenschmidt.kitana.core
 
+import java.time.LocalDateTime
 import java.util.*
 
 interface DateTimeProvider {
     fun start(observer: Observer)
     fun stop()
-    fun getLocalUTCTimeMillis(): Long
+    fun getLocalDateTime(): LocalDateTime
+    fun setLocalDateTime(dateTime: LocalDateTime)
 }
 
 class DateTimeProviderImpl: DateTimeProvider, Observable() {
@@ -16,14 +18,19 @@ class DateTimeProviderImpl: DateTimeProvider, Observable() {
 
     private var isRunning = false
     private var timer = Timer()
+    lateinit var dateTime: LocalDateTime
 
     override fun stop() {
         timer.cancel()
         isRunning = false
     }
 
-    override fun getLocalUTCTimeMillis(): Long {
-        return System.currentTimeMillis()
+    override fun getLocalDateTime(): LocalDateTime {
+        return LocalDateTime.now()
+    }
+
+    override fun setLocalDateTime(dateTime: LocalDateTime) {
+        this@DateTimeProviderImpl.dateTime = dateTime
     }
 
     override fun start(observer: Observer) {
@@ -31,8 +38,8 @@ class DateTimeProviderImpl: DateTimeProvider, Observable() {
         isRunning = true
         timer.schedule(object : TimerTask() {
             override fun run() {
-                val nowUTC = getLocalUTCTimeMillis()
-                observer.update(this@DateTimeProviderImpl, nowUTC)
+                dateTime = dateTime.plusSeconds(1)
+                observer.update(this@DateTimeProviderImpl, dateTime)
             }
 
         }, 0, SECOND)

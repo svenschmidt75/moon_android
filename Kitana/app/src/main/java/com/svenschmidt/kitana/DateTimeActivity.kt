@@ -1,11 +1,13 @@
 package com.svenschmidt.kitana
 
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.View
 import android.view.View.VISIBLE
 import android.widget.Button
 import android.widget.DatePicker
+import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -40,7 +42,7 @@ class DateTimeActivity : AppCompatActivity() {
                         month: Int,
                         dayOfMonth: Int
                     ) {
-//                        viewModel.setDate()
+                        viewModel.setDate(year, month, dayOfMonth)
                     }
                 },
                 cal.get(Calendar.YEAR),
@@ -48,6 +50,21 @@ class DateTimeActivity : AppCompatActivity() {
                 cal.get(Calendar.DAY_OF_MONTH)
             ).show()
         }
+
+        binding.localDateAndTimeSelectTime.setOnClickListener {
+            TimePickerDialog(
+                this,
+                object: TimePickerDialog.OnTimeSetListener {
+                    override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
+                        viewModel.setTime(hourOfDay, minute)
+                    }
+                },
+                cal.get(Calendar.HOUR),
+                cal.get(Calendar.MINUTE),
+                false
+            ).show()
+        }
+
 
     }
 
