@@ -65,6 +65,9 @@ class DateTimeActivity : AppCompatActivity() {
             ).show()
         }
 
+        binding.localDateAndTimeUseCurrentTime.setOnClickListener {
+            viewModel.setCurrentDateTime()
+        }
 
     }
 

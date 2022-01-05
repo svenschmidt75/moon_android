@@ -6,11 +6,12 @@ import java.util.*
 interface DateTimeProvider {
     fun start(observer: Observer)
     fun stop()
-    fun getLocalDateTime(): LocalDateTime
-    fun setLocalDateTime(dateTime: LocalDateTime)
+    fun getCurrentLocalDateTime(): LocalDateTime
+    fun setCurrentLocalDateTime(dateTime: LocalDateTime)
+    fun getSystemLocalDateTime(): LocalDateTime
 }
 
-class DateTimeProviderImpl: DateTimeProvider, Observable() {
+class DateTimeProviderImpl : DateTimeProvider, Observable() {
 
     companion object {
         const val SECOND: Long = 1000
@@ -18,18 +19,26 @@ class DateTimeProviderImpl: DateTimeProvider, Observable() {
 
     private var isRunning = false
     private var timer = Timer()
-    lateinit var dateTime: LocalDateTime
+    var dateTime: LocalDateTime
+
+    init {
+        dateTime = LocalDateTime.now()
+    }
 
     override fun stop() {
         timer.cancel()
         isRunning = false
     }
 
-    override fun getLocalDateTime(): LocalDateTime {
+    override fun getSystemLocalDateTime(): LocalDateTime {
         return LocalDateTime.now()
     }
 
-    override fun setLocalDateTime(dateTime: LocalDateTime) {
+    override fun getCurrentLocalDateTime(): LocalDateTime {
+        return dateTime
+    }
+
+    override fun setCurrentLocalDateTime(dateTime: LocalDateTime) {
         this@DateTimeProviderImpl.dateTime = dateTime
     }
 
