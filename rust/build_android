@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#cd ~/Develop/Android/greetings/cargo
+
+app_name=Kitana
+config=release
+lib_name=libmoon_android
+
+mkdir -p ../$app_name/app/src/main/jniLibs/arm64/
+mkdir -p ../$app_name/app/src/main/jniLibs/armeabi/
+mkdir -p ../$app_name/app/src/main/jniLibs/x86/
+
+
+cargo build --target aarch64-linux-android --$config
+cp target/aarch64-linux-android/$config/$lib_name.so ../$app_name/app/src/main/jniLibs/arm64/
+
+cargo build --target armv7-linux-androideabi --$config
+cp target/armv7-linux-androideabi/$config/$lib_name.so ../$app_name/app/src/main/jniLibs/armeabi/
+
+cargo build --target i686-linux-android --$config
+cp target/i686-linux-android/$config/$lib_name.so ../$app_name/app/src/main/jniLibs/x86/

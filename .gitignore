@@ -2,3 +2,5 @@
 Cargo.lock
 
 rust/target/
+
+Kitana/app/src/main/jniLibs/
