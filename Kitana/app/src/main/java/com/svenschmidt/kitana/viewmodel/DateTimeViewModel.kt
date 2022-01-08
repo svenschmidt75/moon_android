@@ -14,6 +14,8 @@ import javax.inject.Inject
 
 class DateTimeViewModel(application: Application) : AndroidViewModel(application) {
 
+    private external fun rust_julian_day(year: Int, month: Int, day: Double): Int
+
     @Inject
     lateinit var dateTimeProvider: DateTimeProvider
 
@@ -61,6 +63,22 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
             )
         )
         utcTime.postValue(formatted)
+
+        // SS: set Julian day
+        val (year, month, day) = FromLocalDateTime(utcDateTime)
+        val julianDay = rust_julian_day(year, month, day)
+        //this.julianDay.postValue(julianDay.toString())
+    }
+
+    data class FromLocalDateTimeResult(val year: Int, val month: Int, val day: Double)
+
+    private fun  FromLocalDateTime(dateTime: LocalDateTime): FromLocalDateTimeResult {
+        var day = dateTime.dayOfMonth.toDouble();
+
+        val dayFraction = (dateTime.hour + dateTime.minute / 60.0 + dateTime.second / (60.0 * 60.0)) / 24.0;
+        day += dayFraction
+
+        return FromLocalDateTimeResult(dateTime.year, dateTime.monthValue, day)
     }
 
     fun setDate(year: Int, month: Int, dayOfMonth: Int) {
