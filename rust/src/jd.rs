@@ -7,7 +7,7 @@
 /// from DT to universal time (UT) is ignored, so for the purpose of this
 /// module, TD = UT.
 /// see J. Meeus, Astronomical Algorithms, chapter 7
-pub fn from_date(y: i16, m: u8, d: u8, fract_day: f64) -> f64 {
+pub fn from_date(y: i16, m: u8, d: f64) -> f64 {
     let (mm, yy) = if m < 3 { (m + 12, y - 1) } else { (m, y) };
 
     let b = if !is_julian_calendar(y, m, d) {
@@ -19,7 +19,7 @@ pub fn from_date(y: i16, m: u8, d: u8, fract_day: f64) -> f64 {
 
     let jd = (365.25 * (yy as f64 + 4716.0)).trunc()
         + (30.6001 * (mm as f64 + 1.0)).trunc()
-        + (d as f64 + fract_day)
+        + (d as f64)
         + b
         - 1524.5;
     jd
@@ -28,8 +28,8 @@ pub fn from_date(y: i16, m: u8, d: u8, fract_day: f64) -> f64 {
 /// The Gregorian calendar reform implies that any date before
 /// or at 1582, Oct. 4th is in the Julian calendar, dates after
 /// in the Gregorian calendar.
-fn is_julian_calendar(y: i16, m: u8, d: u8) -> bool {
-    y < 1582 || y == 1582 && (m < 10 || m == 10 && d < 5)
+fn is_julian_calendar(y: i16, m: u8, d: f64) -> bool {
+    y < 1582 || y == 1582 && (m < 10 || m == 10 && d < 5.0)
 }
 
 pub fn centuries_from_epoch_j2000(jd: f64) -> f64 {
@@ -63,7 +63,7 @@ mod tests {
         // act
 
         // assert
-        assert!(is_julian_calendar(333, 1, 27))
+        assert!(is_julian_calendar(333, 1, 27.0))
     }
 
     #[test]
@@ -73,7 +73,7 @@ mod tests {
         // act
 
         // assert
-        assert_ne!(true, is_julian_calendar(1957, 10, 4))
+        assert_ne!(true, is_julian_calendar(1957, 10, 4.0))
     }
 
     #[test]
@@ -83,7 +83,7 @@ mod tests {
         // act
 
         // assert
-        assert_eq!(2_436_116.31, from_date(1957, 10, 4, 0.81))
+        assert_eq!(2_436_116.31, from_date(1957, 10, 4.81))
     }
 
     #[test]
@@ -93,7 +93,7 @@ mod tests {
         // act
 
         // assert
-        assert_eq!(1_842_713.0, from_date(333, 1, 27, 0.5))
+        assert_eq!(1_842_713.0, from_date(333, 1, 27.5))
     }
 
     #[test]
@@ -105,7 +105,7 @@ mod tests {
         // act
 
         // assert
-        assert_eq!(0.0, from_date(-4712, 1, 1, 0.5))
+        assert_eq!(0.0, from_date(-4712, 1, 1.5))
     }
 
     #[test]
@@ -117,6 +117,6 @@ mod tests {
         // act
 
         // assert
-        assert_eq!(2_026_871.8, from_date(837, 4, 10, 0.3))
+        assert_eq!(2_026_871.8, from_date(837, 4, 10.3))
     }
 }

@@ -281,7 +281,7 @@ mod tests {
     #[test]
     fn heliocentric_ecliptical_longitude_test() {
         // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13, 0.0);
+        let jd = jd::from_date(1992, 10, 13.0);
 
         // Act
         let longitude = heliocentric_ecliptical_longitude(jd);
@@ -293,7 +293,7 @@ mod tests {
     #[test]
     fn geocentric_ecliptical_longitude_test() {
         // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13, 0.0);
+        let jd = jd::from_date(1992, 10, 13.0);
 
         // Act
         let longitude = geocentric_ecliptical_longitude(jd);
@@ -305,7 +305,7 @@ mod tests {
     #[test]
     fn distance_earth_sun_test() {
         // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13, 0.0);
+        let jd = jd::from_date(1992, 10, 13.0);
 
         // Act
         let distance = distance_earth_sun_ae(jd);
@@ -317,7 +317,7 @@ mod tests {
     #[test]
     fn heliocentric_ecliptical_latitude_test() {
         // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13, 0.0);
+        let jd = jd::from_date(1992, 10, 13.0);
 
         // Act
         let latitude = heliocentric_ecliptical_latitude(jd);
@@ -329,7 +329,7 @@ mod tests {
     #[test]
     fn geocentric_ecliptical_latitude_test() {
         // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13, 0.0);
+        let jd = jd::from_date(1992, 10, 13.0);
 
         // Act
         let latitude = geocentric_ecliptical_latitude(jd);
@@ -341,7 +341,7 @@ mod tests {
     #[test]
     fn geocentric_ecliptical_to_fk5_test() {
         // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13, 0.0);
+        let jd = jd::from_date(1992, 10, 13.0);
 
         // Act
         let longitude = apparent_geometric_longitude(jd);

@@ -43,7 +43,7 @@ mod tests {
     #[test]
     fn mean_obliquity_test() {
         // Arrange
-        let jd = jd::from_date(1987, 4, 10, 0.0);
+        let jd = jd::from_date(1987, 4, 10.0);
 
         // Act
         let eps = mean_obliquity(jd);
@@ -55,7 +55,7 @@ mod tests {
     #[test]
     fn true_obliquity_test_1() {
         // Arrange
-        let jd = jd::from_date(1987, 4, 10, 0.0);
+        let jd = jd::from_date(1987, 4, 10.0);
 
         // Act
         let eps = true_obliquity(jd);
@@ -67,7 +67,7 @@ mod tests {
     #[test]
     fn true_obliquity_test_2() {
         // Arrange
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let eps = true_obliquity(jd);

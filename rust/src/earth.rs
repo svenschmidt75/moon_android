@@ -65,7 +65,7 @@ mod tests {
     #[test]
     pub fn ecliptical_to_equatorial_test() {
         // Arrange
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
         let longitude = Degrees::new(133.162655);
         let latitude = Degrees::new(-3.229126);
 

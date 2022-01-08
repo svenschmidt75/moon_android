@@ -59,8 +59,6 @@ pub fn phase_description(jd: f64) -> &'static str {
 
     const SECTION: f64 = 360.0 / (2.0 * 8.0);
 
-    let s = SECTION;
-
     let desc = if phase_angle < SECTION {
         "New Moon"
     } else if phase_angle >= SECTION && phase_angle < 45.0 + SECTION {
@@ -96,7 +94,7 @@ mod tests {
     #[test]
     fn phase_angle_test() {
         // Arrange
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let phase_angle = phase_angle(jd);
@@ -108,7 +106,7 @@ mod tests {
     #[test]
     fn fraction_illuminated_test_1() {
         // Arrange
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let fraction_illuminated = fraction_illuminated(jd);

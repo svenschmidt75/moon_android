@@ -25,7 +25,7 @@ mod tests {
     #[test]
     fn sun_mean_anomaly_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let mean_elongation = mean_anomaly(jd);

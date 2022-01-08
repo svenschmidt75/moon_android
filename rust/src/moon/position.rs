@@ -326,7 +326,7 @@ mod tests {
     #[test]
     fn mean_longitude_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let mean_longitude = mean_longitude(jd);
@@ -338,7 +338,7 @@ mod tests {
     #[test]
     fn mean_elongation_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let mean_elongation = mean_elongation(jd);
@@ -350,7 +350,7 @@ mod tests {
     #[test]
     fn sun_mean_anomaly_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let mean_elongation = sun::mean_anomaly(jd);
@@ -362,7 +362,7 @@ mod tests {
     #[test]
     fn mean_anomaly_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let mean_elongation = mean_anomaly(jd);
@@ -374,7 +374,7 @@ mod tests {
     #[test]
     fn argument_of_latitude_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let argument_of_latitude = argument_of_latitude(jd);
@@ -386,7 +386,7 @@ mod tests {
     #[test]
     fn longitude_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let longitude = geocentric_longitude(jd);
@@ -398,7 +398,7 @@ mod tests {
     #[test]
     fn latitude_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let latitude = geocentric_latitude(jd);
@@ -410,7 +410,7 @@ mod tests {
     #[test]
     fn distance_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let distance = distance_from_earth(jd);

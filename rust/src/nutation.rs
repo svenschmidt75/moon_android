@@ -146,7 +146,7 @@ mod tests {
     #[test]
     fn nutation_longitude_test_1() {
         // Arrange
-        let jd = jd::from_date(1987, 4, 10, 0.0);
+        let jd = jd::from_date(1987, 4, 10.0);
 
         // Act
         let delta_psi = nutation_in_longitude(jd);
@@ -160,7 +160,7 @@ mod tests {
         // Arrange
 
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12, 0.0);
+        let jd = jd::from_date(1992, 4, 12.0);
 
         // Act
         let delta_psi = Degrees::from(nutation_in_longitude(jd));
@@ -172,7 +172,7 @@ mod tests {
     #[test]
     fn nutation_obliquity_test_1() {
         // Arrange
-        let jd = jd::from_date(1987, 4, 10, 0.0);
+        let jd = jd::from_date(1987, 4, 10.0);
 
         // Act
         let delta_epsilon = nutation_in_obliquity(jd);
