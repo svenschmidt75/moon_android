@@ -12,4 +12,7 @@
     <string name="local_date_and_time_local_time">Local Time:</string>
     <string name="local_date_and_time_use_current_time">Use Current Date/Time</string>
 
+    <!-- ensures content starts after the app bar in vertical direction -->
+    <string name="appbar_scrolling_view_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
+
 </resources>
