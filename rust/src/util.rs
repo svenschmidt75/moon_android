@@ -86,15 +86,6 @@ impl Radians {
     pub fn new(radians: f64) -> Self {
         Self(radians)
     }
-
-    /// Map angle in radians to range [0, 2 pi)
-    pub fn map_to_0_to_2pi(self: Radians) -> Radians {
-        let mut m = self.0 % (2.0 * std::f64::consts::PI);
-        if m < 0.0 {
-            m += 2.0 * std::f64::consts::PI;
-        }
-        Radians::new(m)
-    }
 }
 
 impl Add for Radians {

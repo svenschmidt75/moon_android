@@ -16,8 +16,8 @@ mod util;
 pub mod android {
     extern crate jni;
 
-    use self::jni::objects::{JClass, JString};
-    use self::jni::sys::{jdouble, jint, jstring};
+    use self::jni::objects::{JClass};
+    use self::jni::sys::{jdouble, jint};
     use self::jni::JNIEnv;
     use super::*;
 
