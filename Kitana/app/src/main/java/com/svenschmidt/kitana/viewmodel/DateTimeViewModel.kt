@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 class DateTimeViewModel(application: Application) : AndroidViewModel(application) {
 
-    private external fun rust_julian_day(year: Int, month: Int, day: Double): Int
+    private external fun rust_julian_day(year: Int, month: Int, day: Double): Double
 
     @Inject
     lateinit var dateTimeProvider: DateTimeProvider
@@ -55,7 +55,7 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
         // SS: get UTC time
         val utcDateTime =
             dateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC)
-                .toLocalDateTime();
+                .toLocalDateTime()
         formatted = utcDateTime.format(
             DateTimeFormatter.ofPattern(
                 "yyyy-MMM-dd HH:mm:ss",
@@ -65,17 +65,18 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
         utcTime.postValue(formatted)
 
         // SS: set Julian day
-        val (year, month, day) = FromLocalDateTime(utcDateTime)
+        val (year, month, day) = fromLocalDateTime(utcDateTime)
         val julianDay = rust_julian_day(year, month, day)
-        //this.julianDay.postValue(julianDay.toString())
+        this.julianDay.postValue(julianDay.toString())
     }
 
     data class FromLocalDateTimeResult(val year: Int, val month: Int, val day: Double)
 
-    private fun  FromLocalDateTime(dateTime: LocalDateTime): FromLocalDateTimeResult {
-        var day = dateTime.dayOfMonth.toDouble();
+    private fun fromLocalDateTime(dateTime: LocalDateTime): FromLocalDateTimeResult {
+        var day = dateTime.dayOfMonth.toDouble()
 
-        val dayFraction = (dateTime.hour + dateTime.minute / 60.0 + dateTime.second / (60.0 * 60.0)) / 24.0;
+        val dayFraction =
+            (dateTime.hour + dateTime.minute / 60.0 + dateTime.second / (60.0 * 60.0)) / 24.0
         day += dayFraction
 
         return FromLocalDateTimeResult(dateTime.year, dateTime.monthValue, day)
