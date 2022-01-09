@@ -1,7 +1,8 @@
-package com.svenschmidt.kitana
+package com.svenschmidt.kitana.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.svenschmidt.kitana.R
 
 class MainContent : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

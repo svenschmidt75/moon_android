@@ -10,13 +10,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kitana">
         <activity
-            android:name=".DateTimeActivity"
+            android:name=".activities.DateTimeActivity"
             android:exported="false" />
         <activity
-            android:name=".MainContent"
+            android:name=".activities.MainContent"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

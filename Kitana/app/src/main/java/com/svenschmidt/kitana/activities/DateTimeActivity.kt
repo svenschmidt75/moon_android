@@ -1,18 +1,14 @@
-package com.svenschmidt.kitana
+package com.svenschmidt.kitana.activities
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.os.Bundle
-import android.view.View
-import android.view.View.VISIBLE
-import android.widget.Button
 import android.widget.DatePicker
 import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.button.MaterialButton
-import com.google.android.material.checkbox.MaterialCheckBox
+import com.svenschmidt.kitana.R
 import com.svenschmidt.kitana.databinding.ActivityDateTimeBinding
 import com.svenschmidt.kitana.viewmodel.DateTimeViewModel
 import java.util.*

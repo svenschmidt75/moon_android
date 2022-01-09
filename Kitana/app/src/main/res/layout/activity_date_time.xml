@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="viewmodel"
             type="com.svenschmidt.kitana.viewmodel.DateTimeViewModel" />
@@ -14,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context=".DateTimeActivity">
+        tools:context=".activities.DateTimeActivity">
 
         <TextView
             android:id="@+id/local_date_and_time_title"
