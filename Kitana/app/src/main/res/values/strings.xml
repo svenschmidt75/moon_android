@@ -14,5 +14,6 @@
 
     <!-- ensures content starts after the app bar in vertical direction -->
     <string name="appbar_scrolling_view_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
+    <string name="moon_animation_text">Moon Animation</string>
 
 </resources>
