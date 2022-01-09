@@ -10,6 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kitana">
         <activity
+            android:name=".activities.MoonAnimationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.MoonActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.DateTimeActivity"
             android:exported="false" />
         <activity

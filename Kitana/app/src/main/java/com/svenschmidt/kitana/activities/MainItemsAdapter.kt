@@ -9,12 +9,15 @@ import com.svenschmidt.kitana.R
 import com.svenschmidt.kitana.core.MainItemDesc
 import kotlinx.android.synthetic.main.main_cardview_item.view.*
 
-class MainItemsAdapter(private val context: Context, private val items: ArrayList<MainItemDesc>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MainItemsAdapter(private val context: Context, private val items: ArrayList<MainItemDesc>) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private class MyViewHolder(view: View) : RecyclerView.ViewHolder(view)
+    private lateinit var onClickListener: OnClickListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return MyViewHolder(LayoutInflater.from(context).inflate(R.layout.main_cardview_item, parent, false))
+        return MyViewHolder(
+            LayoutInflater.from(context).inflate(R.layout.main_cardview_item, parent, false)
+        )
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -23,15 +26,23 @@ class MainItemsAdapter(private val context: Context, private val items: ArrayLis
         holder.itemView.tv_description.text = model.text
         holder.itemView.tv_image.setImageResource(model.imageId)
 
-//        holder.itemView.setOnClickListener {
-//            if (onClickListener != null) {
-//                onClickListener!!.onClick(position, model)
-//            }
-//        }
+        holder.itemView.setOnClickListener {
+            onClickListener.onClick(position, model)
+        }
     }
 
     override fun getItemCount(): Int {
         return items.size
+    }
+
+    fun setOnClickListener(onClickListener: OnClickListener) {
+        this.onClickListener = onClickListener
+    }
+
+    private class MyViewHolder(view: View) : RecyclerView.ViewHolder(view)
+
+    interface OnClickListener {
+        fun onClick(position: Int, model: MainItemDesc)
     }
 
 }

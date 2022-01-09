@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.navigation.NavigationView
 import com.svenschmidt.kitana.R
+import com.svenschmidt.kitana.core.MainItemDesc
 import com.svenschmidt.kitana.databinding.ActivityMainBinding
 import com.svenschmidt.kitana.viewmodel.MainActivityViewModel
 import kotlinx.android.synthetic.main.activity_main.*
@@ -52,14 +53,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val adapter = MainItemsAdapter(this@MainActivity, items)
         rv_items_list.adapter = adapter
 
-//        adapter.setOnClickListener(object :
-//            BoardItemsAdapter.OnClickListener {
-//            override fun onClick(position: Int, model: Board) {
-//                val intent = Intent(this@MainActivity, TaskListActivity::class.java)
-//                intent.putExtra(Constants.DOCUMENT_ID, model.documentId)
-//                startActivity(intent)
-//            }
-//        })
+        adapter.setOnClickListener(object :
+            MainItemsAdapter.OnClickListener {
+            override fun onClick(position: Int, model: MainItemDesc) {
+                when (position) {
+                    0 -> {
+                        // SS: start Moon activity
+                        val intent = Intent(this@MainActivity, MoonActivity::class.java)
+                        startActivity(intent)
+                    }
+
+                    1 -> {
+                        // SS: start Moon animation activity
+                        val intent = Intent(this@MainActivity, MoonAnimationActivity::class.java)
+                        startActivity(intent)
+                    }
+                }
+            }
+        })
     }
 
     private fun setupActionBar() {

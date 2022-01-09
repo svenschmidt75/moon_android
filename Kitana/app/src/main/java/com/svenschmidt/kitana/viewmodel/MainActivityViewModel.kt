@@ -6,6 +6,7 @@ import com.svenschmidt.kitana.R
 import com.svenschmidt.kitana.core.MainItemDesc
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
+
     fun getMainItems(): ArrayList<MainItemDesc> {
         val mainItems: ArrayList<MainItemDesc> = ArrayList()
 
