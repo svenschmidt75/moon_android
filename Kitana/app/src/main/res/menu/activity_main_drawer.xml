@@ -6,4 +6,9 @@
         android:icon="@drawable/ic_date_time"
         android:title="@string/date_time" />
 
+    <item
+        android:id="@+id/location"
+        android:icon="@drawable/ic_location"
+        android:title="@string/location" />
+
 </menu>

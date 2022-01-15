@@ -11,6 +11,7 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
     @Inject
     lateinit var dateTimeProvider: DateTimeProvider
 
+    val phaseAngle = MutableLiveData<String>()
     val fractionIlluminated = MutableLiveData<String>()
     val phaseName = MutableLiveData<String>()
     val geocentricLongitude = MutableLiveData<String>()
@@ -24,8 +25,18 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
     val transits = MutableLiveData<String>()
     val sets = MutableLiveData<String>()
 
+    data class MoonData(
+        var phaseAngle: Double
+    )
+
+    private external fun rust_moon_data(jd: Double, moonData: MoonData)
+
 
     init {
+        val moonData = MoonData(1.0)
+        rust_moon_data(2445_645.76, moonData);
+
+        phaseAngle.postValue("56.4")
         fractionIlluminated.postValue("56.4%")
         phaseName.postValue("Waning Crescent")
         geocentricLongitude.postValue("175.365")
