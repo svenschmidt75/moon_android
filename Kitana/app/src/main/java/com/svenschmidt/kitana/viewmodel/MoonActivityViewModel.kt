@@ -30,7 +30,7 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
 
 
     init {
-        val moonData = NativeAccess.MoonData(1.0)
+        val moonData = NativeAccess.MoonData()
         NativeAccess.rust_moon_data(2445_645.76, moonData);
 
         phaseAngle.postValue("56.4")

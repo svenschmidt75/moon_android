@@ -4,7 +4,7 @@ use crate::sun::position::{
     apparent_geometric_latitude, apparent_geometric_longitude, distance_earth_sun,
 };
 use crate::util::{Degrees, Radians};
-use crate::{jd, moon};
+use crate::{moon};
 
 /// Calculate the phase angle or age of the moon.
 /// Meeus, chapter 48, eq. (48.1) or Duffett-Smith and Zwart, chapter 67, page 171
@@ -90,6 +90,7 @@ pub fn fraction_illuminated(jd: f64) -> f64 {
 mod tests {
     use super::*;
     use assert_approx_eq::assert_approx_eq;
+    use crate::jd;
 
     #[test]
     fn phase_angle_test() {

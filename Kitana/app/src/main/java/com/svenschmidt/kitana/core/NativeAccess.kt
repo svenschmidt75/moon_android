@@ -1,9 +1,13 @@
 package com.svenschmidt.kitana.core
 
+import java.util.*
+
 class NativeAccess {
 
     data class MoonData(
-        var phaseAngle: Double
+        var phaseAngle: Double = 0.0,
+        var illuminatedFraction: Double = 0.0,
+        var phaseDesc: String = ""
     )
 
     companion object {

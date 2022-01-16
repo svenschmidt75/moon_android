@@ -12,10 +12,10 @@ mod util;
 pub mod android {
     extern crate jni;
 
-    use jni::sys::{jfieldID, jvalue};
-    use crate::moon::phase::phase_angle_360;
-    use self::jni::objects::{JClass, JValue};
-    use self::jni::sys::{jdouble, jint, jobject};
+    use super::*;
+
+    use self::jni::objects::{JClass, JObject, JString};
+    use self::jni::sys::{jdouble, jint, jobject, jstring, jclass};
     use self::jni::JNIEnv;
     use super::*;
 
@@ -39,12 +39,6 @@ pub mod android {
      * Moon
      */
 
-
-    #[repr(C)]
-    pub struct MoonData {
-        phase_angle: f64
-    }
-
     #[no_mangle]
     pub extern "system" fn Java_com_svenschmidt_kitana_core_NativeAccess_00024Companion_rust_1moon_1data(
         env: JNIEnv,
@@ -55,8 +49,15 @@ pub mod android {
 
         println!("Invoked native method Java_com_svenschmidt_kitana_viewmodel_MoonActivityViewModel_rust_1moon_1data");
 
-        let phase_angle = phase_angle_360(jd);
+        let phase_angle = moon::phase::phase_angle_360(jd);
         env.set_field(moon_data, "phaseAngle", "D", self::jni::objects::JValue::Double(phase_angle.0));
+
+        let fraction_illuminated = moon::phase::fraction_illuminated(jd);
+        env.set_field(moon_data, "illuminatedFraction", "D", self::jni::objects::JValue::Double(fraction_illuminated));
+
+        let phase_desc = moon::phase::phase_description(jd);
+        let phase_desc: JString = env.new_string(phase_desc).unwrap();
+        env.set_field(moon_data, "phaseDesc", "Ljava/lang/String;", self::jni::objects::JValue::Object(phase_desc.into()));
     }
 
 

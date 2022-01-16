@@ -31,6 +31,22 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
         updateDateTime(dateTime)
     }
 
+    companion object {
+
+        data class FromLocalDateTimeResult(val year: Int, val month: Int, val day: Double)
+
+        fun fromLocalDateTime(dateTime: LocalDateTime): FromLocalDateTimeResult {
+            var day = dateTime.dayOfMonth.toDouble()
+
+            val dayFraction =
+                (dateTime.hour + dateTime.minute / 60.0 + dateTime.second / (60.0 * 60.0)) / 24.0
+            day += dayFraction
+
+            return FromLocalDateTimeResult(dateTime.year, dateTime.monthValue, day)
+        }
+
+    }
+
     fun onUpdateDateTime() {
         if (updateDateTime.value!!) {
             dateTimeProvider.start { _, now ->
@@ -67,18 +83,6 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
         val (year, month, day) = fromLocalDateTime(utcDateTime)
         val julianDay = NativeAccess.rust_julian_day(year, month, day)
         this.julianDay.postValue(julianDay.toString())
-    }
-
-    data class FromLocalDateTimeResult(val year: Int, val month: Int, val day: Double)
-
-    private fun fromLocalDateTime(dateTime: LocalDateTime): FromLocalDateTimeResult {
-        var day = dateTime.dayOfMonth.toDouble()
-
-        val dayFraction =
-            (dateTime.hour + dateTime.minute / 60.0 + dateTime.second / (60.0 * 60.0)) / 24.0
-        day += dayFraction
-
-        return FromLocalDateTimeResult(dateTime.year, dateTime.monthValue, day)
     }
 
     fun setDate(year: Int, month: Int, dayOfMonth: Int) {
