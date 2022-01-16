@@ -73,7 +73,12 @@ mod tests {
         let (ra, dec) = ecliptical_to_equatorial(jd, longitude, latitude);
 
         // Assert
-        assert_approx_eq!(8.9789280347415126, ra.0, 0.000_001);
+        assert_approx_eq!(134.68392033025296, ra.0, 0.000_001);
+
+        assert_eq!(8, ra.to_hms().0);
+        assert_eq!(58, ra.to_hms().1);
+        assert_approx_eq!(44.1408, ra.to_hms().2, 0.01);
+
         assert_approx_eq!(13.769657226951539, dec.0, 0.000_001);
     }
 }

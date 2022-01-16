@@ -15,7 +15,7 @@ pub mod android {
     use super::*;
 
     use self::jni::objects::{JClass, JObject, JString};
-    use self::jni::sys::{jdouble, jint, jobject, jstring, jclass};
+    use self::jni::sys::{jclass, jdouble, jint, jobject, jstring};
     use self::jni::JNIEnv;
     use super::*;
 
@@ -44,30 +44,63 @@ pub mod android {
         env: JNIEnv,
         _: JClass,
         jd: jdouble,
-        moon_data: jobject
+        moon_data: jobject,
     ) {
-
         println!("Invoked native method Java_com_svenschmidt_kitana_viewmodel_MoonActivityViewModel_rust_1moon_1data");
 
         let phase_angle = moon::phase::phase_angle_360(jd);
-        env.set_field(moon_data, "phaseAngle", "D", self::jni::objects::JValue::Double(phase_angle.0)).unwrap();
+        env.set_field(
+            moon_data,
+            "phaseAngle",
+            "D",
+            self::jni::objects::JValue::Double(phase_angle.0),
+        )
+        .unwrap();
 
         let fraction_illuminated = moon::phase::fraction_illuminated(jd);
-        env.set_field(moon_data, "illuminatedFraction", "D", self::jni::objects::JValue::Double(fraction_illuminated)).unwrap();
+        env.set_field(
+            moon_data,
+            "illuminatedFraction",
+            "D",
+            self::jni::objects::JValue::Double(fraction_illuminated),
+        )
+        .unwrap();
 
         let phase_desc = moon::phase::phase_description(jd);
         let phase_desc: JString = env.new_string(phase_desc).unwrap();
-        env.set_field(moon_data, "phaseDesc", "Ljava/lang/String;", self::jni::objects::JValue::Object(phase_desc.into())).unwrap();
+        env.set_field(
+            moon_data,
+            "phaseDesc",
+            "Ljava/lang/String;",
+            self::jni::objects::JValue::Object(phase_desc.into()),
+        )
+        .unwrap();
 
         let longitude = moon::position::geocentric_longitude(jd);
-        env.set_field(moon_data, "geocentricLongitude", "D", self::jni::objects::JValue::Double(longitude.0)).unwrap();
+        env.set_field(
+            moon_data,
+            "geocentricLongitude",
+            "D",
+            self::jni::objects::JValue::Double(longitude.0),
+        )
+        .unwrap();
 
         let latitude = moon::position::geocentric_latitude(jd);
-        env.set_field(moon_data, "geocentricLatitude", "D", self::jni::objects::JValue::Double(latitude.0)).unwrap();
+        env.set_field(
+            moon_data,
+            "geocentricLatitude",
+            "D",
+            self::jni::objects::JValue::Double(latitude.0),
+        )
+        .unwrap();
 
         let distance = moon::position::distance_from_earth(jd);
-        env.set_field(moon_data, "distanceFromEarth", "D", self::jni::objects::JValue::Double(distance)).unwrap();
+        env.set_field(
+            moon_data,
+            "distanceFromEarth",
+            "D",
+            self::jni::objects::JValue::Double(distance),
+        )
+        .unwrap();
     }
-
-
 }

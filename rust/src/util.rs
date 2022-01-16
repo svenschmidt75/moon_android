@@ -201,25 +201,25 @@ mod tests {
     #[test]
     fn degree_to_dms_test() {
         // Arrange
-        let degrees = Degrees(101.78654);
+        let degrees = Degrees(13.769657226951539);
 
         // Act
         let text = format!("{}", degrees.to_dms_str());
 
         // Assert
-        assert_eq!(r#"101° 47' 11.54""#, text)
+        assert_eq!(r#"13° 46' 10.77""#, text)
     }
 
     #[test]
     fn degree_to_hms_test() {
         // Arrange
-        let degrees = Degrees(101.78654);
+        let degrees = Degrees(134.68392033025296);
 
         // Act
         let text = format!("{}", degrees.to_hms_str());
 
         // Assert
-        assert_eq!("6h 47m 8.77s", text)
+        assert_eq!("8h 58m 44.14s", text)
     }
 
     #[test]
