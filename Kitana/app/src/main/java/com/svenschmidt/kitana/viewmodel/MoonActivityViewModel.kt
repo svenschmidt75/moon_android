@@ -5,6 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.svenschmidt.kitana.core.DateTimeProvider
 import com.svenschmidt.kitana.core.NativeAccess
+import com.svenschmidt.kitana.di.DaggerViewModelComponent
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class MoonActivityViewModel(application: Application) : AndroidViewModel(application) {
@@ -26,19 +28,34 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
     val transits = MutableLiveData<String>()
     val sets = MutableLiveData<String>()
 
-//    private external fun rust_moon_data(jd: Double, moonData: MoonData)
-
+    fun Double.format(digits: Int) = "%.${digits}f".format(this)
 
     init {
-        val moonData = NativeAccess.MoonData()
-        NativeAccess.rust_moon_data(2445_645.76, moonData);
+        DaggerViewModelComponent.builder().build().inject(this)
 
-        phaseAngle.postValue("56.4")
-        fractionIlluminated.postValue("56.4%")
-        phaseName.postValue("Waning Crescent")
-        geocentricLongitude.postValue("175.365")
-        geocentricLatitude.postValue("75.365")
-        distance.postValue("56.4%")
+        val subscriberToken = dateTimeProvider.subscribe { utcDateTime -> onUpdateDateTime(utcDateTime) }
+        onUpdateDateTime(dateTimeProvider.getCurrentLocalDateTime())
+    }
+
+    private fun onUpdateDateTime(utcDateTime: LocalDateTime) {
+        val (year, month, day) = DateTimeViewModel.fromLocalDateTime(utcDateTime)
+        val julianDay = NativeAccess.rust_julian_day(year, month, day)
+
+        val moonData = NativeAccess.MoonData()
+        NativeAccess.rust_moon_data(julianDay, moonData);
+
+        phaseAngle.postValue("${moonData.phaseAngle.format(2)}°")
+        fractionIlluminated.postValue("${(moonData.illuminatedFraction * 100).format(2)}%")
+        phaseName.postValue(moonData.phaseDesc)
+
+        val geocentricLongitudeDMS = NativeAccess.rust_to_dms(moonData.geocentricLongitude, 2)
+        geocentricLongitude.postValue(geocentricLongitudeDMS)
+
+        val geocentricLatitudeDMS = NativeAccess.rust_to_dms(moonData.geocentricLatitude, 2)
+        geocentricLatitude.postValue(geocentricLatitudeDMS)
+
+        distance.postValue("${moonData.distanceFromEarth.format(0)}km")
+
         rightAscension.postValue("Waning Crescent")
         declination.postValue("175.365")
         altitude.postValue("75.365")

@@ -29,6 +29,9 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
         // SS: initialize UI with current date/time
         val dateTime = dateTimeProvider.getCurrentLocalDateTime()
         updateDateTime(dateTime)
+
+        // SS TODO: when activity stops or is suspended, ...
+        val subscriberToken = dateTimeProvider.subscribe {  now -> updateDateTime(now as LocalDateTime) }
     }
 
     companion object {
@@ -49,9 +52,7 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
 
     fun onUpdateDateTime() {
         if (updateDateTime.value!!) {
-            dateTimeProvider.start { _, now ->
-                updateDateTime(now as LocalDateTime)
-            }
+            dateTimeProvider.start()
         } else {
             dateTimeProvider.stop()
         }
