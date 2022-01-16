@@ -14,8 +14,8 @@ pub mod android {
 
     use super::*;
 
-    use self::jni::objects::{JClass, JObject, JString};
-    use self::jni::sys::{jclass, jdouble, jint, jobject, jstring};
+    use self::jni::objects::{JClass, JString};
+    use self::jni::sys::{jclass, jdouble, jint, jobject, jstring, jbyte};
     use self::jni::JNIEnv;
     use super::*;
 
@@ -46,8 +46,6 @@ pub mod android {
         jd: jdouble,
         moon_data: jobject,
     ) {
-        println!("Invoked native method Java_com_svenschmidt_kitana_viewmodel_MoonActivityViewModel_rust_1moon_1data");
-
         let phase_angle = moon::phase::phase_angle_360(jd);
         env.set_field(
             moon_data,
@@ -102,5 +100,18 @@ pub mod android {
             self::jni::objects::JValue::Double(distance),
         )
         .unwrap();
+    }
+
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_svenschmidt_kitana_core_NativeAccess_00024Companion_rust_1to_1dms(
+        env: JNIEnv,
+        _: JClass,
+        degrees: jdouble,
+        width: jbyte
+    ) -> jstring {
+        let dms_str = util::Degrees(degrees).to_dms_str(width as u8);
+        let string: JString = env.new_string(dms_str).unwrap();
+        string.into_inner()
     }
 }

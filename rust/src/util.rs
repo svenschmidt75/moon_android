@@ -27,22 +27,27 @@ impl Degrees {
         Self(degrees)
     }
 
-    pub fn to_dms(&self) -> (u8, u8, f64) {
+    pub fn to_dms(&self) -> (i16, u8, f64) {
         // SS: 360 degrees = 24 hrs
-        let deg = self.0;
 
-        let remainder = self.0 - deg.trunc();
+        let sign = if self.0 < 0.0 { -1 } else { 1};
+
+        let degress = self.0.abs();
+
+        let deg = degress;
+
+        let remainder = degress - deg.trunc();
         let minutes = remainder * 60.0;
 
         let remainder = minutes - minutes.trunc();
         let seconds = remainder * 60.0;
 
-        (deg as u8, minutes as u8, seconds)
+        (sign * deg as i16, minutes as u8, seconds)
     }
 
-    pub fn to_dms_str(&self) -> String {
+    pub fn to_dms_str(&self, width: u8) -> String {
         let (d, m, s) = self.to_dms();
-        format!("{d}° {m}' {s:.2}\"")
+        format!("{d}° {m}' {s:.width$}\"", width = width as usize)
     }
 
     pub fn to_hms(&self) -> (u8, u8, f64) {
@@ -199,15 +204,27 @@ mod tests {
     }
 
     #[test]
-    fn degree_to_dms_test() {
+    fn degree_to_dms_test_1() {
         // Arrange
         let degrees = Degrees(13.769657226951539);
 
         // Act
-        let text = format!("{}", degrees.to_dms_str());
+        let text = format!("{}", degrees.to_dms_str(2));
 
         // Assert
         assert_eq!(r#"13° 46' 10.77""#, text)
+    }
+
+    #[test]
+    fn degree_to_dms_test_2() {
+        // Arrange
+        let degrees = Degrees(-19.6475);
+
+        // Act
+        let text = format!("{}", degrees.to_dms_str(2));
+
+        // Assert
+        assert_eq!(r#"-19° 38' 51.00""#, text)
     }
 
     #[test]

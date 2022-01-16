@@ -32,6 +32,18 @@ class NativeAccessTest {
     }
 
     @Test
+    fun rust_to_dms() {
+        // Arrange
+        val degrees = 13.769657226951539
+
+        // Act
+        val dms_str = NativeAccess.rust_to_dms(degrees, 3);
+
+        // Assert
+        Assert.assertEquals(dms_str, "13° 46' 10.766\"")
+    }
+
+    @Test
     fun rust_moon_data_test() {
         // Arrange
 

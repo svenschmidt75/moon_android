@@ -14,6 +14,9 @@ class NativeAccess {
     )
 
     companion object {
+        // SS: format
+        external fun rust_to_dms(degrees: Double, width: Byte): String
+
         // SS: Julian Day
         external fun rust_julian_day(year: Int, month: Int, day: Double): Double
 
