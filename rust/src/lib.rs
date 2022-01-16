@@ -4,6 +4,7 @@ mod jd;
 mod moon;
 mod nutation;
 mod sun;
+mod time;
 mod util;
 
 /// Expose the JNI interface for android below
@@ -15,7 +16,7 @@ pub mod android {
     use super::*;
 
     use self::jni::objects::{JClass, JString};
-    use self::jni::sys::{jclass, jdouble, jint, jobject, jstring, jbyte};
+    use self::jni::sys::{jbyte, jclass, jdouble, jint, jobject, jstring};
     use self::jni::JNIEnv;
     use super::*;
 
@@ -100,15 +101,23 @@ pub mod android {
             self::jni::objects::JValue::Double(distance),
         )
         .unwrap();
-    }
 
+        let siderial_time = time::apparent_siderial_time(jd);
+        env.set_field(
+            moon_data,
+            "siderialTime",
+            "D",
+            self::jni::objects::JValue::Double(siderial_time.0),
+        )
+        .unwrap();
+    }
 
     #[no_mangle]
     pub extern "system" fn Java_com_svenschmidt_kitana_core_NativeAccess_00024Companion_rust_1to_1dms(
         env: JNIEnv,
         _: JClass,
         degrees: jdouble,
-        width: jbyte
+        width: jbyte,
     ) -> jstring {
         let dms_str = util::Degrees(degrees).to_dms_str(width as u8);
         let string: JString = env.new_string(dms_str).unwrap();

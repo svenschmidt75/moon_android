@@ -10,7 +10,8 @@ class NativeAccess {
         var phaseDesc: String = "",
         var geocentricLongitude: Double = 0.0,
         var geocentricLatitude: Double = 0.0,
-        var distanceFromEarth: Double = 0.0
+        var distanceFromEarth: Double = 0.0,
+        var siderialTime: Double = 0.0
     )
 
     companion object {

@@ -30,7 +30,7 @@ impl Degrees {
     pub fn to_dms(&self) -> (i16, u8, f64) {
         // SS: 360 degrees = 24 hrs
 
-        let sign = if self.0 < 0.0 { -1 } else { 1};
+        let sign = if self.0 < 0.0 { -1 } else { 1 };
 
         let degress = self.0.abs();
 
