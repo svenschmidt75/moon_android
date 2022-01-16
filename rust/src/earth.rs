@@ -1,6 +1,6 @@
 //! Earth related calculations
 use crate::util::{Degrees, Radians};
-use crate::{ecliptic, jd, util};
+use crate::{ecliptic, jd};
 
 /// Calculate Earth's eccentricity, eq (47.6).
 /// In: Julian day in dynamical time
@@ -73,7 +73,7 @@ mod tests {
         let (ra, dec) = ecliptical_to_equatorial(jd, longitude, latitude);
 
         // Assert
-        assert_approx_eq!(8.9789280347415126, util::RA::from(ra).0, 0.000_001);
+        assert_approx_eq!(8.9789280347415126, ra.0, 0.000_001);
         assert_approx_eq!(13.769657226951539, dec.0, 0.000_001);
     }
 }

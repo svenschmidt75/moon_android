@@ -5,6 +5,7 @@ import com.svenschmidt.kitana.core.NativeAccess
 import com.svenschmidt.kitana.viewmodel.DateTimeViewModel
 import org.hamcrest.MatcherAssert
 import org.hamcrest.number.IsCloseTo.closeTo
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,6 +45,7 @@ class NativeAccessTest {
         // Assert
         MatcherAssert.assertThat(moonData.phaseAngle, closeTo(164.6175559076692, 0.000_001))
         MatcherAssert.assertThat(moonData.illuminatedFraction, closeTo(0.981, 0.001))
+        Assert.assertEquals(moonData.phaseDesc, "Full Moon")
     }
 
 

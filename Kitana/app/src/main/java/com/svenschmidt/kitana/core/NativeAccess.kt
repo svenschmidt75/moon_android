@@ -7,7 +7,10 @@ class NativeAccess {
     data class MoonData(
         var phaseAngle: Double = 0.0,
         var illuminatedFraction: Double = 0.0,
-        var phaseDesc: String = ""
+        var phaseDesc: String = "",
+        var geocentricLongitude: Double = 0.0,
+        var geocentricLatitude: Double = 0.0,
+        var distanceFromEarth: Double = 0.0
     )
 
     companion object {

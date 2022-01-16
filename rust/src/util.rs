@@ -27,6 +27,42 @@ impl Degrees {
         Self(degrees)
     }
 
+    pub fn to_dms(&self) -> (u8, u8, f64) {
+        // SS: 360 degrees = 24 hrs
+        let deg = self.0;
+
+        let remainder = self.0 - deg.trunc();
+        let minutes = remainder * 60.0;
+
+        let remainder = minutes - minutes.trunc();
+        let seconds = remainder * 60.0;
+
+        (deg as u8, minutes as u8, seconds)
+    }
+
+    pub fn to_dms_str(&self) -> String {
+        let (d, m, s) = self.to_dms();
+        format!("{d}° {m}' {s:.2}\"")
+    }
+
+    pub fn to_hms(&self) -> (u8, u8, f64) {
+        // SS: convert right ascension to h:m:s
+        let h = self.0 / 360.0 * 24.0;
+
+        let remainder = h - h.trunc();
+        let m = remainder * 60.0;
+
+        let remainder = m - m.trunc();
+        let s = remainder * 60.0;
+
+        (h.trunc() as u8, m.trunc() as u8, s)
+    }
+
+    pub fn to_hms_str(&self) -> String {
+        let (h, m, s) = self.to_hms();
+        format!("{h}h {m}m {s:.2}s")
+    }
+
     /// Map angle in degrees to range [0, 360)
     pub fn map_to_0_to_360(self: Self) -> Self {
         let mut m = self.0 % 360.0;
@@ -133,17 +169,6 @@ impl From<ArcSec> for Degrees {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct RA(pub(crate) f64);
-
-impl From<Degrees> for RA {
-    fn from(angle: Degrees) -> Self {
-        // SS: 1 hours is 24 / 360 degrees
-        const F: f64 = 24.0 / 360.0;
-        Self(angle.0 * F)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -172,42 +197,68 @@ mod tests {
         // Assert
         assert_approx_eq!(23.440636, degrees, 0.000_001)
     }
-    //
-    // #[test]
-    // fn degrees_to_arc_test() {
-    //     // Arrange
-    //     let angle = 133.167265;
-    //
-    //     // Act
-    //     let arcsec = ArcSec::from(angle);
-    //
-    //     // Assert
-    //     assert_eq!(133, arcsec.degrees);
-    //     assert_eq!(10, arcsec.minutes);
-    //     assert_approx_eq!(2.154, arcsec.seconds, 0.001);
-    // }
-    //
-    // #[test]
-    // fn map_negative_1() {
-    //     // Arrange
-    //     let angle = -10.0;
-    //
-    //     // Act
-    //     let mapped = map_to_0_to_360(angle);
-    //
-    //     // Assert
-    //     assert_eq!(360.0 + angle, mapped)
-    // }
-    //
-    // #[test]
-    // fn degrees_to_hours_test() {
-    //     // Arrange
-    //     let angle = 134.688470;
-    //
-    //     // Act
-    //     let hours = degrees_to_hours(angle);
-    //
-    //     // Assert
-    //     assert_approx_eq!(8.979, hours, 0.001)
-    // }
+
+    #[test]
+    fn degree_to_dms_test() {
+        // Arrange
+        let degrees = Degrees(101.78654);
+
+        // Act
+        let text = format!("{}", degrees.to_dms_str());
+
+        // Assert
+        assert_eq!(r#"101° 47' 11.54""#, text)
+    }
+
+    #[test]
+    fn degree_to_hms_test() {
+        // Arrange
+        let degrees = Degrees(101.78654);
+
+        // Act
+        let text = format!("{}", degrees.to_hms_str());
+
+        // Assert
+        assert_eq!("6h 47m 8.77s", text)
+    }
+
+    #[test]
+    fn degrees_to_minutes_seconds_test() {
+        // Arrange
+        let angle = Degrees(133.167265);
+
+        // Act
+        let (d, m, s) = angle.to_dms();
+
+        // Assert
+        assert_eq!(133, d);
+        assert_eq!(10, m);
+        assert_approx_eq!(2.154, s, 0.001);
+    }
+
+    #[test]
+    fn map_negative_1() {
+        // Arrange
+        let angle = Degrees(-10.0);
+
+        // Act
+        let mapped = angle.map_to_0_to_360();
+
+        // Assert
+        assert_eq!(360.0 + angle.0, mapped.0)
+    }
+
+    #[test]
+    fn degrees_to_hours_test() {
+        // Arrange
+        let angle = Degrees(134.688470);
+
+        // Act
+        let (h, m, s) = angle.to_hms();
+
+        // Assert
+        assert_eq!(8, h);
+        assert_eq!(58, m);
+        assert_approx_eq!(45.2328, s, 0.001)
+    }
 }
