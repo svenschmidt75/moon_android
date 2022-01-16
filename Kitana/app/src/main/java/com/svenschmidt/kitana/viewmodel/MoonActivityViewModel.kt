@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.svenschmidt.kitana.core.DateTimeProvider
+import com.svenschmidt.kitana.core.NativeAccess
 import javax.inject.Inject
 
 class MoonActivityViewModel(application: Application) : AndroidViewModel(application) {
@@ -25,16 +26,12 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
     val transits = MutableLiveData<String>()
     val sets = MutableLiveData<String>()
 
-    data class MoonData(
-        var phaseAngle: Double
-    )
-
-    private external fun rust_moon_data(jd: Double, moonData: MoonData)
+//    private external fun rust_moon_data(jd: Double, moonData: MoonData)
 
 
     init {
-        val moonData = MoonData(1.0)
-        rust_moon_data(2445_645.76, moonData);
+        val moonData = NativeAccess.MoonData(1.0)
+        NativeAccess.rust_moon_data(2445_645.76, moonData);
 
         phaseAngle.postValue("56.4")
         fractionIlluminated.postValue("56.4%")

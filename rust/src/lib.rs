@@ -24,7 +24,7 @@ pub mod android {
      */
 
     #[no_mangle]
-    pub extern "system" fn Java_com_svenschmidt_kitana_viewmodel_DateTimeViewModel_rust_1julian_1day(
+    pub extern "system" fn Java_com_svenschmidt_kitana_core_NativeAccess_00024Companion_rust_1julian_1day(
         env: JNIEnv,
         _: JClass,
         year: jint,
@@ -46,7 +46,7 @@ pub mod android {
     }
 
     #[no_mangle]
-    pub extern "system" fn Java_com_svenschmidt_kitana_viewmodel_MoonActivityViewModel_rust_1moon_1data(
+    pub extern "system" fn Java_com_svenschmidt_kitana_core_NativeAccess_00024Companion_rust_1moon_1data(
         env: JNIEnv,
         _: JClass,
         jd: jdouble,

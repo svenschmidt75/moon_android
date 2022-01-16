@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.svenschmidt.kitana.core.DateTimeProvider
+import com.svenschmidt.kitana.core.NativeAccess
 import com.svenschmidt.kitana.di.DaggerViewModelComponent
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -13,8 +14,6 @@ import java.util.*
 import javax.inject.Inject
 
 class DateTimeViewModel(application: Application) : AndroidViewModel(application) {
-
-    private external fun rust_julian_day(year: Int, month: Int, day: Double): Double
 
     @Inject
     lateinit var dateTimeProvider: DateTimeProvider
@@ -66,7 +65,7 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
 
         // SS: set Julian day
         val (year, month, day) = fromLocalDateTime(utcDateTime)
-        val julianDay = rust_julian_day(year, month, day)
+        val julianDay = NativeAccess.rust_julian_day(year, month, day)
         this.julianDay.postValue(julianDay.toString())
     }
 
