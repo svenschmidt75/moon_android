@@ -3,16 +3,7 @@ package com.svenschmidt.kitana.core
 import java.time.LocalDateTime
 import java.util.*
 
-interface DateTimeProvider {
-    fun start()
-    fun stop()
-    fun subscribe(observer: (dateTime: LocalDateTime) -> Unit): () -> Unit
-    fun getCurrentLocalDateTime(): LocalDateTime
-    fun setCurrentLocalDateTime(dateTime: LocalDateTime)
-    fun getSystemLocalDateTime(): LocalDateTime
-}
-
-class DateTimeProviderImpl : DateTimeProvider, Observable() {
+class DateTimeProviderImpl : DateTimeProvider {
 
     companion object {
         const val SECOND: Long = 1000
