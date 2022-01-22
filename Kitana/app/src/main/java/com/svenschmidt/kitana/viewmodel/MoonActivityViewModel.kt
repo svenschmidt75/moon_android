@@ -34,7 +34,7 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
     init {
         //DaggerViewModelComponent.builder().build().inject(this)
 
-        (application.applicationContext as InitApp).appComp().inject(this)
+        (application.applicationContext as InitApp).appComp.inject(this)
 
         val subscriberToken = dateTimeProvider.subscribe { utcDateTime -> onUpdateDateTime(utcDateTime) }
         onUpdateDateTime(dateTimeProvider.getCurrentLocalDateTime())

@@ -4,13 +4,16 @@ import android.app.Application
 import com.svenschmidt.kitana.di.DaggerViewModelComponent
 import com.svenschmidt.kitana.di.ViewModelComponent
 
-class InitApp : Application() {
-    private lateinit var appComponent: ViewModelComponent
+open class InitApp : Application() {
 
-    override fun onCreate() {
-        super.onCreate()
-        appComponent = DaggerViewModelComponent.builder().build()
+    val appComp: ViewModelComponent by lazy {
+        initializeComponent()
     }
 
-    fun appComp() = appComponent
+    open fun initializeComponent(): ViewModelComponent {
+        // Creates an instance of AppComponent using its Factory constructor
+        // We pass the applicationContext that will be used as Context in the graph
+        return DaggerViewModelComponent.factory().create(applicationContext)
+    }
+
 }

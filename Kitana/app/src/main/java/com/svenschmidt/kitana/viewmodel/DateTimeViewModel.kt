@@ -27,7 +27,7 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
     init {
 //        DaggerViewModelComponent.builder().build().inject(this)
 
-        (application.applicationContext as InitApp).appComp().inject(this)
+        (application.applicationContext as InitApp).appComp.inject(this)
 
         // SS: initialize UI with current date/time
         val dateTime = dateTimeProvider.getCurrentLocalDateTime()
