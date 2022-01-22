@@ -27,6 +27,15 @@ impl Degrees {
         Self(degrees)
     }
 
+    pub fn from_dms(d: i16, m: u8, s: f64) -> Self {
+        Self(d as f64 + (m as f64 + s / 60.0) / 60.0)
+    }
+
+    pub fn from_hms(h: u8, m: u8, s: f64) -> Self {
+        let f = 360.0 / 24.0;
+        Self(f * (h as f64 + (m as f64 + s / 60.0) / 60.0))
+    }
+
     pub fn to_dms(&self) -> (i16, u8, f64) {
         // SS: 360 degrees = 24 hrs
 
@@ -240,9 +249,9 @@ mod tests {
     }
 
     #[test]
-    fn degrees_to_minutes_seconds_test() {
+    fn degrees_2_dms_test() {
         // Arrange
-        let angle = Degrees(133.167265);
+        let angle = Degrees::new(133.167265);
 
         // Act
         let (d, m, s) = angle.to_dms();
@@ -250,13 +259,24 @@ mod tests {
         // Assert
         assert_eq!(133, d);
         assert_eq!(10, m);
-        assert_approx_eq!(2.154, s, 0.001);
+        assert_approx_eq!(2.154, s, 0.000_001);
+    }
+
+    #[test]
+    fn dms_2_degrees_test() {
+        // Arrange
+
+        // Act
+        let angle = Degrees::from_dms(133, 10, 2.154);
+
+        // Assert
+        assert_approx_eq!(133.167265, angle.0, 0.001);
     }
 
     #[test]
     fn map_negative_1() {
         // Arrange
-        let angle = Degrees(-10.0);
+        let angle = Degrees::new(-10.0);
 
         // Act
         let mapped = angle.map_to_0_to_360();
@@ -266,9 +286,9 @@ mod tests {
     }
 
     #[test]
-    fn degrees_to_hours_test() {
+    fn degrees_2_hms_test() {
         // Arrange
-        let angle = Degrees(134.688470);
+        let angle = Degrees::new(134.688470);
 
         // Act
         let (h, m, s) = angle.to_hms();
@@ -277,5 +297,16 @@ mod tests {
         assert_eq!(8, h);
         assert_eq!(58, m);
         assert_approx_eq!(45.2328, s, 0.001)
+    }
+
+    #[test]
+    fn hms_2_degrees_test() {
+        // Arrange
+
+        // Act
+        let angle = Degrees::from_hms(8, 58, 45.2328);
+
+        // Assert
+        assert_approx_eq!(134.688470, angle.0, 0.000_001)
     }
 }

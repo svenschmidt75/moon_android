@@ -1,3 +1,4 @@
+mod coordinates;
 mod earth;
 mod ecliptic;
 mod jd;
