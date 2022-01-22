@@ -31,6 +31,34 @@ fn ecliptic_2_equatorial(lambda: Degrees, beta: Degrees, eps: Degrees) -> (Degre
     )
 }
 
+/// Calculate horizontal from equatorial coordinates.
+/// In:
+/// declination, in degrees [-90, 90)
+/// hour_angle, in degrees [0, 360)
+/// observer's latitude, [-90, 90)
+fn equatorial_2_horizontal(
+    decl: Degrees,
+    hour_angle: Degrees,
+    latitude_observer: Degrees,
+) -> (Degrees, Degrees) {
+    let decl_radians = Radians::from(decl);
+    let hour_angle_radians = Radians::from(hour_angle);
+    let latitude_observer_radians = Radians::from(latitude_observer);
+
+    let azimuth = hour_angle_radians.0.sin().atan2(
+        hour_angle_radians.0.cos() * latitude_observer_radians.0.sin()
+            - decl_radians.0.tan() * latitude_observer_radians.0.cos(),
+    );
+    let altitude = (latitude_observer_radians.0.sin() * decl_radians.0.sin()
+        + latitude_observer_radians.0.cos() * decl_radians.0.cos() * hour_angle_radians.0.cos())
+    .asin();
+
+    (
+        Degrees::from(Radians::new(azimuth)),
+        Degrees::from(Radians::new(altitude)),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -56,5 +84,23 @@ mod tests {
         assert_eq!(28, d);
         assert_eq!(1, m);
         assert_approx_eq!(34.26, s, 0.01);
+    }
+
+    #[test]
+    fn equatorial_2_horizontal_test() {
+        // Meeus, page 96, example 13.b
+
+        // Arrange
+        let declination = Degrees::from_dms(-6, 43, 11.61);
+        let hour_angle = Degrees::new(64.352133);
+        let latitude_observer = Degrees::from_dms(38, 55, 17.0);
+
+        // Act
+        let (azimuth, altitude) =
+            equatorial_2_horizontal(declination, hour_angle, latitude_observer);
+
+        // Assert
+        assert_approx_eq!(68.0337, azimuth.0, 0.000_1);
+        assert_approx_eq!(15.1249, altitude.0, 0.000_1);
     }
 }

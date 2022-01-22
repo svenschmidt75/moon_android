@@ -28,10 +28,13 @@ impl Degrees {
     }
 
     pub fn from_dms(d: i16, m: u8, s: f64) -> Self {
-        Self(d as f64 + (m as f64 + s / 60.0) / 60.0)
+        let sign = if d < 0 { -1.0 } else { 1.0 };
+        let value = sign * d as f64 + (m as f64 + s / 60.0) / 60.0;
+        Self(sign * value)
     }
 
     pub fn from_hms(h: u8, m: u8, s: f64) -> Self {
+        // SS: note that h >= 0
         let f = 360.0 / 24.0;
         Self(f * (h as f64 + (m as f64 + s / 60.0) / 60.0))
     }
@@ -263,7 +266,7 @@ mod tests {
     }
 
     #[test]
-    fn dms_2_degrees_test() {
+    fn dms_2_degrees_test_1() {
         // Arrange
 
         // Act
@@ -271,6 +274,17 @@ mod tests {
 
         // Assert
         assert_approx_eq!(133.167265, angle.0, 0.001);
+    }
+
+    #[test]
+    fn dms_2_degrees_test_2() {
+        // Arrange
+
+        // Act
+        let angle = Degrees::from_dms(-6, 43, 11.61);
+
+        // Assert
+        assert_approx_eq!(-6.71989, angle.0, 0.000_1);
     }
 
     #[test]

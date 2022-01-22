@@ -53,7 +53,7 @@ pub fn apparent_siderial_time(jd: f64) -> Degrees {
 /// (positive west, negative east of Greenwich)
 /// Out:
 /// Local siderial time
-fn local_siderial_time(siderial_time: Degrees, lambda_observer: Degrees) -> Degrees {
+fn siderial_time_local(siderial_time: Degrees, lambda_observer: Degrees) -> Degrees {
     Degrees::new(siderial_time.0 - lambda_observer.0).map_to_0_to_360()
 }
 
@@ -74,6 +74,24 @@ fn hour_angle(siderial_time: Degrees, right_ascension: Degrees) -> Degrees {
 mod tests {
     use super::*;
     use assert_approx_eq::assert_approx_eq;
+
+    #[test]
+    fn hour_angle_test() {
+        // Meeus, page 95, example 13.b
+
+        // Arrange
+        let siderial_time_apparent_greenwich = Degrees::from_hms(8, 34, 56.853);
+        let longitude_observer = Degrees::from_hms(5, 8, 15.7);
+        let right_ascension_apparent = Degrees::from_hms(23, 9, 16.641);
+
+        // Act
+        let siderial_time_local =
+            siderial_time_local(siderial_time_apparent_greenwich, longitude_observer);
+        let hour_angle = hour_angle(siderial_time_local, right_ascension_apparent);
+
+        // Assert
+        assert_approx_eq!(64.352133, hour_angle.0, 0.00001)
+    }
 
     #[test]
     fn local_siderial_time_test() {
