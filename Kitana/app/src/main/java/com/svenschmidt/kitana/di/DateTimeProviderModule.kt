@@ -9,5 +9,6 @@ import javax.inject.Singleton
 @Module
 class DateTimeProviderModule {
     @Provides
+    @Singleton
     fun providesDateTime(): DateTimeProvider = DateTimeProviderImpl()
 }
