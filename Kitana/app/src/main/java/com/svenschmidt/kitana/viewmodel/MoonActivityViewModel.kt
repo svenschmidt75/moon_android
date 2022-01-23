@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import com.svenschmidt.kitana.InitApp
 import com.svenschmidt.kitana.core.DateTimeProvider
 import com.svenschmidt.kitana.core.NativeAccess
-import com.svenschmidt.kitana.di.DaggerViewModelComponent
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -32,9 +31,8 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
     fun Double.format(digits: Int) = "%.${digits}f".format(this)
 
     init {
-        //DaggerViewModelComponent.builder().build().inject(this)
-
-        (application.applicationContext as InitApp).appComp.inject(this)
+        // SS: inject Dagger dependencies
+        (application.applicationContext as InitApp).vmComponent.inject(this)
 
         val subscriberToken = dateTimeProvider.subscribe { utcDateTime -> onUpdateDateTime(utcDateTime) }
         onUpdateDateTime(dateTimeProvider.getCurrentLocalDateTime())

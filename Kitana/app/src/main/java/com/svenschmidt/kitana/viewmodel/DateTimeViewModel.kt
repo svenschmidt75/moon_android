@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import com.svenschmidt.kitana.InitApp
 import com.svenschmidt.kitana.core.DateTimeProvider
 import com.svenschmidt.kitana.core.NativeAccess
-import com.svenschmidt.kitana.di.DaggerViewModelComponent
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -25,9 +24,8 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
     val julianDay = MutableLiveData<String>()
 
     init {
-//        DaggerViewModelComponent.builder().build().inject(this)
-
-        (application.applicationContext as InitApp).appComp.inject(this)
+        // SS: inject Dagger dependencies
+        (application.applicationContext as InitApp).vmComponent.inject(this)
 
         // SS: initialize UI with current date/time
         val dateTime = dateTimeProvider.getCurrentLocalDateTime()
