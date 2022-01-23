@@ -7,6 +7,7 @@ mod nutation;
 mod sun;
 mod time;
 mod util;
+mod parallax;
 
 /// Expose the JNI interface for android below
 #[cfg(target_os = "android")]

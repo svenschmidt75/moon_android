@@ -78,6 +78,19 @@ impl Degrees {
     pub fn map_to_neg90_to_90(self: Self) -> Self {
         Self(self.0 % 90.0)
     }
+
+    /// Convert angle range
+    /// In: angle in degrees, [0..360)
+    /// Out: angle, in degrees [-180, 180)
+    pub fn map_to_0_to_360_to_neg180_to_180(self: Self) -> Self {
+        let angle = if self.0 < 180.0 {
+            self.0
+        } else {
+            -360.0 + self.0
+        };
+
+        Self(angle)
+    }
 }
 
 impl Add for Degrees {
@@ -137,6 +150,30 @@ impl From<ArcSec> for Degrees {
 mod tests {
     use super::*;
     use assert_approx_eq::assert_approx_eq;
+
+    #[test]
+    fn map_neg180_to_180_test1() {
+        // Arrange
+        let d = Degrees::new(189.0);
+
+        // Act
+        let angle = d.map_to_0_to_360_to_neg180_to_180();
+
+        // Assert
+        assert_approx_eq!(-180.0 + (d.0 - 180.0), angle.0, 0.000_001)
+    }
+
+    #[test]
+    fn map_neg180_to_180_test2() {
+        // Arrange
+        let d = Degrees::new(89.0);
+
+        // Act
+        let angle = d.map_to_0_to_360_to_neg180_to_180();
+
+        // Assert
+        assert_approx_eq!(d.0, angle.0, 0.000_001)
+    }
 
     #[test]
     fn arcsec_to_degrees_test_1() {
