@@ -1,5 +1,5 @@
 use crate::jd;
-use crate::util::{degrees::Degrees};
+use crate::util::degrees::Degrees;
 
 /// Calculate the sun's mean anomaly, eq (47.3).
 /// In: Julian day in dynamical time

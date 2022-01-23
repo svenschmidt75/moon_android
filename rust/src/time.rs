@@ -53,7 +53,7 @@ pub fn apparent_siderial_time(jd: f64) -> Degrees {
 /// (positive west, negative east of Greenwich)
 /// Out:
 /// Local siderial time
-fn siderial_time_local(siderial_time: Degrees, lambda_observer: Degrees) -> Degrees {
+pub(crate) fn siderial_time_local(siderial_time: Degrees, lambda_observer: Degrees) -> Degrees {
     Degrees::new(siderial_time.0 - lambda_observer.0).map_to_0_to_360()
 }
 
@@ -66,7 +66,7 @@ fn siderial_time_local(siderial_time: Degrees, lambda_observer: Degrees) -> Degr
 /// right ascension: Right ascension of the object whose hour angle we calculate, in degrees [0, 360)
 /// Out:
 /// Hour angle
-fn hour_angle(siderial_time: Degrees, right_ascension: Degrees) -> Degrees {
+pub(crate) fn hour_angle(siderial_time: Degrees, right_ascension: Degrees) -> Degrees {
     Degrees::new(siderial_time.0 - right_ascension.0).map_to_0_to_360()
 }
 

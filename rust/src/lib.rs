@@ -4,10 +4,10 @@ mod ecliptic;
 mod jd;
 mod moon;
 mod nutation;
+mod parallax;
 mod sun;
 mod time;
 mod util;
-mod parallax;
 
 /// Expose the JNI interface for android below
 #[cfg(target_os = "android")]

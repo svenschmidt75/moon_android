@@ -25,6 +25,11 @@ pub fn from_date(y: i16, m: u8, d: f64) -> f64 {
     jd
 }
 
+pub(crate) fn from_date_hms(year: i16, month: u8, day: u8, h: u8, m: u8, s: f64) -> f64 {
+    let day_fraction = day as f64 + (h as f64 + (m as f64 + s / 60.0) / 60.0) / 24.0;
+    from_date(year, month, day_fraction)
+}
+
 /// The Gregorian calendar reform implies that any date before
 /// or at 1582, Oct. 4th is in the Julian calendar, dates after
 /// in the Gregorian calendar.
@@ -55,6 +60,7 @@ pub fn millennia_from_epoch_j2000(jd: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use assert_approx_eq::assert_approx_eq;
 
     #[test]
     fn julian_date() {
@@ -118,5 +124,18 @@ mod tests {
 
         // assert
         assert_eq!(2_026_871.8, from_date(837, 4, 10.3))
+    }
+
+    #[test]
+    fn julian_day_from_hms_test() {
+        // arrange
+
+        // act
+
+        // 2003 August 28th, 3h:17m:0s UT
+        let jd = from_date_hms(2003, 8, 28, 3, 17, 0.0);
+
+        // assert
+        assert_approx_eq!(2_452_879.63681, jd, 0.000_01)
     }
 }

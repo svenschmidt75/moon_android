@@ -1,4 +1,5 @@
 use crate::util::degrees::Degrees;
+use crate::util::radians::Radians;
 
 #[derive(Debug, Clone, Copy)]
 pub struct ArcSec(pub(crate) f64);
@@ -16,7 +17,14 @@ impl ArcSec {
 
 impl From<Degrees> for ArcSec {
     fn from(degrees: Degrees) -> Self {
-        let degrees = degrees.0 * 3600.0;
-        Self(degrees)
+        let arcsecs = degrees.0 * 3600.0;
+        Self(arcsecs)
+    }
+}
+
+impl From<Radians> for ArcSec {
+    fn from(radians: Radians) -> Self {
+        let degrees = Degrees::from(radians);
+        ArcSec::from(degrees)
     }
 }
