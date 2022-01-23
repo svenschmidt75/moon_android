@@ -1,6 +1,6 @@
 //! Solar system related calculations.
 use crate::jd;
-use crate::util::{ArcSec, Degrees, Radians};
+use crate::util::{arcsec::ArcSec, degrees::Degrees, radians::Radians};
 
 const NUTATION_PERTURBATION_TERMS: [(i8, i8, i8, i8, i8, i64, f64, i64, f64); 63] = [
     (0, 0, 0, 0, 1, -171996, -174.2, 92025, 8.9),

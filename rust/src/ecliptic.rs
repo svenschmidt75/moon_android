@@ -2,7 +2,7 @@
 
 use crate::jd;
 use crate::nutation::nutation_in_obliquity;
-use crate::util::{ArcSec, Degrees};
+use crate::util::{arcsec::ArcSec, degrees::Degrees};
 
 /// Mean obliquity of the eclipse, Meeus chapter 22
 /// In: Julian day in dynamical time
@@ -11,7 +11,7 @@ pub fn mean_obliquity(jd: f64) -> Degrees {
     let t = jd::centuries_from_epoch_j2000(jd);
     let u = t / 100.0;
 
-    let arcsec = ArcSec::new_from_degrees(23, 26, 21.448);
+    let arcsec = ArcSec::from_dms(23, 26, 21.448);
     let eps_base: f64 = Degrees::from(arcsec).0;
 
     let eps_0 = eps_base

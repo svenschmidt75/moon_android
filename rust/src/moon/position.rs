@@ -1,6 +1,6 @@
 //! Calculate the moon's position for given Julian day.
 //! see J. Meeus, Astronomical Algorithms, chapter 47
-use crate::util::{Degrees, Radians};
+use crate::util::{degrees::Degrees, radians::Radians};
 use crate::{earth, jd, nutation, sun::sun};
 
 // SS: perturbation terms for longitude and radius

@@ -1,23 +1,9 @@
 //! Utility functions
 
+use crate::util::arcsec::ArcSec;
+use crate::util::radians::Radians;
+use crate::util::RADIANS_TO_DEGREES;
 use std::ops::{Add, AddAssign, Mul, Neg, Sub};
-
-const DEGREES_TO_RADIANS: f64 = std::f64::consts::PI / 180.0;
-const RADIANS_TO_DEGREES: f64 = 1.0 / DEGREES_TO_RADIANS;
-
-#[derive(Debug, Clone, Copy)]
-pub struct ArcSec(pub(crate) f64);
-
-impl ArcSec {
-    pub fn new(arcsec: f64) -> Self {
-        Self(arcsec)
-    }
-
-    pub fn new_from_degrees(degrees: i16, minutes: i16, seconds: f64) -> Self {
-        let arcsec = seconds + 60.0 * (minutes as f64 + 60.0 * degrees as f64);
-        Self(arcsec)
-    }
-}
 
 #[derive(Debug, Clone, Copy)]
 pub struct Degrees(pub(crate) f64);
@@ -132,48 +118,9 @@ impl Neg for Degrees {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct Radians(pub(crate) f64);
-
-impl Radians {
-    pub fn new(radians: f64) -> Self {
-        Self(radians)
-    }
-}
-
-impl Add for Radians {
-    type Output = Self;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        Self(self.0 + rhs.0)
-    }
-}
-
-impl Sub for Radians {
-    type Output = Self;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        Self(self.0 - rhs.0)
-    }
-}
-
-impl From<Degrees> for Radians {
-    fn from(degrees: Degrees) -> Self {
-        let radians = degrees.0 * DEGREES_TO_RADIANS;
-        Self(radians)
-    }
-}
-
 impl From<Radians> for Degrees {
     fn from(radians: Radians) -> Self {
         let degrees = radians.0 * RADIANS_TO_DEGREES;
-        Self(degrees)
-    }
-}
-
-impl From<Degrees> for ArcSec {
-    fn from(degrees: Degrees) -> Self {
-        let degrees = degrees.0 * 3600.0;
         Self(degrees)
     }
 }
@@ -194,7 +141,7 @@ mod tests {
     #[test]
     fn arcsec_to_degrees_test_1() {
         // Arrange
-        let arcsec = ArcSec::new_from_degrees(133, 10, 2.154);
+        let arcsec = ArcSec::from_dms(133, 10, 2.154);
 
         // Act
         let degrees: f64 = Degrees::from(arcsec).0;
@@ -206,7 +153,7 @@ mod tests {
     #[test]
     fn arcsec_to_degrees_test_2() {
         // Arrange
-        let arcsec = ArcSec::new_from_degrees(23, 26, 26.29);
+        let arcsec = ArcSec::from_dms(23, 26, 26.29);
 
         // Act
         let degrees: f64 = Degrees::from(arcsec).0;
@@ -218,7 +165,7 @@ mod tests {
     #[test]
     fn degree_to_dms_test_1() {
         // Arrange
-        let degrees = Degrees(13.769657226951539);
+        let degrees = Degrees::new(13.769657226951539);
 
         // Act
         let text = format!("{}", degrees.to_dms_str(2));
@@ -230,7 +177,7 @@ mod tests {
     #[test]
     fn degree_to_dms_test_2() {
         // Arrange
-        let degrees = Degrees(-19.6475);
+        let degrees = Degrees::new(-19.6475);
 
         // Act
         let text = format!("{}", degrees.to_dms_str(2));
@@ -242,7 +189,7 @@ mod tests {
     #[test]
     fn degree_to_hms_test() {
         // Arrange
-        let degrees = Degrees(134.68392033025296);
+        let degrees = Degrees::new(134.68392033025296);
 
         // Act
         let text = format!("{}", degrees.to_hms_str());

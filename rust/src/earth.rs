@@ -1,5 +1,5 @@
 //! Earth related calculations
-use crate::util::{Degrees, Radians};
+use crate::util::{degrees::Degrees, radians::Radians};
 use crate::{ecliptic, jd};
 
 /// Calculate Earth's eccentricity, eq (47.6).

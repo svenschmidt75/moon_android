@@ -1,6 +1,6 @@
 //! Coordinate transformations
 
-use crate::util::{Degrees, Radians};
+use crate::util::{degrees::Degrees, radians::Radians};
 
 /// Convert ecliptical to equatorial coordinates.
 /// Meeus, page 93, chapter 13

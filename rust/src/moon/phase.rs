@@ -4,7 +4,7 @@ use crate::moon;
 use crate::sun::position::{
     apparent_geometric_latitude, apparent_geometric_longitude, distance_earth_sun,
 };
-use crate::util::{Degrees, Radians};
+use crate::util::{degrees::Degrees, radians::Radians};
 
 /// Calculate the phase angle or age of the moon.
 /// Meeus, chapter 48, eq. (48.1) or Duffett-Smith and Zwart, chapter 67, page 171

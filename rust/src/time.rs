@@ -16,7 +16,7 @@
 // once around its axis.
 use crate::ecliptic::true_obliquity;
 use crate::nutation::nutation_in_longitude;
-use crate::util::{Degrees, Radians};
+use crate::util::{degrees::Degrees, radians::Radians};
 
 /// Calculate the mean siderial time at Greenwich
 /// Meeus, page 87, chapter 12
