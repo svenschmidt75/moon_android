@@ -22,6 +22,7 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
     val localTime = MutableLiveData<String>()
     val utcTime = MutableLiveData<String>()
     val julianDay = MutableLiveData<String>()
+    val siderialTime = MutableLiveData<String>()
 
     init {
         // SS: inject Dagger dependencies
@@ -85,6 +86,13 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
         val (year, month, day) = fromLocalDateTime(utcDateTime)
         val julianDay = NativeAccess.rust_julian_day(year, month, day)
         this.julianDay.postValue(julianDay.toString())
+
+        // SS: Boulder longitude
+        val longitudeObserver = -116.8649959122331;
+
+        val siderialTime = NativeAccess.rust_local_siderial_time(julianDay, longitudeObserver)
+        val siderialTimeStr = NativeAccess.rust_to_hms(siderialTime, 2)
+        this.siderialTime.postValue(siderialTimeStr.toString())
     }
 
     fun setDate(year: Int, month: Int, dayOfMonth: Int) {

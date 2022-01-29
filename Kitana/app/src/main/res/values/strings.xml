@@ -16,5 +16,6 @@
     <string name="appbar_scrolling_view_behavior" translatable="false">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
     <string name="moon_animation_text">Moon Animation</string>
     <string name="location">Location</string>
+    <string name="local_date_and_time_siderial_time">Siderial Time:</string>
 
 </resources>

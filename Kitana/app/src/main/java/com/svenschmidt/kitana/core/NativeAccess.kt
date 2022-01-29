@@ -22,9 +22,13 @@ class NativeAccess {
     companion object {
         // SS: format
         external fun rust_to_dms(degrees: Double, width: Byte): String
+        external fun rust_to_hms(degrees: Double, width: Byte): String
 
         // SS: Julian Day
         external fun rust_julian_day(year: Int, month: Int, day: Double): Double
+
+        // SS: Siderial Time
+        external fun rust_local_siderial_time(jd: Double, longitudeObserver: Double): Double
 
         // SS: moon
         external fun rust_moon_data(moonInputData: MoonInputData, moonOutputData: MoonOutputData)

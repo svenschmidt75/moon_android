@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewmodel"
             type="com.svenschmidt.kitana.viewmodel.DateTimeViewModel" />
@@ -181,6 +182,34 @@
                     tools:text="Julian Day" />
 
             </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="15dp"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="@string/local_date_and_time_siderial_time" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="15dp"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:text="@={viewmodel.siderialTime}"
+                android:textColor="@android:color/darker_gray"
+                tools:text="Siderial Time" />
 
         </LinearLayout>
 

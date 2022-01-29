@@ -32,6 +32,22 @@ class NativeAccessTest {
     }
 
     @Test
+    fun rust_local_siderial_time_test() {
+        // Arrange
+        val (year, month, day) =  DateTimeViewModel.fromLocalDateTime(LocalDateTime.of(2022, 1, 16, 14, 26, 18))
+        val jd = NativeAccess.rust_julian_day(year, month, day)
+
+        // SS: Mount Palomar longitude
+        val longitudeObserver = -116.8649959122331;
+
+        // Act
+        val siderialTime = NativeAccess.rust_local_siderial_time(jd, longitudeObserver)
+
+        // Assert
+        MatcherAssert.assertThat(siderialTime, closeTo(89.44431320364197, 0.000_001))
+    }
+
+    @Test
     fun rust_to_dms() {
         // Arrange
         val degrees = 13.769657226951539
@@ -41,6 +57,18 @@ class NativeAccessTest {
 
         // Assert
         Assert.assertEquals(dms_str, "13° 46' 10.766\"")
+    }
+
+    @Test
+    fun rust_to_hms() {
+        // Arrange
+        val degrees = 241.6958092513155
+
+        // Act
+        val hms_str = NativeAccess.rust_to_hms(degrees, 3);
+
+        // Assert
+        Assert.assertEquals(hms_str, "16h 6m 46.994s")
     }
 
     @Test
