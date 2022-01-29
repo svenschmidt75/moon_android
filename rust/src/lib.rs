@@ -15,6 +15,7 @@ mod util;
 pub mod android {
     extern crate jni;
 
+    use crate::util::degrees::Degrees;
     use super::*;
 
     use self::jni::objects::{JClass, JString};
@@ -63,6 +64,24 @@ pub mod android {
     ) {
         let jd: f64 = env
             .get_field(moon_input_data, "jd", "D")
+            .unwrap()
+            .d()
+            .unwrap();
+
+        let longitude_observer = Degrees::new(env
+            .get_field(moon_input_data, "longitudeObserver", "D")
+            .unwrap()
+            .d()
+            .unwrap());
+
+        let latitude_observer = Degrees::new(env
+            .get_field(moon_input_data, "latitudeObserver", "D")
+            .unwrap()
+            .d()
+            .unwrap());
+
+        let height_above_sea_observer: f64 = env
+            .get_field(moon_input_data, "heightAboveSeaObserver", "D")
             .unwrap()
             .d()
             .unwrap();
@@ -122,14 +141,34 @@ pub mod android {
         )
         .unwrap();
 
-        let siderial_time = time::apparent_siderial_time(jd);
+        // SS: Moon's equatorial coordinates
+        let eps = ecliptic::true_obliquity(jd);
+        let (ra, decl) = coordinates::ecliptic_2_equatorial(longitude, latitude, eps);
+        let (ra_topocentric, decl_topocentric) = parallax::equatorial_2_topocentric(
+            ra,
+            decl,
+            longitude_observer,
+            latitude_observer,
+            height_above_sea_observer,
+            distance,
+            jd,
+        );
+
         env.set_field(
             moon_output_data,
-            "siderialTime",
+            "rightAscension",
             "D",
-            self::jni::objects::JValue::Double(siderial_time.0),
+            self::jni::objects::JValue::Double(ra_topocentric.0),
         )
         .unwrap();
+
+        env.set_field(
+            moon_output_data,
+            "declination",
+            "D",
+            self::jni::objects::JValue::Double(decl_topocentric.0),
+        )
+            .unwrap();
     }
 
     #[no_mangle]

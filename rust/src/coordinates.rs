@@ -13,7 +13,7 @@ use crate::util::{degrees::Degrees, radians::Radians};
 /// Out:
 /// right ascension, in degrees [0, 360)
 /// declination, in degrees [-90, 90)
-fn ecliptic_2_equatorial(lambda: Degrees, beta: Degrees, eps: Degrees) -> (Degrees, Degrees) {
+pub(crate) fn ecliptic_2_equatorial(lambda: Degrees, beta: Degrees, eps: Degrees) -> (Degrees, Degrees) {
     let lambda_radians = Radians::from(lambda);
     let beta_radians = Radians::from(beta);
     let eps_radians = Radians::from(eps);

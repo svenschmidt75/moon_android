@@ -41,7 +41,7 @@ fn rho_phi_prime(latitude_geographical: Degrees, height: f64) -> (f64, f64) {
 /// Out:
 /// right ascension, topocentric, in dgrees [0, 360)
 /// declination, topocentric, in degrees [-90, 90)
-fn equatorial_2_topocentric(
+pub(crate) fn equatorial_2_topocentric(
     ra: Degrees,
     decl: Degrees,
     longitude: Degrees,
