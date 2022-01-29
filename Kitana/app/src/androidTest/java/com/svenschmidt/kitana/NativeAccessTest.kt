@@ -22,7 +22,16 @@ class NativeAccessTest {
     @Test
     fun rust_julian_day_test() {
         // Arrange
-        val (year, month, day) =  DateTimeViewModel.fromLocalDateTime(LocalDateTime.of(2022, 1, 16, 14, 26, 18))
+        val (year, month, day) = DateTimeViewModel.fromLocalDateTime(
+            LocalDateTime.of(
+                2022,
+                1,
+                16,
+                14,
+                26,
+                18
+            )
+        )
 
         // Act
         val jd = NativeAccess.rust_julian_day(year, month, day)
@@ -34,7 +43,16 @@ class NativeAccessTest {
     @Test
     fun rust_local_siderial_time_test() {
         // Arrange
-        val (year, month, day) =  DateTimeViewModel.fromLocalDateTime(LocalDateTime.of(2022, 1, 16, 14, 26, 18))
+        val (year, month, day) = DateTimeViewModel.fromLocalDateTime(
+            LocalDateTime.of(
+                2022,
+                1,
+                16,
+                14,
+                26,
+                18
+            )
+        )
         val jd = NativeAccess.rust_julian_day(year, month, day)
 
         // SS: Mount Palomar longitude
@@ -82,23 +100,34 @@ class NativeAccessTest {
         val longitudeObserver = -116.8649959122331;
 
         // SS: Mount Palomar latitude
-        val latitudeObserver =33.35632175573314;
+        val latitudeObserver = 33.35632175573314;
 
         // SS: Mount Palomar height above sea level
         val heightAboveSea = 1706.0;
 
         // Act
-        val moonInputData = NativeAccess.MoonInputData(jd, longitudeObserver, latitudeObserver, heightAboveSea)
+        val moonInputData =
+            NativeAccess.MoonInputData(jd, longitudeObserver, latitudeObserver, heightAboveSea)
         val moonOutputData = NativeAccess.MoonOutputData()
         NativeAccess.rust_moon_data(moonInputData, moonOutputData);
 
         // Assert
         MatcherAssert.assertThat(moonOutputData.phaseAngle, closeTo(164.6175559076692, 0.000_001))
         MatcherAssert.assertThat(moonOutputData.illuminatedFraction, closeTo(0.981, 0.001))
-        MatcherAssert.assertThat(moonOutputData.distanceFromEarth, closeTo(403836.9196467576, 0.001))
-        MatcherAssert.assertThat(moonOutputData.geocentricLatitude, closeTo(3.3226976900929386, 0.001))
-        MatcherAssert.assertThat(moonOutputData.geocentricLongitude, closeTo(101.04539708087002, 0.001))
-        MatcherAssert.assertThat(moonOutputData.siderialTime, closeTo(332.57959818158076, 0.001))
+        MatcherAssert.assertThat(
+            moonOutputData.distanceFromEarth,
+            closeTo(403836.9196467576, 0.001)
+        )
+        MatcherAssert.assertThat(
+            moonOutputData.geocentricLatitude,
+            closeTo(3.3226976900929386, 0.001)
+        )
+        MatcherAssert.assertThat(
+            moonOutputData.geocentricLongitude,
+            closeTo(101.04539708087002, 0.001)
+        )
+        MatcherAssert.assertThat(moonOutputData.rightAscension, closeTo(332.57959818158076, 0.001))
+        MatcherAssert.assertThat(moonOutputData.declination, closeTo(332.57959818158076, 0.001))
         Assert.assertEquals(moonOutputData.phaseDesc, "Full Moon")
     }
 
