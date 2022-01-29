@@ -61,9 +61,9 @@ impl Degrees {
         (h.trunc() as u8, m.trunc() as u8, s)
     }
 
-    pub fn to_hms_str(&self) -> String {
+    pub fn to_hms_str(&self, width: u8) -> String {
         let (h, m, s) = self.to_hms();
-        format!("{h}h {m}m {s:.2}s")
+        format!("{h}h {m}m {s:.width$}s", width = width as usize)
     }
 
     /// Map angle in degrees to range [0, 360)
@@ -229,7 +229,7 @@ mod tests {
         let degrees = Degrees::new(134.68392033025296);
 
         // Act
-        let text = format!("{}", degrees.to_hms_str());
+        let text = format!("{}", degrees.to_hms_str(2));
 
         // Assert
         assert_eq!("8h 58m 44.14s", text)

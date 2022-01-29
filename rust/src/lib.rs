@@ -143,4 +143,16 @@ pub mod android {
         let string: JString = env.new_string(dms_str).unwrap();
         string.into_inner()
     }
+
+    #[no_mangle]
+    pub extern "system" fn Java_com_svenschmidt_kitana_core_NativeAccess_00024Companion_rust_1to_1hms(
+        env: JNIEnv,
+        _: JClass,
+        degrees: jdouble,
+        width: jbyte,
+    ) -> jstring {
+        let dms_str = util::degrees::Degrees(degrees).to_hms_str(width as u8);
+        let string: JString = env.new_string(dms_str).unwrap();
+        string.into_inner()
+    }
 }
