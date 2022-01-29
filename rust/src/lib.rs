@@ -38,6 +38,18 @@ pub mod android {
         jd as jdouble
     }
 
+    #[no_mangle]
+    pub extern "system" fn Java_com_svenschmidt_kitana_core_NativeAccess_00024Companion_rust_1local_1siderial_1time(
+        env: JNIEnv,
+        _: JClass,
+        jd: jdouble,
+        longitude_observer: jdouble,
+    ) -> jdouble {
+        let sd = time::apparent_siderial_time(jd);
+        let lst = time::local_siderial_time(sd, util::degrees::Degrees::new(longitude_observer));
+        lst.0 as jdouble
+    }
+
     /*
      * Moon
      */
@@ -49,8 +61,11 @@ pub mod android {
         moon_input_data: jobject,
         moon_output_data: jobject,
     ) {
-        let jd: f64 = env.get_field(moon_input_data, "jd", "D").unwrap().d().unwrap();
-//        let jd = 2458477.89;
+        let jd: f64 = env
+            .get_field(moon_input_data, "jd", "D")
+            .unwrap()
+            .d()
+            .unwrap();
 
         let phase_angle = moon::phase::phase_angle_360(jd);
         env.set_field(

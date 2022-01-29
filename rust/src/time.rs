@@ -53,8 +53,8 @@ pub fn apparent_siderial_time(jd: f64) -> Degrees {
 /// (positive west, negative east of Greenwich)
 /// Out:
 /// Local siderial time
-pub(crate) fn siderial_time_local(siderial_time: Degrees, lambda_observer: Degrees) -> Degrees {
-    Degrees::new(siderial_time.0 - lambda_observer.0).map_to_0_to_360()
+pub(crate) fn local_siderial_time(siderial_time: Degrees, longitude_observer: Degrees) -> Degrees {
+    Degrees::new(siderial_time.0 - longitude_observer.0).map_to_0_to_360()
 }
 
 /// Calculate the local hour angle, which measures how far an object is from the observer's meridian,
@@ -86,7 +86,7 @@ mod tests {
 
         // Act
         let siderial_time_local =
-            siderial_time_local(siderial_time_apparent_greenwich, longitude_observer);
+            local_siderial_time(siderial_time_apparent_greenwich, longitude_observer);
         let hour_angle = hour_angle(siderial_time_local, right_ascension_apparent);
 
         // Assert
@@ -94,20 +94,24 @@ mod tests {
     }
 
     #[test]
-    fn local_siderial_time_test() {
+    fn local_siderial_time_test_1() {
         // Arrange
 
-        // SS: Jan 16th, 2022, 2:26:18pm UTC
-        let jd = 2_459_596.101598;
+        // SS: Jan 29th, 2022, 2:32:20pm UTC
+        let jd = 2_459_609.105793;
+
+        let longitude_observer = Degrees::from_dms(105, 12, 53.8);
+
+        let mean_siderial_time = mean_siderial_time(jd);
 
         // Act
-        let theta0 = mean_siderial_time(jd);
+        let theta0 = local_siderial_time(mean_siderial_time, longitude_observer);
         let (h, m, s) = theta0.to_hms();
 
         // Assert
-        assert_eq!(h, 22);
-        assert_eq!(m, 10);
-        assert_approx_eq!(19.92073, s, 0.00001)
+        assert_eq!(h, 16);
+        assert_eq!(m, 6);
+        assert_approx_eq!(46.9, s, 0.1)
     }
 
     #[test]

@@ -1,6 +1,6 @@
 //! Calculate corrections for parallax.
 
-use crate::time::{apparent_siderial_time, hour_angle, siderial_time_local};
+use crate::time::{apparent_siderial_time, hour_angle, local_siderial_time};
 use crate::util::arcsec::ArcSec;
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;
@@ -57,7 +57,7 @@ fn equatorial_2_topocentric(
 
     // SS: calculate local hour angle
     let siderial_time_greenwich = apparent_siderial_time(jd);
-    let siderial_time_local = siderial_time_local(siderial_time_greenwich, longitude);
+    let siderial_time_local = local_siderial_time(siderial_time_greenwich, longitude);
     let hour_angle = hour_angle(siderial_time_local, ra);
     let hour_angle_radians = Radians::from(hour_angle);
 
