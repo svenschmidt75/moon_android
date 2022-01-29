@@ -42,20 +42,21 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
         val (year, month, day) = DateTimeViewModel.fromLocalDateTime(utcDateTime)
         val julianDay = NativeAccess.rust_julian_day(year, month, day)
 
-        val moonData = NativeAccess.MoonData()
-        NativeAccess.rust_moon_data(julianDay, moonData);
+        val moonInputData = NativeAccess.MoonInputData(julianDay, 0.0, 0.0, 0.0)
+        val moonOutputData = NativeAccess.MoonOutputData()
+        NativeAccess.rust_moon_data(moonInputData, moonOutputData);
 
-        phaseAngle.postValue("${moonData.phaseAngle.format(2)}°")
-        fractionIlluminated.postValue("${(moonData.illuminatedFraction * 100).format(2)}%")
-        phaseName.postValue(moonData.phaseDesc)
+        phaseAngle.postValue("${moonOutputData.phaseAngle.format(2)}°")
+        fractionIlluminated.postValue("${(moonOutputData.illuminatedFraction * 100).format(2)}%")
+        phaseName.postValue(moonOutputData.phaseDesc)
 
-        val geocentricLongitudeDMS = NativeAccess.rust_to_dms(moonData.geocentricLongitude, 2)
+        val geocentricLongitudeDMS = NativeAccess.rust_to_dms(moonOutputData.geocentricLongitude, 2)
         geocentricLongitude.postValue(geocentricLongitudeDMS)
 
-        val geocentricLatitudeDMS = NativeAccess.rust_to_dms(moonData.geocentricLatitude, 2)
+        val geocentricLatitudeDMS = NativeAccess.rust_to_dms(moonOutputData.geocentricLatitude, 2)
         geocentricLatitude.postValue(geocentricLatitudeDMS)
 
-        distance.postValue("${moonData.distanceFromEarth.format(0)}km")
+        distance.postValue("${moonOutputData.distanceFromEarth.format(0)}km")
 
         rightAscension.postValue("Waning Crescent")
         declination.postValue("175.365")

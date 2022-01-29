@@ -1,10 +1,8 @@
 package com.svenschmidt.kitana.core
 
-import java.util.*
-
 class NativeAccess {
 
-    data class MoonData(
+    data class MoonOutputData(
         var phaseAngle: Double = 0.0,
         var illuminatedFraction: Double = 0.0,
         var phaseDesc: String = "",
@@ -12,6 +10,13 @@ class NativeAccess {
         var geocentricLatitude: Double = 0.0,
         var distanceFromEarth: Double = 0.0,
         var siderialTime: Double = 0.0
+    )
+
+    data class MoonInputData(
+        var jd: Double,
+        var longitudeObserver: Double,
+        var latitudeObserver: Double,
+        var heightAboveSeaObserver: Double,
     )
 
     companion object {
@@ -22,6 +27,6 @@ class NativeAccess {
         external fun rust_julian_day(year: Int, month: Int, day: Double): Double
 
         // SS: moon
-        external fun rust_moon_data(jd: Double, moonData: MoonData)
+        external fun rust_moon_data(moonInputData: MoonInputData, moonOutputData: MoonOutputData)
     }
 }
