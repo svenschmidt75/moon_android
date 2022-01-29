@@ -46,12 +46,15 @@ pub mod android {
     pub extern "system" fn Java_com_svenschmidt_kitana_core_NativeAccess_00024Companion_rust_1moon_1data(
         env: JNIEnv,
         _: JClass,
-        jd: jdouble,
-        moon_data: jobject,
+        moon_input_data: jobject,
+        moon_output_data: jobject,
     ) {
+        let jd: f64 = env.get_field(moon_input_data, "jd", "D").unwrap().d().unwrap();
+//        let jd = 2458477.89;
+
         let phase_angle = moon::phase::phase_angle_360(jd);
         env.set_field(
-            moon_data,
+            moon_output_data,
             "phaseAngle",
             "D",
             self::jni::objects::JValue::Double(phase_angle.0),
@@ -60,7 +63,7 @@ pub mod android {
 
         let fraction_illuminated = moon::phase::fraction_illuminated(jd);
         env.set_field(
-            moon_data,
+            moon_output_data,
             "illuminatedFraction",
             "D",
             self::jni::objects::JValue::Double(fraction_illuminated),
@@ -70,7 +73,7 @@ pub mod android {
         let phase_desc = moon::phase::phase_description(jd);
         let phase_desc: JString = env.new_string(phase_desc).unwrap();
         env.set_field(
-            moon_data,
+            moon_output_data,
             "phaseDesc",
             "Ljava/lang/String;",
             self::jni::objects::JValue::Object(phase_desc.into()),
@@ -79,7 +82,7 @@ pub mod android {
 
         let longitude = moon::position::geocentric_longitude(jd);
         env.set_field(
-            moon_data,
+            moon_output_data,
             "geocentricLongitude",
             "D",
             self::jni::objects::JValue::Double(longitude.0),
@@ -88,7 +91,7 @@ pub mod android {
 
         let latitude = moon::position::geocentric_latitude(jd);
         env.set_field(
-            moon_data,
+            moon_output_data,
             "geocentricLatitude",
             "D",
             self::jni::objects::JValue::Double(latitude.0),
@@ -97,7 +100,7 @@ pub mod android {
 
         let distance = moon::position::distance_from_earth(jd);
         env.set_field(
-            moon_data,
+            moon_output_data,
             "distanceFromEarth",
             "D",
             self::jni::objects::JValue::Double(distance),
@@ -106,7 +109,7 @@ pub mod android {
 
         let siderial_time = time::apparent_siderial_time(jd);
         env.set_field(
-            moon_data,
+            moon_output_data,
             "siderialTime",
             "D",
             self::jni::objects::JValue::Double(siderial_time.0),
@@ -121,7 +124,7 @@ pub mod android {
         degrees: jdouble,
         width: jbyte,
     ) -> jstring {
-        let dms_str = util::Degrees(degrees).to_dms_str(width as u8);
+        let dms_str = util::degrees::Degrees(degrees).to_dms_str(width as u8);
         let string: JString = env.new_string(dms_str).unwrap();
         string.into_inner()
     }
