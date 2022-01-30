@@ -1,6 +1,7 @@
 //! Coordinate transformations
 
 use crate::util::{degrees::Degrees, radians::Radians};
+use crate::{constants, parallax, time, util};
 
 /// Convert ecliptical to equatorial coordinates.
 /// Meeus, page 93, chapter 13
@@ -13,7 +14,11 @@ use crate::util::{degrees::Degrees, radians::Radians};
 /// Out:
 /// right ascension, in degrees [0, 360)
 /// declination, in degrees [-90, 90)
-pub(crate) fn ecliptic_2_equatorial(lambda: Degrees, beta: Degrees, eps: Degrees) -> (Degrees, Degrees) {
+pub(crate) fn ecliptic_2_equatorial(
+    lambda: Degrees,
+    beta: Degrees,
+    eps: Degrees,
+) -> (Degrees, Degrees) {
     let lambda_radians = Radians::from(lambda);
     let beta_radians = Radians::from(beta);
     let eps_radians = Radians::from(eps);
@@ -36,7 +41,7 @@ pub(crate) fn ecliptic_2_equatorial(lambda: Degrees, beta: Degrees, eps: Degrees
 /// declination, in degrees [-90, 90)
 /// hour_angle, in degrees [0, 360)
 /// observer's latitude, [-90, 90)
-fn equatorial_2_horizontal(
+pub(crate) fn equatorial_2_horizontal(
     decl: Degrees,
     hour_angle: Degrees,
     latitude_observer: Degrees,
@@ -56,6 +61,61 @@ fn equatorial_2_horizontal(
     (
         Degrees::from(Radians::new(azimuth)),
         Degrees::from(Radians::new(altitude)),
+    )
+}
+
+/// Given the geocentric equatorial coordinates, calculate the topocentric ones
+/// (i.e. the ones with the observer at the center of the coordinate system).
+/// They are different, because the Earth is not a perfect sphere, but rather
+/// a rotation ellipsoid due to flattening at the poles.
+/// In:
+/// ra: Right ascension, geocentric, apparent, in degrees [0, 360)
+/// decl: Declination, geocentric, apparent, in degrees [-90, 90)
+/// longitude: observer's longitude, in degrees [-80, 180)
+/// latitude: Observer's geocentric latitude, in degrees [-90, 90)
+/// height: observer's height above sea level, in meters
+/// distance: distance of object to Earth, in km
+/// jd: Julian Day
+/// Out:
+/// right ascension, topocentric, in dgrees [0, 360)
+/// declination, topocentric, in degrees [-90, 90)
+pub(crate) fn equatorial_2_topocentric(
+    ra: Degrees,
+    decl: Degrees,
+    longitude: Degrees,
+    latitude: Degrees,
+    height: f64,
+    distance: f64,
+    jd: f64,
+) -> (Degrees, Degrees) {
+    let (rho_sin_p, rho_cos_p) = parallax::rho_phi_prime(latitude, height);
+
+    let delta = distance / constants::AU;
+    let sin_pi = Radians::from(Degrees::from(util::arcsec::ArcSec::new(8.794)))
+        .0
+        .sin()
+        / delta;
+
+    // SS: calculate local hour angle
+    let siderial_time_greenwich = time::apparent_siderial_time(jd);
+    let siderial_time_local = time::local_siderial_time(siderial_time_greenwich, longitude);
+    let hour_angle = time::hour_angle(siderial_time_local, ra);
+    let hour_angle_radians = Radians::from(hour_angle);
+
+    let ra_radians = Radians::from(ra);
+    let decl_radians = Radians::from(decl);
+
+    let delta_ra = (-rho_cos_p * sin_pi * hour_angle_radians.0.sin())
+        .atan2(decl_radians.0.cos() - rho_cos_p * sin_pi * hour_angle_radians.0.cos());
+    let ra_topocentric = ra_radians + Radians::new(delta_ra);
+
+    let decl_topocentric = ((decl_radians.0.sin() - rho_sin_p * sin_pi) * delta_ra.cos())
+        .atan2(decl_radians.0.cos() - rho_cos_p * sin_pi * hour_angle_radians.0.cos());
+    let decl_topocentric = Radians::new(decl_topocentric);
+
+    (
+        Degrees::from(ra_topocentric),
+        Degrees::from(decl_topocentric),
     )
 }
 

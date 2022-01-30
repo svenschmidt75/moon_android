@@ -1,3 +1,4 @@
+mod constants;
 mod coordinates;
 mod earth;
 mod ecliptic;
@@ -5,6 +6,7 @@ mod jd;
 mod moon;
 mod nutation;
 mod parallax;
+mod refraction;
 mod sun;
 mod time;
 mod util;
@@ -15,8 +17,8 @@ mod util;
 pub mod android {
     extern crate jni;
 
-    use crate::util::degrees::Degrees;
     use super::*;
+    use crate::util::degrees::Degrees;
 
     use self::jni::objects::{JClass, JString};
     use self::jni::sys::{jbyte, jclass, jdouble, jint, jobject, jstring};
@@ -68,17 +70,19 @@ pub mod android {
             .d()
             .unwrap();
 
-        let longitude_observer = Degrees::new(env
-            .get_field(moon_input_data, "longitudeObserver", "D")
-            .unwrap()
-            .d()
-            .unwrap());
+        let longitude_observer = Degrees::new(
+            env.get_field(moon_input_data, "longitudeObserver", "D")
+                .unwrap()
+                .d()
+                .unwrap(),
+        );
 
-        let latitude_observer = Degrees::new(env
-            .get_field(moon_input_data, "latitudeObserver", "D")
-            .unwrap()
-            .d()
-            .unwrap());
+        let latitude_observer = Degrees::new(
+            env.get_field(moon_input_data, "latitudeObserver", "D")
+                .unwrap()
+                .d()
+                .unwrap(),
+        );
 
         let height_above_sea_observer: f64 = env
             .get_field(moon_input_data, "heightAboveSeaObserver", "D")
@@ -168,7 +172,7 @@ pub mod android {
             "D",
             self::jni::objects::JValue::Double(decl_topocentric.0),
         )
-            .unwrap();
+        .unwrap();
     }
 
     #[no_mangle]

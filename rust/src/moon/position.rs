@@ -321,6 +321,7 @@ pub fn distance_from_earth(jd: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{coordinates, ecliptic, refraction, time};
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
@@ -417,5 +418,56 @@ mod tests {
 
         // Assert
         assert_approx_eq!(368_409.7, distance, 0.1)
+    }
+
+    #[test]
+    fn equatorial_2_topocentric_moon_test() {
+        // Act
+        let jd = jd::from_date_hms(2003, 8, 28, 3, 17, 0.0);
+
+        // SS: Mount Palomar
+        let longitude_observer = Degrees::from_hms(7, 47, 27.0);
+        let latitude_observer = Degrees::from_dms(33, 21, 22.0);
+        let palomar_height_above_sea = 1706.0;
+
+        // SS: ecliptical geocentric coordinates of the moon
+        let longitude = geocentric_longitude(jd);
+        let latitude = geocentric_latitude(jd);
+
+        // SS: equatorial geocentric coordinates of the moon
+        let eps = ecliptic::true_obliquity(jd);
+        let (ra, decl) = coordinates::ecliptic_2_equatorial(longitude, latitude, eps);
+
+        // SS: equatorial geocentric coordinates to equatorial topocentric coordinates
+        let distance = distance_from_earth(jd);
+        let (ra_topocentric_moon, decl_topocentric_moon) = coordinates::equatorial_2_topocentric(
+            ra,
+            decl,
+            longitude_observer,
+            latitude_observer,
+            palomar_height_above_sea,
+            distance,
+            jd,
+        );
+
+        // SS: horizontal topocentric coordinates of the moon
+        let siderial_time_apparent_greenwich = time::apparent_siderial_time(jd);
+        let siderial_time_local =
+            time::local_siderial_time(siderial_time_apparent_greenwich, longitude_observer);
+        let hour_angle = time::hour_angle(siderial_time_local, ra_topocentric_moon);
+        let (azimuth, mut altitude) = coordinates::equatorial_2_horizontal(
+            decl_topocentric_moon,
+            hour_angle,
+            latitude_observer,
+        );
+
+        // SS: add correction for atmospheric refraction
+        let refraction_correction =
+            refraction::refraction_from_apparent_altitude(altitude, 1013.0, 10.0);
+        altitude += refraction_correction;
+
+        // Assert
+        assert_approx_eq!(108.74082230643148, azimuth.0, 0.000_1);
+        assert_approx_eq!(-5.7132731871712839, altitude.0, 0.001);
     }
 }
