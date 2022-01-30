@@ -11,6 +11,8 @@ class NativeAccess {
         var distanceFromEarth: Double = 0.0,
         var rightAscension: Double = 0.0,
         var declination: Double = 0.0,
+        var azimuth: Double = 0.0,
+        var altitude: Double = 0.0
     )
 
     data class MoonInputData(
@@ -18,6 +20,8 @@ class NativeAccess {
         var longitudeObserver: Double,
         var latitudeObserver: Double,
         var heightAboveSeaObserver: Double,
+        var pressure: Double,
+        var temperature: Double,
     )
 
     companion object {

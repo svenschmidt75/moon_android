@@ -42,7 +42,8 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
         val (year, month, day) = DateTimeViewModel.fromLocalDateTime(utcDateTime)
         val julianDay = NativeAccess.rust_julian_day(year, month, day)
 
-        val moonInputData = NativeAccess.MoonInputData(julianDay, 0.0, 0.0, 0.0)
+        // TODO: pass in correct lat, long, height
+        val moonInputData = NativeAccess.MoonInputData(julianDay, 116.8625, 33.356111111111112, 1706.0, 1013.0, 10.0)
         val moonOutputData = NativeAccess.MoonOutputData()
         NativeAccess.rust_moon_data(moonInputData, moonOutputData);
 
@@ -58,10 +59,18 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
 
         distance.postValue("${moonOutputData.distanceFromEarth.format(0)}km")
 
-        rightAscension.postValue("Waning Crescent")
-        declination.postValue("175.365")
-        altitude.postValue("75.365")
-        azimuth.postValue("56.4%")
+        val raStr = NativeAccess.rust_to_hms(moonOutputData.rightAscension, 2)
+        rightAscension.postValue(raStr)
+
+        val declStr = NativeAccess.rust_to_dms(moonOutputData.declination, 2)
+        declination.postValue(declStr)
+
+        val azimuthStr = NativeAccess.rust_to_dms(moonOutputData.azimuth, 2)
+        azimuth.postValue(azimuthStr)
+
+        val altitudeStr = NativeAccess.rust_to_dms(moonOutputData.altitude, 2)
+        altitude.postValue(altitudeStr)
+
         rises.postValue("Waning Crescent")
         transits.postValue("175.365")
         sets.postValue("75.365")

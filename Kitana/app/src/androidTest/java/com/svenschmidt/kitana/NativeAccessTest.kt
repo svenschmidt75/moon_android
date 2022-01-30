@@ -97,23 +97,24 @@ class NativeAccessTest {
         val jd = 2_459_596.101598
 
         // SS: Mount Palomar longitude
-        val longitudeObserver = -116.8649959122331;
+        val longitudeObserver = 116.8625;
 
         // SS: Mount Palomar latitude
-        val latitudeObserver = 33.35632175573314;
+        val latitudeObserver = 33.356111111111112;
 
         // SS: Mount Palomar height above sea level
         val heightAboveSea = 1706.0;
 
         // Act
         val moonInputData =
-            NativeAccess.MoonInputData(jd, longitudeObserver, latitudeObserver, heightAboveSea)
+            NativeAccess.MoonInputData(jd, longitudeObserver, latitudeObserver, heightAboveSea, 1013.0, 10.0)
         val moonOutputData = NativeAccess.MoonOutputData()
         NativeAccess.rust_moon_data(moonInputData, moonOutputData);
 
         // Assert
         MatcherAssert.assertThat(moonOutputData.phaseAngle, closeTo(164.6175559076692, 0.000_001))
         MatcherAssert.assertThat(moonOutputData.illuminatedFraction, closeTo(0.981, 0.001))
+        Assert.assertEquals(moonOutputData.phaseDesc, "Full Moon")
         MatcherAssert.assertThat(
             moonOutputData.distanceFromEarth,
             closeTo(403836.9196467576, 0.001)
@@ -126,9 +127,10 @@ class NativeAccessTest {
             moonOutputData.geocentricLongitude,
             closeTo(101.04539708087002, 0.001)
         )
-        MatcherAssert.assertThat(moonOutputData.rightAscension, closeTo(332.57959818158076, 0.001))
-        MatcherAssert.assertThat(moonOutputData.declination, closeTo(332.57959818158076, 0.001))
-        Assert.assertEquals(moonOutputData.phaseDesc, "Full Moon")
+        MatcherAssert.assertThat(moonOutputData.rightAscension, closeTo(101.54739997724147, 0.001))
+        MatcherAssert.assertThat(moonOutputData.declination, closeTo(25.711018001886877, 0.001))
+        MatcherAssert.assertThat(moonOutputData.azimuth, closeTo(124.51199928817729, 0.001))
+        MatcherAssert.assertThat(moonOutputData.altitude, closeTo(-3.2443418232251013, 0.001))
     }
 
 
