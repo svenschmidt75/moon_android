@@ -59,7 +59,7 @@ pub(crate) fn equatorial_2_horizontal(
     .asin();
 
     (
-        Degrees::from(Radians::new(azimuth)),
+        Degrees::from(Radians::new(azimuth)).map_to_0_to_360(),
         Degrees::from(Radians::new(altitude)),
     )
 }
@@ -114,8 +114,8 @@ pub(crate) fn equatorial_2_topocentric(
     let decl_topocentric = Radians::new(decl_topocentric);
 
     (
-        Degrees::from(ra_topocentric),
-        Degrees::from(decl_topocentric),
+        Degrees::from(ra_topocentric).map_to_0_to_360(),
+        Degrees::from(decl_topocentric).map_to_neg90_to_90(),
     )
 }
 

@@ -90,6 +90,18 @@ pub mod android {
             .d()
             .unwrap();
 
+        let pressure: f64 = env
+            .get_field(moon_input_data, "pressure", "D")
+            .unwrap()
+            .d()
+            .unwrap();
+
+        let temperature: f64 = env
+            .get_field(moon_input_data, "temperature", "D")
+            .unwrap()
+            .d()
+            .unwrap();
+
         let phase_angle = moon::phase::phase_angle_360(jd);
         env.set_field(
             moon_output_data,
@@ -148,7 +160,7 @@ pub mod android {
         // SS: Moon's equatorial coordinates
         let eps = ecliptic::true_obliquity(jd);
         let (ra, decl) = coordinates::ecliptic_2_equatorial(longitude, latitude, eps);
-        let (ra_topocentric, decl_topocentric) = parallax::equatorial_2_topocentric(
+        let (ra_topocentric, decl_topocentric) = coordinates::equatorial_2_topocentric(
             ra,
             decl,
             longitude_observer,
@@ -171,6 +183,35 @@ pub mod android {
             "declination",
             "D",
             self::jni::objects::JValue::Double(decl_topocentric.0),
+        )
+        .unwrap();
+
+        // SS: horizontal topocentric coordinates of the moon
+        let siderial_time_apparent_greenwich = time::apparent_siderial_time(jd);
+        let siderial_time_local =
+            time::local_siderial_time(siderial_time_apparent_greenwich, longitude_observer);
+        let hour_angle = time::hour_angle(siderial_time_local, ra_topocentric);
+        let (azimuth, mut altitude) =
+            coordinates::equatorial_2_horizontal(decl_topocentric, hour_angle, latitude_observer);
+
+        // SS: add correction for atmospheric refraction
+        let refraction_correction =
+            refraction::refraction_from_apparent_altitude(altitude, pressure, temperature);
+        altitude += refraction_correction;
+
+        env.set_field(
+            moon_output_data,
+            "azimuth",
+            "D",
+            self::jni::objects::JValue::Double(azimuth.0),
+        )
+        .unwrap();
+
+        env.set_field(
+            moon_output_data,
+            "altitude",
+            "D",
+            self::jni::objects::JValue::Double(altitude.0),
         )
         .unwrap();
     }
