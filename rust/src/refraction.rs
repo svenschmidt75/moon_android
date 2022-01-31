@@ -18,6 +18,7 @@ pub(crate) fn refraction_from_apparent_altitude(
     pressure: f64,
     temperature: f64,
 ) -> Degrees {
+    // SS: not sure where this constant comes from, taken from PJ Naughter's Astronomical Algorithms
     let h = if altitude.0 <= -1.9006387000003735 {
         Degrees::new(-1.9006387000003735)
     } else {
