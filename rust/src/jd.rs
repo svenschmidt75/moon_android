@@ -57,6 +57,13 @@ pub fn millennia_from_epoch_j2000(jd: f64) -> f64 {
     t
 }
 
+/// Convert Julian Day into Modified Julian Day MJD
+/// Meeus, chapter 7, page 63
+pub(crate) fn jd_to_mjd(jd: f64) -> f64 {
+    // SS: Modified Julian Day = 0 corresponds to 1858 Nov. 17 at 0h UT
+    jd - 2_400_000.5
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
