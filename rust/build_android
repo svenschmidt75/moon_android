@@ -5,7 +5,7 @@
 app_name=Kitana
 #config=release
 config_dir=debug
-lib_name=libmoon_android
+lib_name=libmoonlib
 
 mkdir -p ../$app_name/app/src/main/jniLibs/arm64/
 mkdir -p ../$app_name/app/src/main/jniLibs/armeabi/
