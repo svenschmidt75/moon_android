@@ -64,10 +64,145 @@ pub(crate) fn jd_to_mjd(jd: f64) -> f64 {
     jd - 2_400_000.5
 }
 
+/// Convert fractional day to hh:mm:s
+fn from_fract_day(day: f64) -> (u8, u8, f64) {
+    let hours1 = 24.0 * day.fract();
+    let hours = hours1.trunc();
+
+    let minutes1 = (hours1 - hours) * 60.0;
+    let minutes = minutes1.trunc();
+
+    let seconds = (minutes1 - minutes) * 60.0;
+
+    (hours as u8, minutes as u8, seconds)
+}
+
+/// Convert Julian Day to calendar date
+/// Meeus, page 63, chapter 7
+/// In: Julian Day
+/// Out: Calendar date
+pub(crate) fn to_calendar_date(jd: f64) -> (i16, u8, f64) {
+    let jd_mod = jd + 0.5;
+    let z = jd_mod.trunc();
+    let f = jd_mod - z;
+
+    let a = if z < 2_299_161.0 {
+        z
+    } else {
+        let alpha = ((z - 1_867_216.25) / 36_524.25).trunc();
+        z + 1.0 + alpha - (alpha / 4.0).trunc()
+    };
+
+    let b = a + 1524.0;
+    let c = ((b - 122.1) / 365.25).trunc();
+    let d = (365.25 * c).trunc();
+    let e = ((b - d) / 30.6001).trunc();
+
+    let day_fract = b - d - (30.6001 * e).trunc() + f;
+    let m = if e < 14.0 { e - 1.0 } else { e - 13.0 };
+    let year = if m > 2.0 { c - 4716.0 } else { c - 4715.0 };
+
+    (year as i16, m as u8, day_fract)
+}
+
+/// Determine whether year is a leap year
+fn is_leap(y: i16, m: u8, d: f64) -> bool {
+    return if is_julian_calendar(y, m, d) {
+        from_date(y, m, d) % 4.0 == 0.0
+    } else {
+        if y % 100 == 0 {
+            y % 400 == 0
+        } else {
+            y % 4 == 0
+        }
+    };
+}
+
+/// Calculate the fractional year taking leap years into account
+/// In: year, month, fractional day
+/// Out: fractional year
+pub(crate) fn fractional_year(y: i16, m: u8, d: f64) -> f64 {
+    let days_in_year = if is_leap(y, m, d) { 366.0 } else { 365.0 };
+
+    let jd = from_date(y, m, d);
+
+    // SS: Julian Day at beginning of the same year
+    let jd2 = from_date(y, 1, 1.0);
+
+    y as f64 + (jd - jd2) / days_in_year
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use assert_approx_eq::assert_approx_eq;
+
+    #[test]
+    fn from_fract_day_test() {
+        // SS: Example 7.c, page 64, chapter 7, Meeus
+
+        // Arrange
+        let day_fract = 4.81;
+
+        // Act
+        let (hours, minutes, seconds) = from_fract_day(day_fract);
+
+        // Assert
+        assert_eq!(19, hours);
+        assert_eq!(26, minutes);
+        assert_approx_eq!(23.9999999, seconds, 0.000_001);
+    }
+
+    #[test]
+    fn calendar_date_from_jd_test1() {
+        // SS: Example 7.c, page 64, chapter 7, Meeus
+
+        // Arrange
+        let jd = 2_436_116.31;
+
+        // Act
+        let (year, month, day_fract) = to_calendar_date(jd);
+
+        // Assert
+        assert_eq!(1957, year);
+        assert_eq!(10, month);
+        assert_approx_eq!(4.81, day_fract, 0.001);
+        assert_approx_eq!(jd, from_date(year, month, day_fract), 0.000_001);
+    }
+
+    #[test]
+    fn calendar_date_from_jd_test2() {
+        // SS: Example 7.c, page 64, chapter 7, Meeus
+
+        // Arrange
+        let jd = 1_842_713.0;
+
+        // Act
+        let (year, month, day_fract) = to_calendar_date(jd);
+
+        // Assert
+        assert_eq!(333, year);
+        assert_eq!(1, month);
+        assert_approx_eq!(27.5, day_fract, 0.001);
+        assert_approx_eq!(jd, from_date(year, month, day_fract), 0.000_001);
+    }
+
+    #[test]
+    fn calendar_date_from_jd_test3() {
+        // SS: Example 7.c, page 64, chapter 7, Meeus
+
+        // Arrange
+        let jd = 1_507_900.13;
+
+        // Act
+        let (year, month, day_fract) = to_calendar_date(jd);
+
+        // Assert
+        assert_eq!(-584, year);
+        assert_eq!(5, month);
+        assert_approx_eq!(28.63, day_fract, 0.001);
+        assert_approx_eq!(jd, from_date(year, month, day_fract), 0.000_001);
+    }
 
     #[test]
     fn julian_date() {
