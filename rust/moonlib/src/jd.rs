@@ -57,11 +57,18 @@ pub fn millennia_from_epoch_j2000(jd: f64) -> f64 {
     t
 }
 
-/// Convert Julian Day into Modified Julian Day MJD
+/// Convert Julian Day to Modified Julian Day MJD
 /// Meeus, chapter 7, page 63
 pub(crate) fn jd_to_mjd(jd: f64) -> f64 {
     // SS: Modified Julian Day = 0 corresponds to 1858 Nov. 17 at 0h UT
     jd - 2_400_000.5
+}
+
+/// Convert Modified Julian Day to Julian Day MJD
+/// Meeus, chapter 7, page 63
+pub fn mjd_to_jd(mjd: f64) -> f64 {
+    // SS: Modified Julian Day = 0 corresponds to 1858 Nov. 17 at 0h UT
+    mjd + 2_400_000.5
 }
 
 /// Convert fractional day to hh:mm:s
@@ -147,7 +154,7 @@ mod tests {
         let year_fract = fractional_year(2003, 8, 28.0);
 
         // Assert
-        assert_approx_eq!(1.9, year_fract, 0.1);
+        assert_approx_eq!(2003.654794520548, year_fract, 0.000_001);
     }
 
     #[test]

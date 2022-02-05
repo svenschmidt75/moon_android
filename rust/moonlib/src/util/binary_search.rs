@@ -26,7 +26,6 @@ pub(crate) fn upper_bound<T: std::cmp::PartialOrd>(data: &[T], to_find: &T) -> u
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_approx_eq::assert_approx_eq;
 
     #[test]
     fn upper_bound_less_than_first_test() {

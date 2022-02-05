@@ -2,7 +2,7 @@ mod constants;
 mod coordinates;
 mod earth;
 mod ecliptic;
-mod jd;
+pub mod jd;
 mod moon;
 mod nutation;
 mod parallax;

@@ -2,9 +2,14 @@
 name = "delta_t_converter"
 version = "0.1.0"
 edition = "2021"
+default-run = "delta_t_converter"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace]
 members = ["tabular", "moonlib"]
 default-members = ["tabular", "moonlib"]
+
+[dependencies]
+clap = "3.0.14"
+moonlib = { path = "moonlib" }

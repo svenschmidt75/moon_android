@@ -18,9 +18,8 @@ use crate::ecliptic::true_obliquity;
 use crate::nutation::nutation_in_longitude;
 use crate::util::{degrees::Degrees, radians::Radians};
 use crate::{jd, util};
-use std::cmp::Ordering;
-use tabular::time::delta_t_data::{self, DeltaTValue, DELTA_T_DATA};
-use tabular::time::leap_second_data::{self, LeapSecondCoefficient, LEAP_SECOND_DATA};
+use tabular::time::delta_t_data::{DeltaTValue, DELTA_T_DATA};
+use tabular::time::leap_second_data::{LeapSecondCoefficient, LEAP_SECOND_DATA};
 
 /// Calculate the mean siderial time at Greenwich
 /// Meeus, page 87, chapter 12
@@ -130,7 +129,7 @@ fn delta_t(jd: f64) -> f64 {
         // http://www.staff.science.uu.nl/~gent0113/deltat/deltat_old.htm,
         // see Espenak & Meeus 2006 section at the bottom
         let (y, m, d) = jd::to_calendar_date(jd);
-        let year_fract = jd::fractional_year(y, m, d);
+        let y = jd::fractional_year(y, m, d).trunc() as i16;
 
         if y < -500 {
             let u = (y as f64 - 1820.0) / 100.0;
