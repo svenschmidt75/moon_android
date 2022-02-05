@@ -87,8 +87,6 @@ impl PartialEq<Self> for LeapSecondCoefficient {
     }
 }
 
-impl Eq for LeapSecondCoefficient {}
-
 impl PartialOrd<Self> for LeapSecondCoefficient {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         if self.jd < other.jd {
@@ -98,15 +96,6 @@ impl PartialOrd<Self> for LeapSecondCoefficient {
         } else {
             Some(Ordering::Equal)
         }
-    }
-}
-
-/// Implement total ordering so we can use binary search.
-/// Note that we only care about the Julian Day field, jd,
-/// which is well-defined (never NaN)
-impl std::cmp::Ord for LeapSecondCoefficient {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).unwrap()
     }
 }
 
@@ -393,6 +382,24 @@ pub(crate) fn cumulative_leap_seconds(jd: f64) -> f64 {
 struct DeltaTValue {
     jd: f64,
     delta_t: f64,
+}
+
+impl PartialEq<Self> for DeltaTValue {
+    fn eq(&self, other: &Self) -> bool {
+        self.jd == other.jd
+    }
+}
+
+impl PartialOrd<Self> for DeltaTValue {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self.jd < other.jd {
+            Some(Ordering::Less)
+        } else if self.jd > other.jd {
+            Some(Ordering::Greater)
+        } else {
+            Some(Ordering::Equal)
+        }
+    }
 }
 
 const DELTA_T_DATA: [DeltaTValue; 632] = [
@@ -2939,6 +2946,15 @@ fn delta_t(jd: f64) -> f64 {
         // https://cddis.nasa.gov/archive/products/iers/historic_deltat.data
         // and
         // https://cddis.nasa.gov/archive/products/iers/finals2000A.all
+
+        let to_find = DeltaTValue { jd, delta_t: 0.0 };
+        let idx = util::binary_search::upper_bound(&DELTA_T_DATA, &to_find);
+
+        let prev = &DELTA_T_DATA[idx - 1];
+        let curr = &DELTA_T_DATA[idx];
+
+        delta_t =
+            (jd - prev.jd) / (curr.jd - prev.jd) * (curr.delta_t - prev.delta_t) + prev.delta_t;
     } else {
         // SS: Julian Day outside of tabular data range, calculate delta_t based on
         // polynomial expressions from Espenak & Meeus 2006.
@@ -3080,6 +3096,15 @@ fn ut1_to_tt(jd: f64) -> f64 {
 mod tests {
     use super::*;
     use assert_approx_eq::assert_approx_eq;
+
+    #[test]
+    fn delta_t_test1() {
+        // Arrange
+
+        // Act
+
+        // Assert
+    }
 
     #[test]
     fn cumulative_leap_seconds_test1() {

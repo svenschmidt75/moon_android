@@ -2,7 +2,7 @@
 /// a slice where data[i] > to_find. Note: >, NOT >= !
 /// In: data, slice with data. Must be sorted
 /// to_find: Item to search for
-pub(crate) fn upper_bound<T: std::cmp::Ord>(data: &[T], to_find: &T) -> usize {
+pub(crate) fn upper_bound<T: std::cmp::PartialOrd>(data: &[T], to_find: &T) -> usize {
     let mut min_idx = 0;
     let mut max_idx = data.len();
 
