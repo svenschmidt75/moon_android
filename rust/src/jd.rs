@@ -106,9 +106,11 @@ pub(crate) fn to_calendar_date(jd: f64) -> (i16, u8, f64) {
 }
 
 /// Determine whether year is a leap year
-fn is_leap(y: i16, m: u8, d: f64) -> bool {
-    return if is_julian_calendar(y, m, d) {
-        from_date(y, m, d) % 4.0 == 0.0
+/// For Julian calendar dates, we check whether the year is divisible by 4.
+/// For Gregorian calendar dates, see https://en.wikipedia.org/wiki/Leap_year
+fn is_leap(y: i16) -> bool {
+    return if is_julian_calendar(y, 1, 1.0) {
+        y % 4 == 0
     } else {
         if y % 100 == 0 {
             y % 400 == 0
@@ -122,7 +124,7 @@ fn is_leap(y: i16, m: u8, d: f64) -> bool {
 /// In: year, month, fractional day
 /// Out: fractional year
 pub(crate) fn fractional_year(y: i16, m: u8, d: f64) -> f64 {
-    let days_in_year = if is_leap(y, m, d) { 366.0 } else { 365.0 };
+    let days_in_year = if is_leap(y) { 366.0 } else { 365.0 };
 
     let jd = from_date(y, m, d);
 
@@ -136,6 +138,73 @@ pub(crate) fn fractional_year(y: i16, m: u8, d: f64) -> f64 {
 mod tests {
     use super::*;
     use assert_approx_eq::assert_approx_eq;
+
+    #[test]
+    fn fractional_year_test() {
+        // Arrange
+
+        // Act
+        let year_fract = fractional_year(2003, 8, 28.0);
+
+        // Assert
+        assert_approx_eq!(1.9, year_fract, 0.1);
+    }
+
+    #[test]
+    fn is_leap_year_julian_calandar_test() {
+        // Arrange
+        let years = [900, 1236];
+
+        for year in years {
+            // Act
+            let is_leap_year = is_leap(year);
+
+            // Assert
+            assert_eq!(true, is_leap_year);
+        }
+    }
+
+    #[test]
+    fn is_not_leap_year_julian_calandar_test() {
+        // Arrange
+        let years = [750, 1429];
+
+        for year in years {
+            // Act
+            let is_leap_year = is_leap(year);
+
+            // Assert
+            assert_eq!(false, is_leap_year);
+        }
+    }
+
+    #[test]
+    fn is_leap_year_gregorian_calandar_test() {
+        // Arrange
+        let years = [1600, 2000, 2400];
+
+        for year in years {
+            // Act
+            let is_leap_year = is_leap(year);
+
+            // Assert
+            assert_eq!(true, is_leap_year);
+        }
+    }
+
+    #[test]
+    fn is_not_leap_year_gregorian_calandar_test() {
+        // Arrange
+        let years = [1700, 1800, 1900, 2100];
+
+        for year in years {
+            // Act
+            let is_leap_year = is_leap(year);
+
+            // Assert
+            assert_eq!(false, is_leap_year);
+        }
+    }
 
     #[test]
     fn from_fract_day_test() {
