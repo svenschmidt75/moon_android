@@ -77,7 +77,7 @@ pub(crate) fn hour_angle(siderial_time: Degrees, right_ascension: Degrees) -> De
 /// This is to calculate TAI from UTC, i.e. TAI - UTC = cumulative_leap_seconds(UTC)
 /// In: Julian Day, in UTC
 /// Out: cumulative leap seconds for input date
-pub(crate) fn cumulative_leap_seconds(jd: f64) -> f64 {
+pub fn cumulative_leap_seconds(jd: f64) -> f64 {
     let mut cumulative_leap_secs = 0.0;
 
     let mut idx = LEAP_SECOND_DATA.len() - 1;

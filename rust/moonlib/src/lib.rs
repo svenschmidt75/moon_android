@@ -8,7 +8,7 @@ mod nutation;
 mod parallax;
 mod refraction;
 mod sun;
-mod time;
+pub mod time;
 mod util;
 
 /// Expose the JNI interface for android below
