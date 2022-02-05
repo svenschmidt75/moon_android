@@ -89,22 +89,25 @@ pub(crate) fn geocentric_longitude(jd: f64) -> Degrees {
     let e = earth::eccentricity(jd);
 
     // SS: perturbation term for moon's longitude
-    let mut sigma_l = moon_position_data::SIGMA_L_AND_R_COEFFICIENTS.iter().fold(0.0, |accum, &c| {
-        let sin_arg =
-            c.0 as f64 * d.0 + c.1 as f64 * m.0 + c.2 as f64 * m_prime.0 + c.3 as f64 * f.0;
-        let mut coeff = c.4 as f64;
+    let mut sigma_l =
+        moon_position_data::SIGMA_L_AND_R_COEFFICIENTS
+            .iter()
+            .fold(0.0, |accum, &c| {
+                let sin_arg =
+                    c.0 as f64 * d.0 + c.1 as f64 * m.0 + c.2 as f64 * m_prime.0 + c.3 as f64 * f.0;
+                let mut coeff = c.4 as f64;
 
-        if c.1 != 0 {
-            coeff *= e;
-        }
+                if c.1 != 0 {
+                    coeff *= e;
+                }
 
-        if c.1 == -2 || c.1 == 2 {
-            coeff *= e;
-        }
+                if c.1 == -2 || c.1 == 2 {
+                    coeff *= e;
+                }
 
-        let value = coeff * sin_arg.sin();
-        accum + value
-    });
+                let value = coeff * sin_arg.sin();
+                accum + value
+            });
 
     sigma_l += 3958.0 * a1.0.sin();
     sigma_l += 1962.0 * (l_prime - f).0.sin();
@@ -133,21 +136,23 @@ pub(crate) fn geocentric_latitude(jd: f64) -> Degrees {
     let e = earth::eccentricity(jd);
 
     // SS: perturbation term for moon's latitude
-    let mut sigma_b = moon_position_data::SIGMA_B_COEFFICIENTS.iter().fold(0.0, |accum, &c| {
-        let sin_arg =
-            c.0 as f64 * d.0 + c.1 as f64 * m.0 + c.2 as f64 * m_prime.0 + c.3 as f64 * f.0;
-        let mut coeff = c.4 as f64;
+    let mut sigma_b = moon_position_data::SIGMA_B_COEFFICIENTS
+        .iter()
+        .fold(0.0, |accum, &c| {
+            let sin_arg =
+                c.0 as f64 * d.0 + c.1 as f64 * m.0 + c.2 as f64 * m_prime.0 + c.3 as f64 * f.0;
+            let mut coeff = c.4 as f64;
 
-        if c.1 != 0 {
-            coeff *= e;
-        }
+            if c.1 != 0 {
+                coeff *= e;
+            }
 
-        if c.1 == -2 || c.1 == 2 {
-            coeff *= e;
-        }
+            if c.1 == -2 || c.1 == 2 {
+                coeff *= e;
+            }
 
-        accum + coeff * sin_arg.sin()
-    });
+            accum + coeff * sin_arg.sin()
+        });
 
     sigma_b -= 2235.0 * l_prime.0.sin();
     sigma_b += 382.0 * a3.0.sin();
@@ -170,21 +175,23 @@ pub fn distance_from_earth(jd: f64) -> f64 {
     let e = earth::eccentricity(jd);
 
     // SS: perturbation term for moon's longitude
-    let sigma_r = moon_position_data::SIGMA_L_AND_R_COEFFICIENTS.iter().fold(0.0, |accum, &c| {
-        let cos_arg =
-            c.0 as f64 * d.0 + c.1 as f64 * m.0 + c.2 as f64 * m_prime.0 + c.3 as f64 * f.0;
-        let mut coeff = c.5 as f64;
+    let sigma_r = moon_position_data::SIGMA_L_AND_R_COEFFICIENTS
+        .iter()
+        .fold(0.0, |accum, &c| {
+            let cos_arg =
+                c.0 as f64 * d.0 + c.1 as f64 * m.0 + c.2 as f64 * m_prime.0 + c.3 as f64 * f.0;
+            let mut coeff = c.5 as f64;
 
-        if c.1 != 0 {
-            coeff *= e;
-        }
+            if c.1 != 0 {
+                coeff *= e;
+            }
 
-        if c.1 == -2 || c.1 == 2 {
-            coeff *= e;
-        }
+            if c.1 == -2 || c.1 == 2 {
+                coeff *= e;
+            }
 
-        accum + coeff * cos_arg.cos()
-    });
+            accum + coeff * cos_arg.cos()
+        });
 
     // SS: 385,000.56 is the mean distance Earth-Moon,
     // now add the perturbation term

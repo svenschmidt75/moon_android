@@ -1,4 +1,3 @@
-
 // SS: perturbation terms for longitude and radius
 pub const SIGMA_L_AND_R_COEFFICIENTS: [(i8, i8, i8, i8, i64, i64); 60] = [
     (0, 0, 1, 0, 6288774, -20905355),

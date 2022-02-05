@@ -14,13 +14,13 @@
 // The length of a solar day varies throughout the year, as the Earth moves around an eclipse, not a
 // perfect circle. Siderial days are always the same length, as they are defined by Earth rotating
 // once around its axis.
-use std::cmp::Ordering;
 use crate::ecliptic::true_obliquity;
 use crate::nutation::nutation_in_longitude;
 use crate::util::{degrees::Degrees, radians::Radians};
 use crate::{jd, util};
-use tabular::time::leap_second_data::{self, LeapSecondCoefficient, LEAP_SECOND_DATA};
+use std::cmp::Ordering;
 use tabular::time::delta_t_data::{self, DeltaTValue, DELTA_T_DATA};
+use tabular::time::leap_second_data::{self, LeapSecondCoefficient, LEAP_SECOND_DATA};
 
 /// Calculate the mean siderial time at Greenwich
 /// Meeus, page 87, chapter 12
