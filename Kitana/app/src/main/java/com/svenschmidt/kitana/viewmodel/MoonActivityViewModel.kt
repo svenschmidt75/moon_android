@@ -20,6 +20,7 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
     val geocentricLongitude = MutableLiveData<String>()
     val geocentricLatitude = MutableLiveData<String>()
     val distance = MutableLiveData<String>()
+    val hourAngle = MutableLiveData<String>()
     val rightAscension = MutableLiveData<String>()
     val declination = MutableLiveData<String>()
     val altitude = MutableLiveData<String>()
@@ -58,6 +59,9 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
         geocentricLatitude.postValue(geocentricLatitudeDMS)
 
         distance.postValue("${moonOutputData.distanceFromEarth.format(0)}km")
+
+        val hourAngleStr = NativeAccess.rust_to_hms(moonOutputData.hourAngle, 2)
+        hourAngle.postValue(hourAngleStr)
 
         val raStr = NativeAccess.rust_to_hms(moonOutputData.rightAscension, 2)
         rightAscension.postValue(raStr)

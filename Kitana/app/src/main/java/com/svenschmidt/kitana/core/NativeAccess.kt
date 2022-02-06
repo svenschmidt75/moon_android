@@ -9,6 +9,7 @@ class NativeAccess {
         var geocentricLongitude: Double = 0.0,
         var geocentricLatitude: Double = 0.0,
         var distanceFromEarth: Double = 0.0,
+        var hourAngle: Double = 0.0,
         var rightAscension: Double = 0.0,
         var declination: Double = 0.0,
         var azimuth: Double = 0.0,

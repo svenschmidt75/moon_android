@@ -214,6 +214,15 @@ pub mod android {
             self::jni::objects::JValue::Double(altitude.0),
         )
         .unwrap();
+
+        env.set_field(
+            moon_output_data,
+            "hourAngle",
+            "D",
+            self::jni::objects::JValue::Double(hour_angle.0),
+        )
+            .unwrap();
+
     }
 
     #[no_mangle]

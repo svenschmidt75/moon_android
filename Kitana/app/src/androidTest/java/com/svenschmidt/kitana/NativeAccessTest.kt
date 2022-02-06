@@ -119,6 +119,7 @@ class NativeAccessTest {
             moonOutputData.distanceFromEarth,
             closeTo(403836.9196467576, 0.001)
         )
+        MatcherAssert.assertThat(moonOutputData.hourAngle, closeTo(114.1696980754786, 0.001))
         MatcherAssert.assertThat(
             moonOutputData.geocentricLatitude,
             closeTo(3.3226976900929386, 0.001)
