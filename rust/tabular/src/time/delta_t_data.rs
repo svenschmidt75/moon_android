@@ -23,7 +23,7 @@ impl PartialOrd<Self> for DeltaTValue {
     }
 }
 
-pub const DELTA_T_DATA: [DeltaTValue; 18928] = [
+pub const DELTA_T_DATA: [DeltaTValue; 18947] = [
     // SS: historical data is based on https://cddis.nasa.gov/archive/products/iers/historic_deltat.data
     // DO NOT CHANGE
     DeltaTValue {
@@ -75740,7 +75740,82 @@ pub const DELTA_T_DATA: [DeltaTValue; 18928] = [
         jd: 2459979.50,
         delta_t: 69.2139714,
     }, // 4 Feb 2023, UT1-UTC=-0.0299714, Cumulative leap seconds=37
-
-       // delta_t predictions, from https://cddis.nasa.gov/archive/products/iers/deltat.preds
-       // To update, run delta_t_pred_converter
+    // delta_t predictions, from https://cddis.nasa.gov/archive/products/iers/deltat.preds
+    // To update, run delta_t_pred_converter
+    DeltaTValue {
+        jd: 2460036.50,
+        delta_t: 71.5400000,
+    }, // 2 Apr 2023
+    DeltaTValue {
+        jd: 2460127.50,
+        delta_t: 71.6700000,
+    }, // 2 Jul 2023
+    DeltaTValue {
+        jd: 2460219.50,
+        delta_t: 71.7400000,
+    }, // 2 Oct 2023
+    DeltaTValue {
+        jd: 2460310.50,
+        delta_t: 71.8800000,
+    }, // 1 Jan 2024
+    DeltaTValue {
+        jd: 2460401.50,
+        delta_t: 72.0300000,
+    }, // 1 Apr 2024
+    DeltaTValue {
+        jd: 2460493.50,
+        delta_t: 72.1500000,
+    }, // 2 Jul 2024
+    DeltaTValue {
+        jd: 2460584.50,
+        delta_t: 72.2200000,
+    }, // 1 Oct 2024
+    DeltaTValue {
+        jd: 2460675.50,
+        delta_t: 72.3600000,
+    }, // 31 Dec 2024
+    DeltaTValue {
+        jd: 2460767.50,
+        delta_t: 72.5000000,
+    }, // 2 Apr 2025
+    DeltaTValue {
+        jd: 2460858.50,
+        delta_t: 72.6200000,
+    }, // 2 Jul 2025
+    DeltaTValue {
+        jd: 2460949.50,
+        delta_t: 72.6900000,
+    }, // 1 Oct 2025
+    DeltaTValue {
+        jd: 2461041.50,
+        delta_t: 72.8300000,
+    }, // 1 Jan 2026
+    DeltaTValue {
+        jd: 2461132.50,
+        delta_t: 72.9800000,
+    }, // 2 Apr 2026
+    DeltaTValue {
+        jd: 2461223.50,
+        delta_t: 73.1000000,
+    }, // 2 Jul 2026
+    DeltaTValue {
+        jd: 2461314.50,
+        delta_t: 73.1700000,
+    }, // 1 Oct 2026
+    DeltaTValue {
+        jd: 2461406.50,
+        delta_t: 73.3200000,
+    }, // 1 Jan 2027
+    DeltaTValue {
+        jd: 2461497.50,
+        delta_t: 73.4600000,
+    }, // 2 Apr 2027
+    DeltaTValue {
+        jd: 2461588.50,
+        delta_t: 73.5800000,
+    }, // 2 Jul 2027
+    DeltaTValue {
+        jd: 2461680.50,
+        delta_t: 73.6600000,
+    }, // 2 Oct 2027
 ];

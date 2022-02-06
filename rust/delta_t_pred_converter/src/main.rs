@@ -1,13 +1,14 @@
-//! Converter for generating delta_t values used in the calculation of TT from UTC.
-//! Open https://cddis.nasa.gov/archive/products/iers/finals2000A.all in a browser,
-//! select all and copy into text editor. Save file as finals2000A.all in the base
+//! Converter for generating predicted delta_t values used in the caluclation of TT from UTC.
+//! Open https://cddis.nasa.gov/archive/products/iers/deltat.preds in a browser,
+//! select all and copy into text editor. Save file as deltat.preds in the base
 //! folder with the top-level Cargo.toml file.
 //! Then execute
 //! ```
-//! cargo run --package delta_t_converter --bin delta_t_converter -- ../finals2000A.all
+//! cargo run --package delta_t_pred_converter --bin delta_t_pred_converter -- ../deltat.pred
 //! ```
-//! Copy the content in the output file finals2000A.all.rs to file
-//! tabular/src/time/delta_t_table.rs
+//! Copy the content in the output file deltat.pred.rs to file
+//! tabular/src/time/delta_t_table.rs. Delete all "predictions" that are already covered
+//! in https://cddis.nasa.gov/archive/products/iers/finals2000A.all, delta_t_converter.
 use clap::{App, Arg};
 use std::env;
 use std::fs::File;
@@ -15,8 +16,8 @@ use std::io::{BufRead, BufReader, BufWriter, LineWriter, Write};
 use std::path::PathBuf;
 
 fn main() -> Result<(), std::io::Error> {
-    let app = App::new("delta_t_converter")
-        .about("Converts UT1 - UTC data file from NASA into delta t to compute TT from UT")
+    let app = App::new("delta_t_pred_converter")
+        .about("Extracts predicted delta t data from NASA to compute TT from UT")
         .arg(Arg::new("file").required(true))
         .get_matches();
 
@@ -33,28 +34,27 @@ fn main() -> Result<(), std::io::Error> {
     let mut line = String::new();
     while reader.read_line(&mut line)? > 0 {
         line = line.trim_end().to_string();
-        if line.len() < 68 {
+        if line.len() == 0 {
             break;
         }
 
         lines_count += 1;
 
-        let mjd_str = &line[7..15];
+        let mjd_str = line[3..12].trim();
         let mjd = mjd_str.parse::<f64>().unwrap();
         let jd = moonlib::jd::mjd_to_jd(mjd);
 
-        let delta_ut_str = &line[58..68].trim();
-        let delta_ut = delta_ut_str.parse::<f64>().unwrap();
+        let delta_t_str = line[24..29].trim();
+        let delta_t = delta_t_str.parse::<f64>().unwrap();
 
         line.truncate(0);
-
-        let cumulative_leap_secs = moonlib::time::cumulative_leap_seconds(jd);
-        let delta_t = -delta_ut + cumulative_leap_secs + 32.184;
 
         let (year, month, day) = moonlib::jd::to_calendar_date(jd);
         let month_text = month_text(month);
 
-        let dest_line = format!("DeltaTValue{{jd: {jd:.2}, delta_t: {delta_t:.7}}}, // {day} {month_text} {year}, UT1-UTC={delta_ut:.7}, Cumulative leap seconds={cumulative_leap_secs}");
+        let dest_line = format!(
+            "DeltaTValue{{jd: {jd:.2}, delta_t: {delta_t:.7}}}, // {day} {month_text} {year}"
+        );
         write!(writer, "{}\n", dest_line);
     }
 
