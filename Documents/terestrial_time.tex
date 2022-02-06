@@ -14,16 +14,30 @@
 
 \end{abstract}
 
+\section{Introduction}
+
+For many astronomical calculations, the difference between UTC and TT is negligible.
+The issue is that UTC is not a monotonically increasing time measure compared to TT
+as it is influenced by irregularities in Earth's rotation. These irregularities are
+difficult to impossible to predict and can only be measured. NASA publishes tables
+with accurate data.
+
+To calculate moon rise and set times, it does make a difference whether we use UTC or
+TT. Currently, in early 2022, the difference between UTC and TT is about 68s,~i.e.
+TT is ahead of UTC by 68s. This is more than a minute, in which the moon does move
+enough to make a difference in rise and set time calculations.
+
+
 \section{$UT_{1}$ from $UTC$}
 
-To calculate $TT$ from $UTC$, we use
+To calculate TT from UTC, we use
 \begin{equation}
 \label{1}
 TT = TAI + 32.184s = UTC + leap(UTC) + 32.184s
 \end{equation}
-where $leap(UTC)$ are the cumulative leap seconds up to $UTC$.
+where $leap(UTC)$ are the cumulative leap seconds up to the $UTC$ time.
 Document~\href{https://cddis.nasa.gov/archive/products/iers/tai-utc.dat}{tai-utc.dat}
-contains values for
+contains leap second data for
 \begin{equation}
 TAI - UTC = leap(UTC)
 \end{equation}
@@ -34,18 +48,19 @@ We also find
 \label{2}
 TT = UT_{1} + \Delta T
 \end{equation}
-where $UT_{1}$ is corrected~\href{https://stjarnhimlen.se/comp/time.html#deltat}{$UT$}.
+where $UT_{1}$ is corrected~\href{https://stjarnhimlen.se/comp/time.html#deltat}{UT}.
 $\Delta T$ is provided by \href{https://cddis.nasa.gov/archive/products/iers/historic_deltat.data}{NASA}
 for historical periods.
 
-In order to calculate $UT_{1}$, we set equ.~\ref{1} and equ.~\ref{2} equal, i.e.
+In order to calculate $UT_{1}$, we set equ.~\ref{1} and equ.~\ref{2} equal and find
 \begin{equation}
 UT_{1} + \Delta T = UTC + leap(UTC) + 32.184s
 \end{equation}
-and solve for $UT_{1}$,
+Solving for $UT_{1}$ yields,
 \begin{align}
 \label{3}
-UT_{1} &= UTC + leap(UTC) + 32.184s - \Delta T \\
+UT_{1} &= TT - \Delta T \\
+       &= UTC + leap(UTC) + 32.184s - \Delta T \\
        &= UTC - \left( \Delta T - leap(UTC) - 32.184s \right)
 \end{align}
 
@@ -56,11 +71,11 @@ Relation
 \label{4}
 \Delta UT = UT_{1} - UTC
 \end{equation}
-corrects for variations in $UTC$.
+corrects for variations in UTC.
 NASA file \href{https://cddis.nasa.gov/archive/products/iers/finals2000A.all}{finals2000A.all} contains
-$\Delta UT$ for various dates.
-We need to calculate $\Delta T$ from $\Delta UT$ to calculate $TT$ from $UTC$.
-From equ.~\ref{3} and equ.~\ref{4} we find
+$\Delta UT$ values for a large range of times and is continuously updated.
+We need to calculate $\Delta T$ from $\Delta UT$ to calculate TT from UTC~\ref{3}.
+From equ.~\ref{3} and \ref{4} we find
 \begin{equation}
 \label{5}
 \Delta UT = -\Delta T + leap(UTC) + 32.184s
