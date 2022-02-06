@@ -1,8 +1,8 @@
+use clap::{App, Arg};
 use std::env;
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, LineWriter, Write};
 use std::path::PathBuf;
-use clap::{App, Arg};
 
 fn main() -> Result<(), std::io::Error> {
     let app = App::new("delta_t_converter")
@@ -73,6 +73,6 @@ fn month_text(m: u8) -> &'static str {
         10 => "Oct",
         11 => "Nov",
         12 => "Dec",
-        _ => "Invalid"
+        _ => "Invalid",
     }
 }
