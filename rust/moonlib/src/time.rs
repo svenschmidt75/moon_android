@@ -25,7 +25,7 @@ use tabular::time::leap_second_data::{LeapSecondCoefficient, LEAP_SECOND_DATA};
 /// Meeus, page 87, chapter 12
 /// In: Julian Day
 /// Out: Mean siderial time in degrees [0, 360)
-pub fn mean_siderial_time(jd: f64) -> Degrees {
+pub(crate) fn mean_siderial_time(jd: f64) -> Degrees {
     let delta_jd = jd - 2_451_545.0;
     let t = delta_jd / 36525.0;
     let t2 = t * t;
@@ -40,7 +40,7 @@ pub fn mean_siderial_time(jd: f64) -> Degrees {
 /// Meeus, page 87, chapter 12
 /// In: Julian Day
 /// Out: Mean siderial time in degrees [0, 360)
-pub fn apparent_siderial_time(jd: f64) -> Degrees {
+pub(crate) fn apparent_siderial_time(jd: f64) -> Degrees {
     let mean_siderial_time = mean_siderial_time(jd);
     let eps = true_obliquity(jd);
     let delta_psi = nutation_in_longitude(jd);
@@ -80,10 +80,10 @@ pub(crate) fn hour_angle(siderial_time: Degrees, right_ascension: Degrees) -> De
 pub fn cumulative_leap_seconds(jd: f64) -> f64 {
     let mut cumulative_leap_secs = 0.0;
 
-    let mut idx = LEAP_SECOND_DATA.len() - 1;
+    let mut idx = LEAP_SECOND_DATA.len();
 
     if jd >= LEAP_SECOND_DATA[0].jd {
-        if jd < LEAP_SECOND_DATA[idx].jd {
+        if jd < LEAP_SECOND_DATA[idx - 1].jd {
             let to_find = LeapSecondCoefficient {
                 jd,
                 leap_seconds: 0.0,
@@ -283,6 +283,18 @@ mod tests {
 
         // Assert
         assert_approx_eq!(32.0, leap_seconds, 0.1)
+    }
+
+    #[test]
+    fn cumulative_leap_seconds_test2() {
+        // Arrange
+        let jd = 2_457_754.5;
+
+        // Act
+        let leap_seconds = cumulative_leap_seconds(jd);
+
+        // Assert
+        assert_approx_eq!(37.0, leap_seconds, 0.1)
     }
 
     #[test]

@@ -7,7 +7,7 @@
 /// from DT to universal time (UT) is ignored, so for the purpose of this
 /// module, TD = UT.
 /// see J. Meeus, Astronomical Algorithms, chapter 7
-pub fn from_date(y: i16, m: u8, d: f64) -> f64 {
+pub(crate) fn from_date(y: i16, m: u8, d: f64) -> f64 {
     let (mm, yy) = if m < 3 { (m + 12, y - 1) } else { (m, y) };
 
     let b = if !is_julian_calendar(y, m, d) {
@@ -37,7 +37,7 @@ fn is_julian_calendar(y: i16, m: u8, d: f64) -> bool {
     y < 1582 || y == 1582 && (m < 10 || m == 10 && d < 5.0)
 }
 
-pub fn centuries_from_epoch_j2000(jd: f64) -> f64 {
+pub(crate) fn centuries_from_epoch_j2000(jd: f64) -> f64 {
     // SS: Epoch J2000 = Jan. 1st, 2000 at 0hr UTC
     let jd_epoch_j2000 = 2_451_545.0;
 
@@ -47,7 +47,7 @@ pub fn centuries_from_epoch_j2000(jd: f64) -> f64 {
     t
 }
 
-pub fn millennia_from_epoch_j2000(jd: f64) -> f64 {
+pub(crate) fn millennia_from_epoch_j2000(jd: f64) -> f64 {
     // SS: Epoch J2000 = Jan. 1st, 2000 at 0hr UTC
     let jd_epoch_j2000 = 2_451_545.0;
 
@@ -88,7 +88,7 @@ fn from_fract_day(day: f64) -> (u8, u8, f64) {
 /// Meeus, page 63, chapter 7
 /// In: Julian Day
 /// Out: Calendar date
-pub(crate) fn to_calendar_date(jd: f64) -> (i16, u8, f64) {
+pub fn to_calendar_date(jd: f64) -> (i16, u8, f64) {
     let jd_mod = jd + 0.5;
     let z = jd_mod.trunc();
     let f = jd_mod - z;
