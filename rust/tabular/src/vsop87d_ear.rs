@@ -1101,7 +1101,7 @@ const VSOP87D_L5_EARTH: [(f64, f64, f64); 5] = [
     (0.00000000005, 1.75600058765, 18849.22754997420),
 ];
 
-pub(crate) static VSOP87D_L_EARTH: &[(&[(f64, f64, f64)], usize)] = &[
+pub static VSOP87D_L_EARTH: &[(&[(f64, f64, f64)], usize)] = &[
     (&VSOP87D_L0_EARTH, VSOP87D_L0_EARTH.len()),
     (&VSOP87D_L1_EARTH, VSOP87D_L1_EARTH.len()),
     (&VSOP87D_L2_EARTH, VSOP87D_L2_EARTH.len()),
@@ -1473,7 +1473,7 @@ const VSOP87D_B4_EARTH: [(f64, f64, f64); 5] = [
     (0.00000000003, 2.89822201212, 6127.65545055720),
 ];
 
-pub(crate) const VSOP87D_B_EARTH: [(&[(f64, f64, f64)], usize); 5] = [
+pub const VSOP87D_B_EARTH: [(&[(f64, f64, f64)], usize); 5] = [
     (&VSOP87D_B0_EARTH, VSOP87D_B0_EARTH.len()),
     (&VSOP87D_B1_EARTH, VSOP87D_B1_EARTH.len()),
     (&VSOP87D_B2_EARTH, VSOP87D_B2_EARTH.len()),
@@ -2496,7 +2496,7 @@ const VSOP87D_R5_EARTH: [(f64, f64, f64); 3] = [
     (0.00000000001, 0.38068797142, 18849.22754997420),
 ];
 
-pub(crate) const VSOP87D_R_EARTH: [(&[(f64, f64, f64)], usize); 6] = [
+pub const VSOP87D_R_EARTH: [(&[(f64, f64, f64)], usize); 6] = [
     (&VSOP87D_R0_EARTH, VSOP87D_R0_EARTH.len()),
     (&VSOP87D_R1_EARTH, VSOP87D_R1_EARTH.len()),
     (&VSOP87D_R2_EARTH, VSOP87D_R2_EARTH.len()),

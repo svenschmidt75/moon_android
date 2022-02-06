@@ -55,7 +55,7 @@ fn main() -> Result<(), std::io::Error> {
         let dest_line = format!(
             "DeltaTValue{{jd: {jd:.2}, delta_t: {delta_t:.7}}}, // {day} {month_text} {year}"
         );
-        write!(writer, "{}\n", dest_line);
+        write!(writer, "{}\n", dest_line)?;
     }
 
     println!("Processed {lines_count} lines...");

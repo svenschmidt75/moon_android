@@ -9,10 +9,8 @@
 //! Copy the content in the output file finals2000A.all.rs to file
 //! tabular/src/time/delta_t_table.rs
 use clap::{App, Arg};
-use std::env;
 use std::fs::File;
-use std::io::{BufRead, BufReader, BufWriter, LineWriter, Write};
-use std::path::PathBuf;
+use std::io::{BufRead, BufReader, BufWriter, Write};
 
 fn main() -> Result<(), std::io::Error> {
     let app = App::new("delta_t_converter")
@@ -55,7 +53,7 @@ fn main() -> Result<(), std::io::Error> {
         let month_text = month_text(month);
 
         let dest_line = format!("DeltaTValue{{jd: {jd:.2}, delta_t: {delta_t:.7}}}, // {day} {month_text} {year}, UT1-UTC={delta_ut:.7}, Cumulative leap seconds={cumulative_leap_secs}");
-        write!(writer, "{}\n", dest_line);
+        write!(writer, "{}\n", dest_line)?;
     }
 
     println!("Processed {lines_count} lines...");

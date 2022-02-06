@@ -1,7 +1,7 @@
 use crate::jd;
 use crate::nutation::nutation_in_longitude;
-use crate::sun::vsop87d_ear;
 use crate::util::{arcsec::ArcSec, degrees::Degrees, radians::Radians};
+use tabular::vsop87d_ear;
 
 /// Astronomical unit, in km
 const AU: f64 = 149_597_870.0;
