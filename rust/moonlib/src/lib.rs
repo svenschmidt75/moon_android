@@ -221,8 +221,7 @@ pub mod android {
             "D",
             self::jni::objects::JValue::Double(hour_angle.0),
         )
-            .unwrap();
-
+        .unwrap();
     }
 
     #[no_mangle]

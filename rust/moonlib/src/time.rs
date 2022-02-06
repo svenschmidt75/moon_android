@@ -261,13 +261,13 @@ fn utc_2_tt(jd: f64) -> f64 {
     // interpret the input date in UT1 rather than UTC. Same as PJ Naughter
     if jd < LEAP_SECOND_DATA[0].jd || jd > LEAP_SECOND_DATA.last().unwrap().jd {
         ut1_to_tt(jd)
-    }
-    else {
+    } else {
         let delta_t = delta_t(jd);
         let cumulative_leap_seconds = cumulative_leap_seconds(jd);
 
         // SS: calculate UT1 from UTC
-        let ut1 = jd - (-delta_t - cumulative_leap_seconds - 32.184) / constants::SEC_PER_DAY as f64;
+        let ut1 =
+            jd - (-delta_t - cumulative_leap_seconds - 32.184) / constants::SEC_PER_DAY as f64;
 
         // SS: calculate TT from UT1
         let jd_in_tt = ut1 + delta_t / constants::SEC_PER_DAY as f64;
@@ -302,7 +302,12 @@ mod tests {
             jd::from_date_hms(2003, 8, 28, 3, 17, 0.0),
             jd::from_date_hms(1947, 3, 15, 7, 17, 56.0),
         ];
-        let tt_expected = [2457754.502388, 2459610.0813279948, 2452879.639042, 2432259.804442991];
+        let tt_expected = [
+            2457754.502388,
+            2459610.0813279948,
+            2452879.639042,
+            2432259.804442991,
+        ];
 
         for i in 0..jd_in_utc.len() {
             let jd = jd_in_utc[i];
