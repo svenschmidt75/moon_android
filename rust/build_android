@@ -12,11 +12,11 @@ mkdir -p ../$app_name/app/src/main/jniLibs/armeabi/
 mkdir -p ../$app_name/app/src/main/jniLibs/x86/
 
 
-cargo build --target aarch64-linux-android --$config
+cargo build --target aarch64-linux-android --package moonlib --$config
 cp target/aarch64-linux-android/$config_dir/$lib_name.so ../$app_name/app/src/main/jniLibs/arm64/
 
-cargo build --target armv7-linux-androideabi --$config
+cargo build --target armv7-linux-androideabi --package moonlib --$config
 cp target/armv7-linux-androideabi/$config_dir/$lib_name.so ../$app_name/app/src/main/jniLibs/armeabi/
 
-cargo build --target i686-linux-android --$config
+cargo build --target i686-linux-android --package moonlib --$config
 cp target/i686-linux-android/$config_dir/$lib_name.so ../$app_name/app/src/main/jniLibs/x86/
