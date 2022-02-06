@@ -39,3 +39,8 @@ and [deltat.preds](https://cddis.nasa.gov/archive/products/iers/deltat.preds). D
 overlapping values from [deltat.preds](https://cddis.nasa.gov/archive/products/iers/deltat.preds)
 before pasting into ```tabular/src/time/delta_t_data.rs```.
 
+# Credits
+
+The implementations of astronomical algorithms is based on the book *Astronomical Algorithms*, Jean Meeus,
+2nd edition, Willmann-Bell Inc.
+I heavily relied on the project [AA+](http://www.naughter.com/aa.html) by PJ Naughter.

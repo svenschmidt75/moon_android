@@ -17,7 +17,7 @@
 use crate::ecliptic::true_obliquity;
 use crate::nutation::nutation_in_longitude;
 use crate::util::{degrees::Degrees, radians::Radians};
-use crate::{jd, util};
+use crate::{constants, jd, util};
 use tabular::time::delta_t_data::{DeltaTValue, DELTA_T_DATA};
 use tabular::time::leap_second_data::{LeapSecondCoefficient, LEAP_SECOND_DATA};
 
@@ -106,7 +106,7 @@ pub fn cumulative_leap_seconds(jd: f64) -> f64 {
 /// In: Julian Day in UTC
 /// Out: delta_t, in seconds
 fn delta_t(jd: f64) -> f64 {
-    let mut delta_t = 0.0;
+    let delta_t;
 
     if jd >= DELTA_T_DATA[0].jd && jd < DELTA_T_DATA[DELTA_T_DATA.len() - 1].jd {
         // SS: calculate delta_t by using tabular data from
@@ -253,10 +253,39 @@ fn delta_t(jd: f64) -> f64 {
     delta_t
 }
 
+/// Convert UTC to TT
+/// In: Julian Day, in UTC
+/// Out: TT, in seconds
+fn utc_2_tt(jd: f64) -> f64 {
+    // SS: If the date falls outside the range we have leap second data for, we
+    // interpret the input date in UT1 rather than UTC. Same as PJ Naughter
+    if jd < LEAP_SECOND_DATA[0].jd || jd > LEAP_SECOND_DATA.last().unwrap().jd {
+        ut1_to_tt(jd)
+    }
+    else {
+        let delta_t = delta_t(jd);
+        let cumulative_leap_seconds = cumulative_leap_seconds(jd);
+
+        // SS: calculate UT1 from UTC
+        let ut1 = jd - (-delta_t - cumulative_leap_seconds - 32.184) / constants::SEC_PER_DAY as f64;
+
+        // SS: calculate TT from UT1
+        let jd_in_tt = ut1 + delta_t / constants::SEC_PER_DAY as f64;
+        jd_in_tt
+    }
+}
+
 /// Convert UT1 to T(erestial) T(ime)
-/// In: Julian Day
+/// In: Julian Day, in UT1
+/// Out: TT, in seconds
 fn ut1_to_tt(jd: f64) -> f64 {
-    jd
+    let delta_t = delta_t(jd);
+
+    // SS: Julian Day is in units of days, so convert
+    // delta_t from seconds to days
+    let delta_t_in_days = delta_t / constants::SEC_PER_DAY as f64;
+
+    jd + delta_t_in_days
 }
 
 #[cfg(test)]
@@ -265,12 +294,49 @@ mod tests {
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
-    fn delta_t_test1() {
+    fn utc_to_tt_test() {
         // Arrange
+        let jd_in_utc = [
+            2457754.5,
+            2459610.080526,
+            jd::from_date_hms(2003, 8, 28, 3, 17, 0.0),
+            jd::from_date_hms(1947, 3, 15, 7, 17, 56.0),
+        ];
+        let tt_expected = [2457754.502388, 2459610.0813279948, 2452879.639042, 2432259.804442991];
 
-        // Act
+        for i in 0..jd_in_utc.len() {
+            let jd = jd_in_utc[i];
+            let dt = tt_expected[i];
 
-        // Assert
+            // Act
+            let tt = utc_2_tt(jd);
+
+            // Assert
+            assert_approx_eq!(dt, tt, 0.000_001);
+        }
+    }
+
+    #[test]
+    fn delta_t_test() {
+        // Arrange
+        let jd_in_utc = [
+            2457754.5,
+            2459610.080526,
+            jd::from_date_hms(2003, 8, 28, 3, 17, 0.0),
+            jd::from_date_hms(1947, 3, 15, 7, 17, 56.0),
+        ];
+        let delta_t_expected = [68.5927179, 69.2917789, 64.533476, 27.874433];
+
+        for i in 0..jd_in_utc.len() {
+            let jd = jd_in_utc[i];
+            let dt = delta_t_expected[i];
+
+            // Act
+            let delta_t = delta_t(jd);
+
+            // Assert
+            assert_approx_eq!(dt, delta_t, 0.000_001);
+        }
     }
 
     #[test]
