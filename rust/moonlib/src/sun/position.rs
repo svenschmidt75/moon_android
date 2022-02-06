@@ -1,17 +1,15 @@
-use crate::jd;
+use crate::constants;
+use crate::date::jd::JD;
 use crate::nutation::nutation_in_longitude;
 use crate::util::{arcsec::ArcSec, degrees::Degrees, radians::Radians};
 use tabular::vsop87d_ear;
-
-/// Astronomical unit, in km
-const AU: f64 = 149_597_870.0;
 
 /// Calculate the heliocentric ecliptical longitude using the VSOP87
 /// theory. Meeus, chapter 32, eq. (32.2)
 /// In: Julian day
 /// Out: Longitude in degrees [0, 360)
-pub fn heliocentric_ecliptical_longitude(jd: f64) -> Degrees {
-    let millennia_from_j2000 = jd::millennia_from_epoch_j2000(jd);
+pub fn heliocentric_ecliptical_longitude(jd: JD) -> Degrees {
+    let millennia_from_j2000 = jd.millennia_from_epoch_j2000();
 
     let mut total_sum = 0.0;
     let mut tau = 1.0;
@@ -34,8 +32,8 @@ pub fn heliocentric_ecliptical_longitude(jd: f64) -> Degrees {
 /// theory. Meeus, chapter 32, eq. (32.2)
 /// In: Julian day
 /// Out: Latitude in degrees [0, 360)
-pub fn heliocentric_ecliptical_latitude(jd: f64) -> Degrees {
-    let millennia_from_j2000 = jd::millennia_from_epoch_j2000(jd);
+pub fn heliocentric_ecliptical_latitude(jd: JD) -> Degrees {
+    let millennia_from_j2000 = jd.millennia_from_epoch_j2000();
 
     let mut total_sum = 0.0;
     let mut tau = 1.0;
@@ -59,17 +57,17 @@ pub fn heliocentric_ecliptical_latitude(jd: f64) -> Degrees {
 /// theory. Meeus, chapter 32, eq. (32.2)
 /// In: Julian day
 /// Out: Distance of the Earth to the sun in km
-pub fn distance_earth_sun(jd: f64) -> f64 {
+pub fn distance_earth_sun(jd: JD) -> f64 {
     let distance_ae = distance_earth_sun_ae(jd);
-    distance_ae * AU
+    distance_ae * constants::AU
 }
 
 /// Calculate the distance Earth-Sun using the VSOP87
 /// theory. Meeus, chapter 32, eq. (32.2)
 /// In: Julian day
 /// Out: Distance of the Earth, in AU
-pub fn distance_earth_sun_ae(jd: f64) -> f64 {
-    let millennia_from_j2000 = jd::millennia_from_epoch_j2000(jd);
+pub fn distance_earth_sun_ae(jd: JD) -> f64 {
+    let millennia_from_j2000 = jd.millennia_from_epoch_j2000();
 
     let mut total_sum = 0.0;
     let mut tau = 1.0;
@@ -92,7 +90,7 @@ pub fn distance_earth_sun_ae(jd: f64) -> f64 {
 /// Meeus, chapter 25, page 166
 /// In: heliocentric ecliptical longitude in degrees [0, 360)
 /// Out: geocentric ecliptical longitude in degrees [0, 360)
-pub fn geocentric_ecliptical_longitude(jd: f64) -> Degrees {
+pub fn geocentric_ecliptical_longitude(jd: JD) -> Degrees {
     let heliocentric_ecliptical_longitude = heliocentric_ecliptical_longitude(jd);
     heliocentric_ecliptical_longitude + Degrees::new(180.0).map_to_0_to_360()
 }
@@ -101,7 +99,7 @@ pub fn geocentric_ecliptical_longitude(jd: f64) -> Degrees {
 /// Meeus, chapter 25, page 166
 /// In: heliocentric ecliptical latitude in degrees [-90, 90)
 /// Out: geocentric ecliptical latitude in degrees [-90, 90)
-pub fn geocentric_ecliptical_latitude(jd: f64) -> Degrees {
+pub fn geocentric_ecliptical_latitude(jd: JD) -> Degrees {
     let heliocentric_ecliptical_latitude = heliocentric_ecliptical_latitude(jd);
     -heliocentric_ecliptical_latitude
 }
@@ -113,14 +111,14 @@ pub fn geocentric_ecliptical_latitude(jd: f64) -> Degrees {
 /// Out: geocentric ecliptical longitude in degrees [0, 360), corrected for FK5, w.r.t. mean equinox of the date
 /// Out: geocentric ecliptical latitude in degrees [-90, 90), corrected for FK5, w.r.t. mean equinox of the date
 pub fn geocentric_ecliptical_to_fk5(
-    jd: f64,
+    jd: JD,
     longitude: Degrees,
     latitude: Degrees,
 ) -> (Degrees, Degrees) {
     let mut ecliptical_longitude = longitude;
     let mut ecliptical_latitude = latitude;
 
-    let centuries_from_j2000 = jd::centuries_from_epoch_j2000(jd);
+    let centuries_from_j2000 = jd.centuries_from_epoch_j2000();
     let lambda_prime = ecliptical_longitude.0
         - 1.397 * centuries_from_j2000
         - 0.000_31 * centuries_from_j2000 * centuries_from_j2000;
@@ -142,8 +140,8 @@ pub fn geocentric_ecliptical_to_fk5(
 /// page 168.
 /// In: Julian day
 /// Out: variation, in arcsec
-fn variation_geocentric_longitude(jd: f64) -> ArcSec {
-    let tau = jd::millennia_from_epoch_j2000(jd);
+fn variation_geocentric_longitude(jd: JD) -> ArcSec {
+    let tau = jd.millennia_from_epoch_j2000();
     let tau2 = tau * tau;
     let tau3 = tau2 * tau;
 
@@ -247,7 +245,7 @@ fn variation_geocentric_longitude(jd: f64) -> ArcSec {
 /// both nutation and aberration. Meeus, chapter 25, pages 167, 168
 /// In: Julian day
 /// Out: Apparent geocentric longitude of the sun, in degrees [0, 360)
-pub fn apparent_geometric_longitude(jd: f64) -> Degrees {
+pub fn apparent_geometric_longitude(jd: JD) -> Degrees {
     let longitude = geocentric_ecliptical_longitude(jd);
     let latitude = geocentric_ecliptical_latitude(jd);
     let (long, _) = geocentric_ecliptical_to_fk5(jd, longitude, latitude);
@@ -266,7 +264,7 @@ pub fn apparent_geometric_longitude(jd: f64) -> Degrees {
 /// Apparent geocentric latitude of the sun. Meeus, chapter 25, pages 167, 168
 /// In: Julian day
 /// Out: Apparent geocentric latitude of the sun, in degrees [-90, 90)
-pub fn apparent_geometric_latitude(jd: f64) -> Degrees {
+pub fn apparent_geometric_latitude(jd: JD) -> Degrees {
     let longitude = geocentric_ecliptical_longitude(jd);
     let latitude = geocentric_ecliptical_latitude(jd);
     let (_, lat) = geocentric_ecliptical_to_fk5(jd, longitude, latitude);
@@ -276,12 +274,13 @@ pub fn apparent_geometric_latitude(jd: f64) -> Degrees {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::date::date::Date;
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
     fn heliocentric_ecliptical_longitude_test() {
         // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13.0);
+        let jd = JD::from_date(Date::new(1992, 10, 13.0));
 
         // Act
         let longitude = heliocentric_ecliptical_longitude(jd);
@@ -293,7 +292,7 @@ mod tests {
     #[test]
     fn geocentric_ecliptical_longitude_test() {
         // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13.0);
+        let jd = JD::from_date(Date::new(1992, 10, 13.0));
 
         // Act
         let longitude = geocentric_ecliptical_longitude(jd);
@@ -305,7 +304,7 @@ mod tests {
     #[test]
     fn distance_earth_sun_test() {
         // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13.0);
+        let jd = JD::from_date(Date::new(1992, 10, 13.0));
 
         // Act
         let distance = distance_earth_sun_ae(jd);
@@ -317,7 +316,7 @@ mod tests {
     #[test]
     fn heliocentric_ecliptical_latitude_test() {
         // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13.0);
+        let jd = JD::from_date(Date::new(1992, 10, 13.0));
 
         // Act
         let latitude = heliocentric_ecliptical_latitude(jd);
@@ -329,7 +328,7 @@ mod tests {
     #[test]
     fn geocentric_ecliptical_latitude_test() {
         // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13.0);
+        let jd = JD::from_date(Date::new(1992, 10, 13.0));
 
         // Act
         let latitude = geocentric_ecliptical_latitude(jd);
@@ -341,7 +340,7 @@ mod tests {
     #[test]
     fn geocentric_ecliptical_to_fk5_test() {
         // SS: 1992 October 13, 0h TD
-        let jd = jd::from_date(1992, 10, 13.0);
+        let jd = JD::from_date(Date::new(1992, 10, 13.0));
 
         // Act
         let longitude = apparent_geometric_longitude(jd);

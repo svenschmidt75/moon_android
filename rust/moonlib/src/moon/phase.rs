@@ -1,4 +1,5 @@
 //! Phase of the moon
+use crate::date::jd::JD;
 use crate::sun::position::{
     apparent_geometric_latitude, apparent_geometric_longitude, distance_earth_sun,
 };
@@ -9,7 +10,7 @@ use crate::{coordinates, ecliptic, moon};
 /// Meeus, chapter 48, eq. (48.1) or Duffett-Smith and Zwart, chapter 67, page 171
 /// In: Julian day
 /// Out: Phase angle, in degrees [0, 360)
-pub fn phase_angle(jd: f64) -> Degrees {
+pub fn phase_angle(jd: JD) -> Degrees {
     // SS: position of the moon, from Earth
     let longitude = moon::position::geocentric_longitude(jd);
     let latitude = moon::position::geocentric_latitude(jd);
@@ -43,7 +44,7 @@ pub fn phase_angle(jd: f64) -> Degrees {
 /// Duffett-Smith and Zwart, chapter 67, page 171
 /// In: Julian day
 /// Out: Phase angle, in degrees [0, 360)
-pub fn phase_angle_360(jd: f64) -> Degrees {
+pub fn phase_angle_360(jd: JD) -> Degrees {
     // SS: position of the moon, from Earth
     let longitude_moon = moon::position::geocentric_longitude(jd);
 
@@ -57,7 +58,7 @@ pub fn phase_angle_360(jd: f64) -> Degrees {
 /// Textual description of the moon's phase
 /// In: Julian day
 /// Out: Textual description
-pub fn phase_description(jd: f64) -> &'static str {
+pub fn phase_description(jd: JD) -> &'static str {
     let phase_angle = phase_angle_360(jd).0;
 
     const SECTION: f64 = 360.0 / (2.0 * 8.0);
@@ -84,7 +85,7 @@ pub fn phase_description(jd: f64) -> &'static str {
     desc
 }
 
-pub fn fraction_illuminated(jd: f64) -> f64 {
+pub fn fraction_illuminated(jd: JD) -> f64 {
     let phase_angle = Radians::from(phase_angle(jd));
     (1.0 + phase_angle.0.cos()) / 2.0
 }
@@ -92,13 +93,14 @@ pub fn fraction_illuminated(jd: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::jd;
+    use crate::date::date::Date;
+    use crate::date::jd::JD;
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
     fn phase_angle_test() {
         // Arrange
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
         let phase_angle = phase_angle(jd);
@@ -110,7 +112,7 @@ mod tests {
     #[test]
     fn fraction_illuminated_test_1() {
         // Arrange
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
         let fraction_illuminated = fraction_illuminated(jd);
@@ -124,7 +126,7 @@ mod tests {
         // Arrange
 
         // SS: Dec. 4th, 2021, 12:26PM local Denver time
-        let jd = 2_459_553.3;
+        let jd = JD::new(2_459_553.3);
 
         // Act
         let percent_illuminated = fraction_illuminated(jd) * 100.0;
@@ -138,7 +140,7 @@ mod tests {
         // Arrange
 
         // SS: Dec. 30th, 2021, 9:30PM local Denver time
-        let jd = 2_459_580.187;
+        let jd = JD::new(2_459_580.187);
 
         // Act
         let percent_illuminated = fraction_illuminated(jd) * 100.0;
@@ -152,7 +154,7 @@ mod tests {
         // Arrange
 
         // SS: Dec. 4th, 2021, 12:26PM local Denver time
-        let jd = 2_459_553.3;
+        let jd = JD::new(2_459_553.3);
 
         // Act
         let phase_desc = phase_description(jd);
@@ -166,7 +168,7 @@ mod tests {
         // Arrange
 
         // SS: Dec. 8th, 2021, 12:37PM local Denver time
-        let jd = 2_459_557.338747;
+        let jd = JD::new(2_459_557.338747);
 
         // Act
         let phase_desc = phase_description(jd);
@@ -180,7 +182,7 @@ mod tests {
         // Arrange
 
         // SS: Dec. 30th, 2021, 9:30PM local Denver time
-        let jd = 2_459_580.187;
+        let jd = JD::new(2_459_580.187);
 
         // Act
         let phase_desc = phase_description(jd);

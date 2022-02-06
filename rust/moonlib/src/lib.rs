@@ -1,8 +1,8 @@
 mod constants;
 mod coordinates;
+pub mod date;
 mod earth;
 mod ecliptic;
-pub mod jd;
 mod moon;
 mod nutation;
 mod parallax;
@@ -17,14 +17,13 @@ mod util;
 pub mod android {
     extern crate jni;
 
-    use super::*;
-    use crate::earth;
+    use crate::date::{date::Date, jd::JD};
     use crate::util::degrees::Degrees;
+    use crate::*;
 
     use self::jni::objects::{JClass, JString};
-    use self::jni::sys::{jbyte, jclass, jdouble, jint, jobject, jstring};
+    use self::jni::sys::{jbyte, jdouble, jint, jobject, jstring};
     use self::jni::JNIEnv;
-    use super::*;
 
     /*
      * Julian Day
@@ -38,19 +37,20 @@ pub mod android {
         month: jint,
         day: jdouble,
     ) -> jdouble {
-        let jd = jd::from_date(year as i16, month as u8, day);
-        jd as jdouble
+        let jd = JD::from_date(Date::new(year as i16, month as u8, day));
+        jd.jd as jdouble
     }
 
     #[no_mangle]
     pub extern "system" fn Java_com_svenschmidt_kitana_core_NativeAccess_00024Companion_rust_1local_1siderial_1time(
         env: JNIEnv,
         _: JClass,
-        jd: jdouble,
+        jd_value: jdouble,
         longitude_observer: jdouble,
     ) -> jdouble {
+        let jd = JD::new(jd_value);
         let sd = earth::apparent_siderial_time(jd);
-        let lst = earth::local_siderial_time(sd, util::degrees::Degrees::new(longitude_observer));
+        let lst = earth::local_siderial_time(sd, Degrees::new(longitude_observer));
         lst.0 as jdouble
     }
 
@@ -65,11 +65,12 @@ pub mod android {
         moon_input_data: jobject,
         moon_output_data: jobject,
     ) {
-        let jd: f64 = env
-            .get_field(moon_input_data, "jd", "D")
-            .unwrap()
-            .d()
-            .unwrap();
+        let jd: JD = JD::new(
+            env.get_field(moon_input_data, "jd", "D")
+                .unwrap()
+                .d()
+                .unwrap(),
+        );
 
         let longitude_observer = Degrees::new(
             env.get_field(moon_input_data, "longitudeObserver", "D")
@@ -232,7 +233,7 @@ pub mod android {
         degrees: jdouble,
         width: jbyte,
     ) -> jstring {
-        let dms_str = util::degrees::Degrees(degrees).to_dms_str(width as u8);
+        let dms_str = Degrees(degrees).to_dms_str(width as u8);
         let string: JString = env.new_string(dms_str).unwrap();
         string.into_inner()
     }
@@ -244,7 +245,7 @@ pub mod android {
         degrees: jdouble,
         width: jbyte,
     ) -> jstring {
-        let dms_str = util::degrees::Degrees(degrees).to_hms_str(width as u8);
+        let dms_str = Degrees(degrees).to_hms_str(width as u8);
         let string: JString = env.new_string(dms_str).unwrap();
         string.into_inner()
     }

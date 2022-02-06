@@ -10,6 +10,7 @@
 //! tabular/src/time/delta_t_table.rs. Delete all "predictions" that are already covered
 //! in https://cddis.nasa.gov/archive/products/iers/finals2000A.all, delta_t_converter.
 use clap::{App, Arg};
+use moonlib::date::{date::Date, jd::JD};
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
@@ -40,18 +41,19 @@ fn main() -> Result<(), std::io::Error> {
 
         let mjd_str = line[3..12].trim();
         let mjd = mjd_str.parse::<f64>().unwrap();
-        let jd = moonlib::jd::mjd_to_jd(mjd);
+        let jd = JD::from_mjd(mjd);
 
         let delta_t_str = line[24..29].trim();
         let delta_t = delta_t_str.parse::<f64>().unwrap();
 
         line.truncate(0);
 
-        let (year, month, day) = moonlib::jd::to_calendar_date(jd);
-        let month_text = month_text(month);
+        let date = jd.to_calendar_date();
+        let month_text = month_text(date.month);
 
         let dest_line = format!(
-            "DeltaTValue{{jd: {jd:.2}, delta_t: {delta_t:.7}}}, // {day} {month_text} {year}"
+            "DeltaTValue{{jd: {0:.2}, delta_t: {delta_t:.7}}}, // {1} {month_text} {2}",
+            jd.jd, date.day, date.year
         );
         write!(writer, "{}\n", dest_line)?;
     }

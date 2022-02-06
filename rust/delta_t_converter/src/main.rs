@@ -9,6 +9,7 @@
 //! Copy the content in the output file finals2000A.all.rs to file
 //! tabular/src/time/delta_t_table.rs
 use clap::{App, Arg};
+use moonlib::date::{date::Date, jd::JD};
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
@@ -39,7 +40,7 @@ fn main() -> Result<(), std::io::Error> {
 
         let mjd_str = &line[7..15];
         let mjd = mjd_str.parse::<f64>().unwrap();
-        let jd = moonlib::jd::mjd_to_jd(mjd);
+        let jd = JD::from_mjd(mjd);
 
         let delta_ut_str = &line[58..68].trim();
         let delta_ut = delta_ut_str.parse::<f64>().unwrap();
@@ -49,10 +50,11 @@ fn main() -> Result<(), std::io::Error> {
         let cumulative_leap_secs = moonlib::time::cumulative_leap_seconds(jd);
         let delta_t = -delta_ut + cumulative_leap_secs + 32.184;
 
-        let (year, month, day) = moonlib::jd::to_calendar_date(jd);
-        let month_text = month_text(month);
+        let date = jd.to_calendar_date();
+        let month_text = month_text(date.month);
 
-        let dest_line = format!("DeltaTValue{{jd: {jd:.2}, delta_t: {delta_t:.7}}}, // {day} {month_text} {year}, UT1-UTC={delta_ut:.7}, Cumulative leap seconds={cumulative_leap_secs}");
+        let dest_line = format!("DeltaTValue{{jd: {0:.2}, delta_t: {delta_t:.7}}}, // {1} {month_text} {2}, UT1-UTC={delta_ut:.7}, Cumulative leap seconds={cumulative_leap_secs}"
+        , jd.jd, date.day, date.year);
         write!(writer, "{}\n", dest_line)?;
     }
 

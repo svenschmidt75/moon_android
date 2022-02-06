@@ -1,5 +1,5 @@
 //! Solar system related calculations.
-use crate::jd;
+use crate::date::jd::JD;
 use crate::util::{arcsec::ArcSec, degrees::Degrees, radians::Radians};
 
 const NUTATION_PERTURBATION_TERMS: [(i8, i8, i8, i8, i8, i64, f64, i64, f64); 63] = [
@@ -71,8 +71,8 @@ const NUTATION_PERTURBATION_TERMS: [(i8, i8, i8, i8, i8, i64, f64, i64, f64); 63
 /// Nutation of the Earth, Meeus chapter 22
 /// In: Julian day in dynamical time
 /// Out: correction term, in arcsec
-pub fn nutation_in_longitude(jd: f64) -> ArcSec {
-    let t = jd::centuries_from_epoch_j2000(jd);
+pub fn nutation_in_longitude(jd: JD) -> ArcSec {
+    let t = jd.centuries_from_epoch_j2000();
     let t2 = t * t;
     let t3 = t * t2;
 
@@ -107,8 +107,8 @@ pub fn nutation_in_longitude(jd: f64) -> ArcSec {
 /// Nutation of the obliquity of the eclipse, Meeus chapter 22
 /// In: Julian day in dynamical time
 /// Out: correction term in arcsec
-pub fn nutation_in_obliquity(jd: f64) -> ArcSec {
-    let t = jd::centuries_from_epoch_j2000(jd);
+pub fn nutation_in_obliquity(jd: JD) -> ArcSec {
+    let t = jd.centuries_from_epoch_j2000();
     let t2 = t * t;
     let t3 = t * t2;
 
@@ -141,12 +141,13 @@ pub fn nutation_in_obliquity(jd: f64) -> ArcSec {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::date::date::Date;
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
     fn nutation_longitude_test_1() {
         // Arrange
-        let jd = jd::from_date(1987, 4, 10.0);
+        let jd = JD::from_date(Date::new(1987, 4, 10.0));
 
         // Act
         let delta_psi = nutation_in_longitude(jd);
@@ -160,7 +161,7 @@ mod tests {
         // Arrange
 
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
         let delta_psi = Degrees::from(nutation_in_longitude(jd));
@@ -172,7 +173,7 @@ mod tests {
     #[test]
     fn nutation_obliquity_test_1() {
         // Arrange
-        let jd = jd::from_date(1987, 4, 10.0);
+        let jd = JD::from_date(Date::new(1987, 4, 10.0));
 
         // Act
         let delta_epsilon = nutation_in_obliquity(jd);

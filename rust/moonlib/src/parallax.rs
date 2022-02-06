@@ -25,7 +25,9 @@ pub(crate) fn rho_phi_prime(latitude_geographical: Degrees, height: f64) -> (f64
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{constants, coordinates, jd};
+    use crate::date::date::Date;
+    use crate::date::jd::JD;
+    use crate::{constants, coordinates};
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
@@ -49,7 +51,7 @@ mod tests {
         // SS: Meeus, page 280, example 40.a
 
         // Act
-        let jd = jd::from_date_hms(2003, 8, 28, 3, 17, 0.0);
+        let jd = JD::from_date(Date::from_date_hms(2003, 8, 28, 3, 17, 0.0));
 
         // SS: Mount Palomar
         let longitude_observer = Degrees::from_hms(7, 47, 27.0);

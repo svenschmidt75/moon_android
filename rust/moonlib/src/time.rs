@@ -1,7 +1,7 @@
 //! Time-related function.
 //!
-use crate::util::degrees::Degrees;
-use crate::{constants, jd, util};
+use crate::date::jd::JD;
+use crate::{constants, util};
 use tabular::time::delta_t_data::{DeltaTValue, DELTA_T_DATA};
 use tabular::time::leap_second_data::{LeapSecondCoefficient, LEAP_SECOND_DATA};
 
@@ -9,15 +9,15 @@ use tabular::time::leap_second_data::{LeapSecondCoefficient, LEAP_SECOND_DATA};
 /// This is to calculate TAI from UTC, i.e. TAI - UTC = cumulative_leap_seconds(UTC)
 /// In: Julian Day, in UTC
 /// Out: cumulative leap seconds for input date
-pub fn cumulative_leap_seconds(jd: f64) -> f64 {
+pub fn cumulative_leap_seconds(jd: JD) -> f64 {
     let mut cumulative_leap_secs = 0.0;
 
     let mut idx = LEAP_SECOND_DATA.len();
 
-    if jd >= LEAP_SECOND_DATA[0].jd {
-        if jd < LEAP_SECOND_DATA[idx - 1].jd {
+    if jd.jd >= LEAP_SECOND_DATA[0].jd {
+        if jd.jd < LEAP_SECOND_DATA[idx - 1].jd {
             let to_find = LeapSecondCoefficient {
-                jd,
+                jd: jd.jd,
                 leap_seconds: 0.0,
                 base_mjd: 0.0,
                 coefficient: 0.0,
@@ -27,7 +27,7 @@ pub fn cumulative_leap_seconds(jd: f64) -> f64 {
 
         let leap_item = &LEAP_SECOND_DATA[idx - 1];
         cumulative_leap_secs = leap_item.leap_seconds
-            + (jd::jd_to_mjd(jd) - leap_item.base_mjd) * leap_item.coefficient;
+            + (jd.to_mjd() - JD::new(leap_item.base_mjd)).jd * leap_item.coefficient;
     }
 
     cumulative_leap_secs
@@ -37,31 +37,34 @@ pub fn cumulative_leap_seconds(jd: f64) -> f64 {
 /// TT - UT1 = delta_t
 /// In: Julian Day in UTC
 /// Out: delta_t, in seconds
-fn delta_t(jd: f64) -> f64 {
+fn delta_t(jd: JD) -> f64 {
     let delta_t;
 
-    if jd >= DELTA_T_DATA[0].jd && jd < DELTA_T_DATA[DELTA_T_DATA.len() - 1].jd {
+    if jd.jd >= DELTA_T_DATA[0].jd && jd.jd < DELTA_T_DATA[DELTA_T_DATA.len() - 1].jd {
         // SS: calculate delta_t by using tabular data from
         // https://cddis.nasa.gov/archive/products/iers/historic_deltat.data
         // and
         // https://cddis.nasa.gov/archive/products/iers/finals2000A.all
 
-        let to_find = DeltaTValue { jd, delta_t: 0.0 };
+        let to_find = DeltaTValue {
+            jd: jd.jd,
+            delta_t: 0.0,
+        };
         let idx = util::binary_search::upper_bound(&DELTA_T_DATA, &to_find);
 
         let prev = &DELTA_T_DATA[idx - 1];
         let curr = &DELTA_T_DATA[idx];
 
         delta_t =
-            (jd - prev.jd) / (curr.jd - prev.jd) * (curr.delta_t - prev.delta_t) + prev.delta_t;
+            (jd.jd - prev.jd) / (curr.jd - prev.jd) * (curr.delta_t - prev.delta_t) + prev.delta_t;
     } else {
         // SS: Julian Day outside of tabular data range, calculate delta_t based on
         // polynomial expressions from Espenak & Meeus 2006.
         // References: http://eclipse.gsfc.nasa.gov/SEcat5/deltatpoly.html and
         // http://www.staff.science.uu.nl/~gent0113/deltat/deltat_old.htm,
         // see Espenak & Meeus 2006 section at the bottom
-        let (y, m, d) = jd::to_calendar_date(jd);
-        let y = jd::fractional_year(y, m, d).trunc() as i16;
+        let date = jd.to_calendar_date();
+        let y = date.fractional_year().trunc() as i16;
 
         if y < -500 {
             let u = (y as f64 - 1820.0) / 100.0;
@@ -188,10 +191,10 @@ fn delta_t(jd: f64) -> f64 {
 /// Convert UTC to TT
 /// In: Julian Day, in UTC
 /// Out: TT, in seconds
-fn utc_2_tt(jd: f64) -> f64 {
+fn utc_2_tt(jd: JD) -> JD {
     // SS: If the date falls outside the range we have leap second data for, we
     // interpret the input date in UT1 rather than UTC. Same as PJ Naughter
-    if jd < LEAP_SECOND_DATA[0].jd || jd > LEAP_SECOND_DATA.last().unwrap().jd {
+    if jd.jd < LEAP_SECOND_DATA[0].jd || jd.jd > LEAP_SECOND_DATA.last().unwrap().jd {
         ut1_to_tt(jd)
     } else {
         let delta_t = delta_t(jd);
@@ -199,43 +202,46 @@ fn utc_2_tt(jd: f64) -> f64 {
 
         // SS: calculate UT1 from UTC
         let ut1 =
-            jd - (-delta_t - cumulative_leap_seconds - 32.184) / constants::SEC_PER_DAY as f64;
+            jd.jd - (-delta_t - cumulative_leap_seconds - 32.184) / constants::SEC_PER_DAY as f64;
 
         // SS: calculate TT from UT1
         let jd_in_tt = ut1 + delta_t / constants::SEC_PER_DAY as f64;
-        jd_in_tt
+        JD::new(jd_in_tt)
     }
 }
 
 /// Convert UT1 to T(erestial) T(ime)
 /// In: Julian Day, in UT1
 /// Out: TT, in seconds
-fn ut1_to_tt(jd: f64) -> f64 {
+fn ut1_to_tt(jd: JD) -> JD {
     let delta_t = delta_t(jd);
 
     // SS: Julian Day is in units of days, so convert
     // delta_t from seconds to days
     let delta_t_in_days = delta_t / constants::SEC_PER_DAY as f64;
 
-    jd + delta_t_in_days
+    JD::new(jd.jd + delta_t_in_days)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::date::date::Date;
+    use crate::date::jd::JD;
     use crate::earth::{
         apparent_siderial_time, hour_angle, local_siderial_time, mean_siderial_time,
     };
+    use crate::util::degrees::Degrees;
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
     fn utc_to_tt_test() {
         // Arrange
         let jd_in_utc = [
-            2457754.5,
-            2459610.080526,
-            jd::from_date_hms(2003, 8, 28, 3, 17, 0.0),
-            jd::from_date_hms(1947, 3, 15, 7, 17, 56.0),
+            JD::new(2457754.5),
+            JD::new(2459610.080526),
+            JD::from_date(Date::from_date_hms(2003, 8, 28, 3, 17, 0.0)),
+            JD::from_date(Date::from_date_hms(1947, 3, 15, 7, 17, 56.0)),
         ];
         let tt_expected = [
             2457754.502388,
@@ -252,7 +258,7 @@ mod tests {
             let tt = utc_2_tt(jd);
 
             // Assert
-            assert_approx_eq!(dt, tt, 0.000_001);
+            assert_approx_eq!(dt, tt.jd, 0.000_001);
         }
     }
 
@@ -260,10 +266,10 @@ mod tests {
     fn delta_t_test() {
         // Arrange
         let jd_in_utc = [
-            2457754.5,
-            2459610.080526,
-            jd::from_date_hms(2003, 8, 28, 3, 17, 0.0),
-            jd::from_date_hms(1947, 3, 15, 7, 17, 56.0),
+            JD::new(2457754.5),
+            JD::new(2459610.080526),
+            JD::from_date(Date::from_date_hms(2003, 8, 28, 3, 17, 0.0)),
+            JD::from_date(Date::from_date_hms(1947, 3, 15, 7, 17, 56.0)),
         ];
         let delta_t_expected = [68.5927179, 69.2917789, 64.533476, 27.874433];
 
@@ -282,7 +288,7 @@ mod tests {
     #[test]
     fn cumulative_leap_seconds_test1() {
         // Arrange
-        let jd = jd::from_date_hms(2003, 8, 28, 3, 17, 0.0);
+        let jd = JD::from_date(Date::from_date_hms(2003, 8, 28, 3, 17, 0.0));
 
         // Act
         let leap_seconds = cumulative_leap_seconds(jd);
@@ -294,7 +300,7 @@ mod tests {
     #[test]
     fn cumulative_leap_seconds_test2() {
         // Arrange
-        let jd = 2_457_754.5;
+        let jd = JD::new(2_457_754.5);
 
         // Act
         let leap_seconds = cumulative_leap_seconds(jd);
@@ -326,7 +332,7 @@ mod tests {
         // Arrange
 
         // SS: Jan 29th, 2022, 2:32:20pm UTC
-        let jd = 2_459_609.105793;
+        let jd = JD::new(2_459_609.105793);
 
         let longitude_observer = Degrees::from_dms(105, 12, 53.8);
 
@@ -347,7 +353,7 @@ mod tests {
         // Arrange
 
         // SS: Jan 16th, 2022, 2:26:18pm UTC
-        let jd = 2_459_596.101598;
+        let jd = JD::new(2_459_596.101598);
 
         // Act
         let theta0 = mean_siderial_time(jd);
@@ -366,7 +372,7 @@ mod tests {
         // Arrange
 
         // SS: Apr. 10th 1987, 19h:21m:00s UT
-        let jd = 2_446_896.30625;
+        let jd = JD::new(2_446_896.30625);
 
         // Act
         let theta0 = mean_siderial_time(jd);
@@ -385,7 +391,7 @@ mod tests {
         // Arrange
 
         // SS: Jan 16th, 2022, 2:26:18pm UTC
-        let jd = 2_459_596.101598;
+        let jd = JD::new(2_459_596.101598);
 
         // Act
         let theta0 = apparent_siderial_time(jd);
@@ -404,7 +410,7 @@ mod tests {
         // Arrange
 
         // SS: Apr. 10th 1987, 0 UT
-        let jd = 2_446_895.5;
+        let jd = JD::new(2_446_895.5);
 
         // Act
         let theta0 = apparent_siderial_time(jd);

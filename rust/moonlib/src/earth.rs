@@ -14,15 +14,15 @@
 // The length of a solar day varies throughout the year, as the Earth moves around an eclipse, not a
 // perfect circle. Siderial days are always the same length, as they are defined by Earth rotating
 // once around its axis.
+use crate::date::jd::JD;
 use crate::ecliptic::true_obliquity;
 use crate::nutation::nutation_in_longitude;
 use crate::util::{degrees::Degrees, radians::Radians};
-use crate::{coordinates, ecliptic, jd};
 
 /// Calculate Earth's eccentricity, eq (47.6).
 /// In: Julian day in dynamical time
-pub fn eccentricity(jd: f64) -> f64 {
-    let t = jd::centuries_from_epoch_j2000(jd);
+pub fn eccentricity(jd: JD) -> f64 {
+    let t = jd.centuries_from_epoch_j2000();
     let t2 = t * t;
 
     1.0 - 0.002516 * t - 0.0000074 * t2
@@ -32,13 +32,13 @@ pub fn eccentricity(jd: f64) -> f64 {
 /// Meeus, page 87, chapter 12
 /// In: Julian Day
 /// Out: Mean siderial time in degrees [0, 360)
-pub(crate) fn mean_siderial_time(jd: f64) -> Degrees {
-    let delta_jd = jd - 2_451_545.0;
-    let t = delta_jd / 36525.0;
+pub(crate) fn mean_siderial_time(jd: JD) -> Degrees {
+    let delta_jd = jd - JD::new(2_451_545.0);
+    let t = delta_jd.jd / 36525.0;
     let t2 = t * t;
     let t3 = t * t2;
     let mean_siderial_time =
-        280.46061836 + 360.98564736629 * delta_jd + 0.000387933 * t2 - t3 / 38_710_000.0;
+        280.46061836 + 360.98564736629 * delta_jd.jd + 0.000387933 * t2 - t3 / 38_710_000.0;
     Degrees(mean_siderial_time).map_to_0_to_360()
 }
 
@@ -47,7 +47,7 @@ pub(crate) fn mean_siderial_time(jd: f64) -> Degrees {
 /// Meeus, page 87, chapter 12
 /// In: Julian Day
 /// Out: Mean siderial time in degrees [0, 360)
-pub(crate) fn apparent_siderial_time(jd: f64) -> Degrees {
+pub(crate) fn apparent_siderial_time(jd: JD) -> Degrees {
     let mean_siderial_time = mean_siderial_time(jd);
     let eps = true_obliquity(jd);
     let delta_psi = nutation_in_longitude(jd);
@@ -83,6 +83,9 @@ pub(crate) fn hour_angle(siderial_time: Degrees, right_ascension: Degrees) -> De
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::date::date::Date;
+    use crate::date::jd::JD;
+    use crate::{coordinates, ecliptic};
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
@@ -90,7 +93,7 @@ mod tests {
         // Arrange
 
         // SS: April 12th, 1992, 0h TD
-        let jd = 2_448_724.5;
+        let jd = JD::new(2_448_724.5);
 
         // Act
         let e = eccentricity(jd);
@@ -102,7 +105,7 @@ mod tests {
     #[test]
     pub fn ecliptical_to_equatorial_test() {
         // Arrange
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
         let longitude = Degrees::new(133.162655);
         let latitude = Degrees::new(-3.229126);
         let true_obliquity = ecliptic::true_obliquity(jd);

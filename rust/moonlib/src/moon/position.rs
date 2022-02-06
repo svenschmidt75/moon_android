@@ -1,14 +1,15 @@
 //! Calculate the moon's position for given Julian day.
 //! see J. Meeus, Astronomical Algorithms, chapter 47
+use crate::date::jd::JD;
 use crate::util::{degrees::Degrees, radians::Radians};
-use crate::{earth, jd, nutation, sun::sun};
+use crate::{earth, nutation, sun::sun};
 use tabular::moon_position_data;
 
 /// Calculate the moon's mean longitude, eq (47.1).
 /// In: Julian day in dynamical time
 /// Out: Moon's mean longitude in degrees, [0, 360)
-fn mean_longitude(jd: f64) -> Degrees {
-    let t = jd::centuries_from_epoch_j2000(jd);
+fn mean_longitude(jd: JD) -> Degrees {
+    let t = jd.centuries_from_epoch_j2000();
 
     let t2 = t * t;
     let t3 = t * t2;
@@ -24,8 +25,8 @@ fn mean_longitude(jd: f64) -> Degrees {
 /// Calculate the moon's mean elongation, eq (47.2).
 /// In: Julian day in dynamical time
 /// Out: Moon's mean elongation in degrees, [0, 360)
-fn mean_elongation(jd: f64) -> Degrees {
-    let t = jd::centuries_from_epoch_j2000(jd);
+fn mean_elongation(jd: JD) -> Degrees {
+    let t = jd.centuries_from_epoch_j2000();
 
     let t2 = t * t;
     let t3 = t * t2;
@@ -41,8 +42,8 @@ fn mean_elongation(jd: f64) -> Degrees {
 /// Calculate the moon's mean anomaly, eq (47.4).
 /// In: Julian day in dynamical time
 /// Out: Moon's mean anomaly in degrees, [0, 360)
-fn mean_anomaly(jd: f64) -> Degrees {
-    let t = jd::centuries_from_epoch_j2000(jd);
+fn mean_anomaly(jd: JD) -> Degrees {
+    let t = jd.centuries_from_epoch_j2000();
 
     let t2 = t * t;
     let t3 = t * t2;
@@ -58,8 +59,8 @@ fn mean_anomaly(jd: f64) -> Degrees {
 /// Calculate the moon's argument of latitude, eq (47.5).
 /// In: Julian day in dynamical time
 /// Out: Moon's argument of latitude in degrees, [0, 360)
-fn argument_of_latitude(jd: f64) -> Degrees {
-    let t = jd::centuries_from_epoch_j2000(jd);
+fn argument_of_latitude(jd: JD) -> Degrees {
+    let t = jd.centuries_from_epoch_j2000();
 
     let t2 = t * t;
     let t3 = t * t2;
@@ -75,8 +76,8 @@ fn argument_of_latitude(jd: f64) -> Degrees {
 /// Calculate the moon's longitude (lambda), page 342
 /// In: Julian day in dynamical time
 /// Out: Moon's longitude in degrees, [0, 360)
-pub(crate) fn geocentric_longitude(jd: f64) -> Degrees {
-    let t = jd::centuries_from_epoch_j2000(jd);
+pub(crate) fn geocentric_longitude(jd: JD) -> Degrees {
+    let t = jd.centuries_from_epoch_j2000();
 
     let a1 = Radians::from(Degrees::new(119.75 + 131.849 * t).map_to_0_to_360());
     let a2 = Radians::from(Degrees::new(53.09 + 479264.290 * t).map_to_0_to_360());
@@ -122,8 +123,8 @@ pub(crate) fn geocentric_longitude(jd: f64) -> Degrees {
 /// Calculate the moon's latitude (beta), page 342
 /// In: Julian day in dynamical time
 /// Out: Moon's latitude in degrees, [0, 360)
-pub(crate) fn geocentric_latitude(jd: f64) -> Degrees {
-    let t = jd::centuries_from_epoch_j2000(jd);
+pub(crate) fn geocentric_latitude(jd: JD) -> Degrees {
+    let t = jd.centuries_from_epoch_j2000();
 
     let a1 = Radians::from(Degrees::new(119.75 + 131.849 * t).map_to_0_to_360());
     let a3 = Radians::from(Degrees::new(313.45 + 481266.484 * t).map_to_0_to_360());
@@ -167,7 +168,7 @@ pub(crate) fn geocentric_latitude(jd: f64) -> Degrees {
 /// Calculate the moon's distance (delta) from earth, page 342
 /// In: Julian day in dynamical time
 /// Out: Moon's distance from Earth, in kilometers
-pub fn distance_from_earth(jd: f64) -> f64 {
+pub fn distance_from_earth(jd: JD) -> f64 {
     let d = Radians::from(mean_elongation(jd));
     let m = Radians::from(sun::mean_anomaly(jd));
     let m_prime = Radians::from(mean_anomaly(jd));
@@ -201,13 +202,14 @@ pub fn distance_from_earth(jd: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::date::date::Date;
     use crate::{coordinates, earth, ecliptic, refraction};
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
     fn mean_longitude_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
         let mean_longitude = mean_longitude(jd);
@@ -219,7 +221,7 @@ mod tests {
     #[test]
     fn mean_elongation_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
         let mean_elongation = mean_elongation(jd);
@@ -231,7 +233,7 @@ mod tests {
     #[test]
     fn sun_mean_anomaly_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
         let mean_elongation = sun::mean_anomaly(jd);
@@ -243,7 +245,7 @@ mod tests {
     #[test]
     fn mean_anomaly_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
         let mean_elongation = mean_anomaly(jd);
@@ -255,7 +257,7 @@ mod tests {
     #[test]
     fn argument_of_latitude_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
         let argument_of_latitude = argument_of_latitude(jd);
@@ -267,7 +269,7 @@ mod tests {
     #[test]
     fn longitude_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
         let longitude = geocentric_longitude(jd);
@@ -279,7 +281,7 @@ mod tests {
     #[test]
     fn latitude_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
         let latitude = geocentric_latitude(jd);
@@ -291,7 +293,7 @@ mod tests {
     #[test]
     fn distance_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
         let distance = distance_from_earth(jd);
@@ -303,7 +305,7 @@ mod tests {
     #[test]
     fn equatorial_2_topocentric_moon_test_1() {
         // Act
-        let jd = jd::from_date_hms(2003, 8, 28, 3, 17, 0.0);
+        let jd = JD::from_date(Date::from_date_hms(2003, 8, 28, 3, 17, 0.0));
 
         // SS: Mount Palomar
         let longitude_observer = Degrees::from_hms(7, 47, 27.0);
@@ -356,7 +358,7 @@ mod tests {
         // Act
 
         // SS: Sunday, Jan. 30th 2022, 1:55:57PM UTC
-        let jd = 2_459_610.080526;
+        let jd = JD::new(2_459_610.080526);
 
         // SS: Mount Palomar
         let longitude_observer = Degrees::from_hms(7, 47, 27.0);

@@ -1,11 +1,11 @@
-use crate::jd;
+use crate::date::jd::JD;
 use crate::util::degrees::Degrees;
 
 /// Calculate the sun's mean anomaly, eq (47.3).
 /// In: Julian day in dynamical time
 /// Out: Sun's mean anomaly in degrees, [0, 360)
-pub fn mean_anomaly(jd: f64) -> Degrees {
-    let t = jd::centuries_from_epoch_j2000(jd);
+pub fn mean_anomaly(jd: JD) -> Degrees {
+    let t = jd.centuries_from_epoch_j2000();
 
     let t2 = t * t;
     let t3 = t * t2;
@@ -20,12 +20,13 @@ pub fn mean_anomaly(jd: f64) -> Degrees {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::date::date::Date;
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
     fn sun_mean_anomaly_test() {
         // SS: 1992 April 12, 0h TD
-        let jd = jd::from_date(1992, 4, 12.0);
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
         let mean_elongation = mean_anomaly(jd);

@@ -1,5 +1,6 @@
 //! Coordinate transformations
 
+use crate::date::jd::JD;
 use crate::util::{degrees::Degrees, radians::Radians};
 use crate::{constants, earth, parallax, util};
 
@@ -86,7 +87,7 @@ pub(crate) fn equatorial_2_topocentric(
     latitude: Degrees,
     height: f64,
     distance: f64,
-    jd: f64,
+    jd: JD,
 ) -> (Degrees, Degrees) {
     let (rho_sin_p, rho_cos_p) = parallax::rho_phi_prime(latitude, height);
 
