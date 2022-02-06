@@ -50,7 +50,7 @@ fn main() -> Result<(), std::io::Error> {
         let (year, month, day) = moonlib::jd::to_calendar_date(jd);
         let month_text = month_text(month);
 
-        let dest_line = format!("DeltaTValue{{jd: {jd:.2}, delta:t: {delta_t:.7}}}, // {day} {month_text} {year}, UT1-UTC={delta_ut:.7}, Cumulative leap seconds={cumulative_leap_secs}");
+        let dest_line = format!("DeltaTValue{{jd: {jd:.2}, delta_t: {delta_t:.7}}}, // {day} {month_text} {year}, UT1-UTC={delta_ut:.7}, Cumulative leap seconds={cumulative_leap_secs}");
         write!(writer, "{}\n", dest_line);
     }
 
