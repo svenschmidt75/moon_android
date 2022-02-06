@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     companion object {
         init {
             // SS: load native libraries
-            System.loadLibrary("moon_android")
+            System.loadLibrary("moonlib")
         }
     }
 

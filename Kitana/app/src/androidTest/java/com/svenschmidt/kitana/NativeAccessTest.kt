@@ -16,7 +16,7 @@ class NativeAccessTest {
     @Before
     fun setUp() {
         // SS: load native libraries
-        System.loadLibrary("moon_android")
+        System.loadLibrary("moonlib")
     }
 
     @Test
