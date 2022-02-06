@@ -18,6 +18,7 @@ pub mod android {
     extern crate jni;
 
     use super::*;
+    use crate::earth;
     use crate::util::degrees::Degrees;
 
     use self::jni::objects::{JClass, JString};
@@ -48,8 +49,8 @@ pub mod android {
         jd: jdouble,
         longitude_observer: jdouble,
     ) -> jdouble {
-        let sd = time::apparent_siderial_time(jd);
-        let lst = time::local_siderial_time(sd, util::degrees::Degrees::new(longitude_observer));
+        let sd = earth::apparent_siderial_time(jd);
+        let lst = earth::local_siderial_time(sd, util::degrees::Degrees::new(longitude_observer));
         lst.0 as jdouble
     }
 
@@ -159,7 +160,7 @@ pub mod android {
 
         // SS: Moon's equatorial coordinates
         let eps = ecliptic::true_obliquity(jd);
-        let (ra, decl) = coordinates::ecliptic_2_equatorial(longitude, latitude, eps);
+        let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
         let (ra_topocentric, decl_topocentric) = coordinates::equatorial_2_topocentric(
             ra,
             decl,
@@ -187,10 +188,10 @@ pub mod android {
         .unwrap();
 
         // SS: horizontal topocentric coordinates of the moon
-        let siderial_time_apparent_greenwich = time::apparent_siderial_time(jd);
+        let siderial_time_apparent_greenwich = earth::apparent_siderial_time(jd);
         let siderial_time_local =
-            time::local_siderial_time(siderial_time_apparent_greenwich, longitude_observer);
-        let hour_angle = time::hour_angle(siderial_time_local, ra_topocentric);
+            earth::local_siderial_time(siderial_time_apparent_greenwich, longitude_observer);
+        let hour_angle = earth::hour_angle(siderial_time_local, ra_topocentric);
         let (azimuth, mut altitude) =
             coordinates::equatorial_2_horizontal(decl_topocentric, hour_angle, latitude_observer);
 

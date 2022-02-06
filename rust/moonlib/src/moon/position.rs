@@ -201,7 +201,7 @@ pub fn distance_from_earth(jd: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{coordinates, ecliptic, refraction, time};
+    use crate::{coordinates, earth, ecliptic, refraction};
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
@@ -316,7 +316,7 @@ mod tests {
 
         // SS: equatorial geocentric coordinates of the moon
         let eps = ecliptic::true_obliquity(jd);
-        let (ra, decl) = coordinates::ecliptic_2_equatorial(longitude, latitude, eps);
+        let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
 
         // SS: equatorial geocentric coordinates to equatorial topocentric coordinates
         let distance = distance_from_earth(jd);
@@ -331,10 +331,10 @@ mod tests {
         );
 
         // SS: horizontal topocentric coordinates of the moon
-        let siderial_time_apparent_greenwich = time::apparent_siderial_time(jd);
+        let siderial_time_apparent_greenwich = earth::apparent_siderial_time(jd);
         let siderial_time_local =
-            time::local_siderial_time(siderial_time_apparent_greenwich, longitude_observer);
-        let hour_angle = time::hour_angle(siderial_time_local, ra_topocentric_moon);
+            earth::local_siderial_time(siderial_time_apparent_greenwich, longitude_observer);
+        let hour_angle = earth::hour_angle(siderial_time_local, ra_topocentric_moon);
         let (azimuth, mut altitude) = coordinates::equatorial_2_horizontal(
             decl_topocentric_moon,
             hour_angle,
@@ -369,7 +369,7 @@ mod tests {
 
         // SS: equatorial geocentric coordinates of the moon
         let eps = ecliptic::true_obliquity(jd);
-        let (ra, decl) = coordinates::ecliptic_2_equatorial(longitude, latitude, eps);
+        let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
 
         // SS: equatorial geocentric coordinates to equatorial topocentric coordinates
         let distance = distance_from_earth(jd);
@@ -384,10 +384,10 @@ mod tests {
         );
 
         // SS: horizontal topocentric coordinates of the moon
-        let siderial_time_apparent_greenwich = time::apparent_siderial_time(jd);
+        let siderial_time_apparent_greenwich = earth::apparent_siderial_time(jd);
         let siderial_time_local =
-            time::local_siderial_time(siderial_time_apparent_greenwich, longitude_observer);
-        let hour_angle = time::hour_angle(siderial_time_local, ra_topocentric_moon);
+            earth::local_siderial_time(siderial_time_apparent_greenwich, longitude_observer);
+        let hour_angle = earth::hour_angle(siderial_time_local, ra_topocentric_moon);
         let (azimuth, mut altitude) = coordinates::equatorial_2_horizontal(
             decl_topocentric_moon,
             hour_angle,

@@ -1,7 +1,7 @@
 //! Coordinate transformations
 
 use crate::util::{degrees::Degrees, radians::Radians};
-use crate::{constants, parallax, time, util};
+use crate::{constants, earth, parallax, util};
 
 /// Convert ecliptical to equatorial coordinates.
 /// Meeus, page 93, chapter 13
@@ -14,7 +14,7 @@ use crate::{constants, parallax, time, util};
 /// Out:
 /// right ascension, in degrees [0, 360)
 /// declination, in degrees [-90, 90)
-pub(crate) fn ecliptic_2_equatorial(
+pub(crate) fn ecliptical_2_equatorial(
     lambda: Degrees,
     beta: Degrees,
     eps: Degrees,
@@ -97,9 +97,9 @@ pub(crate) fn equatorial_2_topocentric(
         / delta;
 
     // SS: calculate local hour angle
-    let siderial_time_greenwich = time::apparent_siderial_time(jd);
-    let siderial_time_local = time::local_siderial_time(siderial_time_greenwich, longitude);
-    let hour_angle = time::hour_angle(siderial_time_local, ra);
+    let siderial_time_greenwich = earth::apparent_siderial_time(jd);
+    let siderial_time_local = earth::local_siderial_time(siderial_time_greenwich, longitude);
+    let hour_angle = earth::hour_angle(siderial_time_local, ra);
     let hour_angle_radians = Radians::from(hour_angle);
 
     let ra_radians = Radians::from(ra);
@@ -132,7 +132,7 @@ mod tests {
         let eps = Degrees::new(23.4392911);
 
         // Act
-        let (ra, decl) = ecliptic_2_equatorial(longitude, latitude, eps);
+        let (ra, decl) = ecliptical_2_equatorial(longitude, latitude, eps);
 
         // Assert
         let (h, m, s) = ra.to_hms();

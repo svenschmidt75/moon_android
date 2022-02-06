@@ -1,6 +1,23 @@
 //! Earth related calculations
+//!
+//! Siderial Day: Imagine a reference longitudinal half-circle at noon where the Sun is in transit, i.e.
+//! the sun is at the zenith crossing the observer's meridian. Now the Earth keeps rotating around its
+//! axis, but it also moves in its orbit around the sun. After Earth rotates by 360 degrees, the sun will
+//! not be at the zenith again. This 360 degree "day" is called a siderial day, i.e. the stars are at the
+//! same position as before.
+//
+// The Earth has to rotate more than 360 degrees for the sun to be at the zenith again. This is called a
+// solar day.
+//
+// see https://www.youtube.com/watch?v=1wGFJd3j3ds
+//
+// The length of a solar day varies throughout the year, as the Earth moves around an eclipse, not a
+// perfect circle. Siderial days are always the same length, as they are defined by Earth rotating
+// once around its axis.
+use crate::ecliptic::true_obliquity;
+use crate::nutation::nutation_in_longitude;
 use crate::util::{degrees::Degrees, radians::Radians};
-use crate::{ecliptic, jd};
+use crate::{coordinates, ecliptic, jd};
 
 /// Calculate Earth's eccentricity, eq (47.6).
 /// In: Julian day in dynamical time
@@ -11,36 +28,56 @@ pub fn eccentricity(jd: f64) -> f64 {
     1.0 - 0.002516 * t - 0.0000074 * t2
 }
 
-/// Convert from ecliptical coordinates (longitude, latitude) to
-/// equatorial coordinates (right ascension, declination).
-/// In: Julian day
-/// longitude: Longitude in degrees [0, 360)
-/// latitude: Latitude in degrees [0, 360)
-/// Out: right ascension in degrees [0, 360)
-/// declination in degrees [0, 360)
-pub fn ecliptical_to_equatorial(
-    jd: f64,
-    longitude: Degrees,
-    latitude: Degrees,
-) -> (Degrees, Degrees) {
-    let true_obliquity = ecliptic::true_obliquity(jd);
-    let true_obliquity_radians: Radians = true_obliquity.into();
+/// Calculate the mean siderial time at Greenwich
+/// Meeus, page 87, chapter 12
+/// In: Julian Day
+/// Out: Mean siderial time in degrees [0, 360)
+pub(crate) fn mean_siderial_time(jd: f64) -> Degrees {
+    let delta_jd = jd - 2_451_545.0;
+    let t = delta_jd / 36525.0;
+    let t2 = t * t;
+    let t3 = t * t2;
+    let mean_siderial_time =
+        280.46061836 + 360.98564736629 * delta_jd + 0.000387933 * t2 - t3 / 38_710_000.0;
+    Degrees(mean_siderial_time).map_to_0_to_360()
+}
 
-    let longitude_radians: Radians = longitude.into();
-    let latitude_radians: Radians = latitude.into();
+/// Calculate the apparent siderial time at Greenwich, which
+/// takes Earth's nutation effects into account.
+/// Meeus, page 87, chapter 12
+/// In: Julian Day
+/// Out: Mean siderial time in degrees [0, 360)
+pub(crate) fn apparent_siderial_time(jd: f64) -> Degrees {
+    let mean_siderial_time = mean_siderial_time(jd);
+    let eps = true_obliquity(jd);
+    let delta_psi = nutation_in_longitude(jd);
 
-    let ra_argument_x = longitude_radians.0.sin() * true_obliquity_radians.0.cos()
-        - latitude_radians.0.tan() * true_obliquity_radians.0.sin();
-    let ra_radians = ra_argument_x.atan2(longitude_radians.0.cos());
+    let siderial_time = mean_siderial_time + Degrees::from(delta_psi) * Radians::from(eps).0.cos();
+    siderial_time
+}
 
-    let dec_argument_x = latitude_radians.0.sin() * true_obliquity_radians.0.cos()
-        + latitude_radians.0.cos() * true_obliquity_radians.0.sin() * longitude_radians.0.sin();
-    let dec_radians = dec_argument_x.asin();
+/// Local siderial time
+/// In:
+/// siderial_time: Siderial time at Greenwich, either mean or apparent, in degrees [0, 360)
+/// lambda_observer: Observer's longitude, in degrees [-180, 180)
+/// (positive west, negative east of Greenwich)
+/// Out:
+/// Local siderial time
+pub(crate) fn local_siderial_time(siderial_time: Degrees, longitude_observer: Degrees) -> Degrees {
+    Degrees::new(siderial_time.0 - longitude_observer.0).map_to_0_to_360()
+}
 
-    (
-        Degrees::from(Radians::new(ra_radians)),
-        Degrees::from(Radians::new(dec_radians)),
-    )
+/// Calculate the local hour angle, which measures how far an object is from the observer's meridian,
+/// measured westwards from south.
+/// Said differently, an hour angle of 7h:21m means that this object passed the observer's meridian
+/// 7h:21 minutes ago.
+/// In:
+/// siderial_time: Local siderial time (i.e. observer's siderial time), either mean or apparent, in degrees [0, 360)
+/// right ascension: Right ascension of the object whose hour angle we calculate, in degrees [0, 360)
+/// Out:
+/// Hour angle
+pub(crate) fn hour_angle(siderial_time: Degrees, right_ascension: Degrees) -> Degrees {
+    Degrees::new(siderial_time.0 - right_ascension.0).map_to_0_to_360()
 }
 
 #[cfg(test)]
@@ -68,9 +105,10 @@ mod tests {
         let jd = jd::from_date(1992, 4, 12.0);
         let longitude = Degrees::new(133.162655);
         let latitude = Degrees::new(-3.229126);
+        let true_obliquity = ecliptic::true_obliquity(jd);
 
         // Act
-        let (ra, dec) = ecliptical_to_equatorial(jd, longitude, latitude);
+        let (ra, dec) = coordinates::ecliptical_2_equatorial(longitude, latitude, true_obliquity);
 
         // Assert
         assert_approx_eq!(134.68392033025296, ra.0, 0.000_001);

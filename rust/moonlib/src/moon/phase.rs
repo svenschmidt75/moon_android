@@ -1,10 +1,9 @@
 //! Phase of the moon
-use crate::earth::ecliptical_to_equatorial;
-use crate::moon;
 use crate::sun::position::{
     apparent_geometric_latitude, apparent_geometric_longitude, distance_earth_sun,
 };
 use crate::util::{degrees::Degrees, radians::Radians};
+use crate::{coordinates, ecliptic, moon};
 
 /// Calculate the phase angle or age of the moon.
 /// Meeus, chapter 48, eq. (48.1) or Duffett-Smith and Zwart, chapter 67, page 171
@@ -14,15 +13,17 @@ pub fn phase_angle(jd: f64) -> Degrees {
     // SS: position of the moon, from Earth
     let longitude = moon::position::geocentric_longitude(jd);
     let latitude = moon::position::geocentric_latitude(jd);
-    let delta = moon::position::distance_from_earth(jd);
-    let (ra_moon, dec_moon) = ecliptical_to_equatorial(jd, longitude, latitude);
+    let true_obliquity = ecliptic::true_obliquity(jd);
+    let (ra_moon, dec_moon) =
+        coordinates::ecliptical_2_equatorial(longitude, latitude, true_obliquity);
     let (ra_moon, dec_moon) = (Radians::from(ra_moon), Radians::from(dec_moon));
 
     // SS: position of the sun, from Earth
     let longitude = apparent_geometric_longitude(jd);
     let latitude = apparent_geometric_latitude(jd);
     let r = distance_earth_sun(jd);
-    let (ra_sun, dec_sun) = ecliptical_to_equatorial(jd, longitude, latitude);
+    let (ra_sun, dec_sun) =
+        coordinates::ecliptical_2_equatorial(longitude, latitude, true_obliquity);
     let (ra_sun, dec_sun) = (Radians::from(ra_sun), Radians::from(dec_sun));
 
     // SS: geocentric elongation of the moon from the sun
@@ -30,6 +31,8 @@ pub fn phase_angle(jd: f64) -> Degrees {
     let psi = (dec_sun.0.sin() * dec_moon.0.sin()
         + dec_sun.0.cos() * dec_moon.0.cos() * (ra_sun.0 - ra_moon.0).cos())
     .acos();
+
+    let delta = moon::position::distance_from_earth(jd);
 
     // SS: phase angle
     let phase_angle = (r * psi.sin()).atan2(delta - r * psi.cos());

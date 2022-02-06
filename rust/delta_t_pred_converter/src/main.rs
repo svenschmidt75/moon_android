@@ -10,10 +10,8 @@
 //! tabular/src/time/delta_t_table.rs. Delete all "predictions" that are already covered
 //! in https://cddis.nasa.gov/archive/products/iers/finals2000A.all, delta_t_converter.
 use clap::{App, Arg};
-use std::env;
 use std::fs::File;
-use std::io::{BufRead, BufReader, BufWriter, LineWriter, Write};
-use std::path::PathBuf;
+use std::io::{BufRead, BufReader, BufWriter, Write};
 
 fn main() -> Result<(), std::io::Error> {
     let app = App::new("delta_t_pred_converter")
