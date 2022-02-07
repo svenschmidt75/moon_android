@@ -28,7 +28,7 @@ To convert, run
 ```
 cargo run run --package delta_t_pred_converter --bin delta_t_pred_converter -- ../deltat.preds
 ```
-where file ```deltat.preds``` is a ASCII copy of the data file.
+where file ```deltat.preds``` is a ASCII copy of the html data file.
 The output file ```deltat.preds.rs``` contains the delta_t structure elements that need
 to be placed in ```tabular/src/time/delta_t_data.rs```, at the very bottom.
 
