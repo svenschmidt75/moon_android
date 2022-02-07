@@ -25,7 +25,6 @@ are given in [deltat.preds](https://cddis.nasa.gov/archive/products/iers/deltat.
 In this file, the delta t values are given directly, rather than delta ut = UT1 - UTC as is the case
 with [finals2000A.all](https://cddis.nasa.gov/archive/products/iers/finals2000A.all).
 To convert, run
-s
 ```
 cargo run run --package delta_t_pred_converter --bin delta_t_pred_converter -- ../deltat.preds
 ```
