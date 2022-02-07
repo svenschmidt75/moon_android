@@ -11,3 +11,11 @@ Kitana/app/src/main/jniLibs/
 *.out
 
 *.gz
+
+*.bbl
+
+Documents/terestrial_time-blx.bib
+
+Documents/terestrial_time.blg
+
+Documents/terestrial_time.run.xml

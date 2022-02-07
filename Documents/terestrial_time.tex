@@ -1,6 +1,7 @@
 \documentclass[]{article}
 \usepackage{hyperref}
 \usepackage{amsmath}
+%\usepackage[backend=bibtex,style=verbose-trad2]{biblatex}
 
 %opening
 \title{}
@@ -25,7 +26,8 @@ with accurate data.
 To calculate moon rise and set times, it does make a difference whether we use UTC or
 TT. Currently, in early 2022, the difference between UTC and TT is about 68s,~i.e.
 TT is ahead of UTC by 68s. This is more than a minute, in which the moon does move
-enough to make a difference in rise and set time calculations.
+enough to make a difference in rise and set time calculations. According to \cite{BOOK:MontenbruckPfleger}, in
+1 minute, the moon moves around 30''.
 
 
 \section{$UT_{1}$ from $UTC$}
@@ -85,5 +87,8 @@ and finally
 \label{6}
 \Delta T = -\Delta UT + leap(UTC) + 32.184s
 \end{equation}
+
+\bibliography{terestrial_time} 
+\bibliographystyle{ieeetr}
 
 \end{document}
