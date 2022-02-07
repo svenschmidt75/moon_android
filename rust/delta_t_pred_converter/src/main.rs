@@ -10,7 +10,7 @@
 //! tabular/src/time/delta_t_table.rs. Delete all "predictions" that are already covered
 //! in https://cddis.nasa.gov/archive/products/iers/finals2000A.all, delta_t_converter.
 use clap::{App, Arg};
-use moonlib::date::{date::Date, jd::JD};
+use moonlib::date::jd::JD;
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
@@ -31,6 +31,11 @@ fn main() -> Result<(), std::io::Error> {
     let mut lines_count = 0;
 
     let mut line = String::new();
+
+    // SS: skip header line
+    reader.read_line(&mut line)?;
+    line.truncate(0);
+
     while reader.read_line(&mut line)? > 0 {
         line = line.trim_end().to_string();
         if line.len() == 0 {
