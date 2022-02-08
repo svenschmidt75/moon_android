@@ -1,5 +1,6 @@
 //! Functions for representing a date as Julian Day
 use crate::date::date::Date;
+use crate::constants;
 
 #[derive(Debug, Copy, Clone)]
 pub struct JD {
@@ -43,27 +44,21 @@ impl JD {
     pub fn from_mjd(mjd: f64) -> Self {
         // SS: Modified Julian Day = 0 corresponds to 1858 Nov. 17 at 0h UT
         Self {
-            jd: mjd + 2_400_000.5,
+            jd: mjd + constants::MJD,
         }
     }
 
     pub(crate) fn centuries_from_epoch_j2000(self) -> f64 {
-        // SS: Epoch J2000 = Jan. 1st, 2000 at 0hr UTC
-        let jd_epoch_j2000 = 2_451_545.0;
-
         // SS: convert to dynamical time TD
         // 365.25 = 1 year => 36525 = 100 years
-        let t = (self.jd - jd_epoch_j2000) / 36_525.0;
+        let t = (self.jd - constants::J2000) / 36_525.0;
         t
     }
 
     pub(crate) fn millennia_from_epoch_j2000(self) -> f64 {
-        // SS: Epoch J2000 = Jan. 1st, 2000 at 0hr UTC
-        let jd_epoch_j2000 = 2_451_545.0;
-
         // SS: convert to dynamical time TD
         // 365.25 = 1 year => 365_250 = 1000 years = 1 millennium
-        let t = (self.jd - jd_epoch_j2000) / 365_250.0;
+        let t = (self.jd - constants::J2000) / 365_250.0;
         t
     }
 
@@ -72,7 +67,7 @@ impl JD {
     pub(crate) fn to_mjd(self) -> Self {
         // SS: Modified Julian Day = 0 corresponds to 1858 Nov. 17 at 0h UT
         Self {
-            jd: self.jd - 2_400_000.5,
+            jd: self.jd - constants::MJD,
         }
     }
 
