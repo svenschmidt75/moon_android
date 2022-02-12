@@ -1,9 +1,10 @@
 //! Utility functions
 
+use std::ops::{Add, AddAssign, Mul, Neg, Sub};
+
 use crate::constants;
 use crate::util::arcsec::ArcSec;
 use crate::util::radians::Radians;
-use std::ops::{Add, AddAssign, Mul, Neg, Sub};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Degrees(pub(crate) f64);
@@ -63,7 +64,7 @@ impl Degrees {
 
     pub fn to_hours(&self) -> f64 {
         // SS: convert right ascension to fractional hours
-        let h = self.0 * constants::DEGREES_TO_HOURS;
+        let h = self.map_to_0_to_360().0 * constants::DEGREES_TO_HOURS;
         h
     }
 
@@ -89,12 +90,15 @@ impl Degrees {
     /// In: angle in degrees, [0..360)
     /// Out: angle, in degrees [-180, 180)
     pub fn map_neg180_to_180(self: Self) -> Self {
-        if self.0 > -180.0 && self.0 < 180.0 {
-            return self;
-        }
-        let sign = if self.0 > 180.0 { -1.0 } else { 1.0 };
-        let tmp = self.0 % 180.0;
-        Self(sign * 180.0 + tmp)
+        return if self.0 < -180.0 {
+            let tmp = self.0 % 180.0;
+            Self(180.0 + tmp)
+        } else if self.0 > 180.0 {
+            let tmp = self.0 % 180.0;
+            Self(-180.0 + tmp)
+        } else {
+            self
+        };
     }
 }
 
@@ -153,8 +157,9 @@ impl From<ArcSec> for Degrees {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use assert_approx_eq::assert_approx_eq;
+
+    use super::*;
 
     #[test]
     fn map_neg180_to_180_test1() {

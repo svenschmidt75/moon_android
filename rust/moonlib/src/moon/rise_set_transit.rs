@@ -67,13 +67,12 @@ pub(crate) fn rise(
         }
 
         // SS: calculate time correction from our angle
-        let siderial_time_apparent_greenwich = earth::apparent_siderial_time(jd2);
-        let siderial_time_local =
-            earth::local_siderial_time(siderial_time_apparent_greenwich, longitude_observer);
+        let theta0 = earth::apparent_siderial_time(jd2);
+        let theta = earth::local_siderial_time(theta0, longitude_observer);
 
         // SS: calculate hour angle at time jd2
-        let hour_angle2 = (siderial_time_local - ra).map_neg180_to_180();
-        let delta_hour_angle = hour_angle2 - hour_angle;
+        let hour_angle2 = (theta - ra).map_neg180_to_180();
+        let delta_hour_angle = hour_angle2 + hour_angle;
 
         // SS: convert degrees to time units
         let delta_t = delta_hour_angle.to_hours() * constants::SIDERIAL_TO_SOLAR_TIME;
