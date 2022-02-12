@@ -19,13 +19,13 @@ pub enum Kind {
 /// latitude_observer: in degrees, [-90, 90)
 /// target_altitude: altitude of moon above horizon, in degrees [0, 90]
 pub(crate) fn rise(jd: JD, longitude_observer: Degrees, latitude_observer: Degrees, target_altitude: Degrees) -> Kind {
-
     let mut jd2 = jd;
 
-    let target_altitude_radians = Radians::from(target_altitude);
     let latitude_observer_radians = Radians::from(latitude_observer);
     let sin_latitude_observer = latitude_observer_radians.0.sin();
     let cos_latitude_observer = latitude_observer_radians.0.cos();
+
+    let target_altitude_radians = Radians::from(target_altitude);
     let sin_h0 = target_altitude_radians.0.sin();
 
     let mut iter = 0;
@@ -40,8 +40,9 @@ pub(crate) fn rise(jd: JD, longitude_observer: Degrees, latitude_observer: Degre
         let eps = ecliptic::true_obliquity(jd2);
         let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
 
-        let sin_decl = Radians::from(decl).0.sin();
-        let cos_decl = Radians::from(decl).0.cos();
+        let decl_radians = Radians::from(decl);
+        let sin_decl = decl_radians.0.sin();
+        let cos_decl = decl_radians.0.cos();
         let cos_hour_angle = (sin_h0 - sin_latitude_observer * sin_decl)/(cos_latitude_observer * cos_decl);
 
         let hour_angle;
@@ -61,7 +62,7 @@ pub(crate) fn rise(jd: JD, longitude_observer: Degrees, latitude_observer: Degre
         let siderial_time_local = earth::local_siderial_time(siderial_time_apparent_greenwich, longitude_observer);
 
         // SS: calculate hour angle at time jd2
-        let hour_angle2 = siderial_time_local - ra;
+        let hour_angle2 = (siderial_time_local - ra).map_to_0_to_360();
 
         let delta_hour_angle = Radians::from(hour_angle2) - hour_angle;
 
@@ -69,7 +70,7 @@ pub(crate) fn rise(jd: JD, longitude_observer: Degrees, latitude_observer: Degre
         let delta_siderial_t = delta_hour_angle;
 
         let delta_t_radians = delta_siderial_t * Radians::new(constants::SIDERIAL_TO_SOLAR_TIME);
-        let delta_t = Degrees::from(delta_t_radians).to_hours();
+        let delta_t = Degrees::from(delta_t_radians).map_to_0_to_360().to_hours();
 
         if delta_t < 0.008 || iter > MAX_ITER {
             break;
@@ -94,10 +95,10 @@ mod tests {
         // Arrange
         let jd = JD::from_date(Date::new(2000, 3, 23.0));
 
-        // SS: 16 deg east from Greenwich meridian
-        let longitude_observer = Degrees::new(-16.0);
+        // SS: Munich, 11.6 deg east from Greenwich meridian
+        let longitude_observer = Degrees::new(-11.6);
 
-        let latitude_observer = Degrees::new(65.0);
+        let latitude_observer = Degrees::new(48.1);
         let target_altitude = Degrees::new(constants::MOON_SET_HEIGHT);
 
         // Act
