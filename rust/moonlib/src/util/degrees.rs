@@ -1,9 +1,9 @@
 //! Utility functions
 
+use crate::constants;
 use crate::util::arcsec::ArcSec;
 use crate::util::radians::Radians;
 use std::ops::{Add, AddAssign, Mul, Neg, Sub};
-use crate::constants;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Degrees(pub(crate) f64);
@@ -88,14 +88,13 @@ impl Degrees {
     /// Convert angle range
     /// In: angle in degrees, [0..360)
     /// Out: angle, in degrees [-180, 180)
-    pub fn map_to_0_to_360_to_neg180_to_180(self: Self) -> Self {
-        let angle = if self.0 < 180.0 {
-            self.0
-        } else {
-            -360.0 + self.0
-        };
-
-        Self(angle)
+    pub fn map_neg180_to_180(self: Self) -> Self {
+        if self.0 > -180.0 && self.0 < 180.0 {
+            return self;
+        }
+        let sign = if self.0 > 180.0 { -1.0 } else { 1.0 };
+        let tmp = self.0 % 180.0;
+        Self(sign * 180.0 + tmp)
     }
 }
 
@@ -163,7 +162,7 @@ mod tests {
         let d = Degrees::new(189.0);
 
         // Act
-        let angle = d.map_to_0_to_360_to_neg180_to_180();
+        let angle = d.map_neg180_to_180();
 
         // Assert
         assert_approx_eq!(-180.0 + (d.0 - 180.0), angle.0, 0.000_001)
@@ -172,10 +171,22 @@ mod tests {
     #[test]
     fn map_neg180_to_180_test2() {
         // Arrange
+        let d = Degrees::new(-189.0);
+
+        // Act
+        let angle = d.map_neg180_to_180();
+
+        // Assert
+        assert_approx_eq!(180.0 + (d.0 + 180.0), angle.0, 0.000_001)
+    }
+
+    #[test]
+    fn map_neg180_to_180_test3() {
+        // Arrange
         let d = Degrees::new(89.0);
 
         // Act
-        let angle = d.map_to_0_to_360_to_neg180_to_180();
+        let angle = d.map_neg180_to_180();
 
         // Assert
         assert_approx_eq!(d.0, angle.0, 0.000_001)
@@ -337,5 +348,4 @@ mod tests {
         // Assert
         assert_approx_eq!(24.0 / 2.0, hours, 0.000_001)
     }
-
 }

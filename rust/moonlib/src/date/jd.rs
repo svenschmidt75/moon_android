@@ -1,6 +1,6 @@
 //! Functions for representing a date as Julian Day
-use crate::date::date::Date;
 use crate::constants;
+use crate::date::date::Date;
 
 #[derive(Debug, Copy, Clone)]
 pub struct JD {
@@ -197,5 +197,4 @@ mod tests {
         // assert
         assert_approx_eq!(constants::J2000 + 0.5, jd.jd, 0.000_01)
     }
-
 }

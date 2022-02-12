@@ -9,8 +9,8 @@ pub(crate) const MJD: f64 = 2_400_000.5;
 /// 12:0:0.00 UT on January 1, 2000
 pub(crate) const J2000: f64 = 2_451_545.0;
 
-/// Convert siderial time to solar time
-pub(crate) const SIDERIAL_TO_SOLAR_TIME: f64 = 1.0;
+/// Convert siderial time to solar time: 24h solar time = 23h56m4.0905s siderial time
+pub(crate) const SIDERIAL_TO_SOLAR_TIME: f64 = 23.9344696 / 24.0;
 
 /// Convert degrees to radians
 pub(crate) const DEGREES_TO_RADIANS: f64 = std::f64::consts::PI / 180.0;
