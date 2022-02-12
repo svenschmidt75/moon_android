@@ -98,6 +98,13 @@ impl JD {
 
         Date::new(year as i16, m as u8, day_fract)
     }
+
+    /// Add delta_t days to Julian Day
+    pub(crate) fn add_hours(&mut self, delta_t: f64) {
+        // SS: the unit of a Julian day is days, so convert hours to days
+        let days = delta_t * constants::HOURS_TO_DAYS;
+        self.jd += days;
+    }
 }
 
 impl std::ops::Sub for JD {
@@ -175,4 +182,20 @@ mod tests {
         // assert
         assert_approx_eq!(2_452_879.63681, jd.jd, 0.000_01)
     }
+
+    #[test]
+    fn add_hours_test() {
+        // Meeus, page 62
+
+        // arrange
+        let date = Date::new(2000, 1, 1.5);
+        let mut jd = JD::from_date(date);
+
+        // act
+        jd.add_hours(12.0);
+
+        // assert
+        assert_approx_eq!(constants::J2000 + 0.5, jd.jd, 0.000_01)
+    }
+
 }

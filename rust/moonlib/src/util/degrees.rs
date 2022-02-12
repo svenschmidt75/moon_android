@@ -2,8 +2,8 @@
 
 use crate::util::arcsec::ArcSec;
 use crate::util::radians::Radians;
-use crate::util::RADIANS_TO_DEGREES;
 use std::ops::{Add, AddAssign, Mul, Neg, Sub};
+use crate::constants;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Degrees(pub(crate) f64);
@@ -59,6 +59,12 @@ impl Degrees {
         let s = remainder * 60.0;
 
         (h.trunc() as u8, m.trunc() as u8, s)
+    }
+
+    pub fn to_hours(&self) -> f64 {
+        // SS: convert right ascension to fractional hours
+        let h = self.0 * constants::DEGREES_TO_HOURS;
+        h
     }
 
     pub fn to_hms_str(&self, width: u8) -> String {
@@ -133,7 +139,7 @@ impl Neg for Degrees {
 
 impl From<Radians> for Degrees {
     fn from(radians: Radians) -> Self {
-        let degrees = radians.0 * RADIANS_TO_DEGREES;
+        let degrees = radians.0 * constants::RADIANS_TO_DEGREES;
         Self(degrees)
     }
 }
@@ -307,4 +313,29 @@ mod tests {
         // Assert
         assert_approx_eq!(134.688470, angle.0, 0.000_001)
     }
+
+    #[test]
+    fn degrees_to_hours_test_1() {
+        // Arrange
+        let angle = Degrees::new(360.0);
+
+        // Act
+        let hours = angle.to_hours();
+
+        // Assert
+        assert_approx_eq!(24.0, hours, 0.000_001)
+    }
+
+    #[test]
+    fn degrees_to_hours_test_2() {
+        // Arrange
+        let angle = Degrees::new(360.0 / 2.0);
+
+        // Act
+        let hours = angle.to_hours();
+
+        // Assert
+        assert_approx_eq!(24.0 / 2.0, hours, 0.000_001)
+    }
+
 }
