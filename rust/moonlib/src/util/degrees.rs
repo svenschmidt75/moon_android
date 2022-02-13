@@ -49,9 +49,10 @@ impl Degrees {
         format!("{d}° {m}' {s:.width$}\"", width = width as usize)
     }
 
-    pub fn to_hms(&self) -> (u8, u8, f64) {
+    pub fn to_hms(&self) -> (i8, u8, f64) {
         // SS: convert right ascension to h:m:s
-        let h = self.0 / 360.0 * 24.0;
+        let sign = if self.0 < 0.0 { -1 } else { 1};
+        let h = self.0.abs() / 360.0 * 24.0;
 
         let remainder = h - h.trunc();
         let m = remainder * 60.0;
@@ -59,12 +60,12 @@ impl Degrees {
         let remainder = m - m.trunc();
         let s = remainder * 60.0;
 
-        (h.trunc() as u8, m.trunc() as u8, s)
+        (sign * h.trunc() as i8, m.trunc() as u8, s)
     }
 
     pub fn to_hours(&self) -> f64 {
         // SS: convert right ascension to fractional hours
-        let h = self.map_to_0_to_360().0 * constants::DEGREES_TO_HOURS;
+        let h = self.0 * constants::DEGREES_TO_HOURS;
         h
     }
 
@@ -246,7 +247,7 @@ mod tests {
     }
 
     #[test]
-    fn degree_to_hms_test() {
+    fn degree_to_hms_test_1() {
         // Arrange
         let degrees = Degrees::new(134.68392033025296);
 
@@ -255,6 +256,48 @@ mod tests {
 
         // Assert
         assert_eq!("8h 58m 44.14s", text)
+    }
+
+    #[test]
+    fn degree_to_hms_test_2() {
+        // Arrange
+        let degrees = Degrees::new(-137.817).map_to_0_to_360();
+
+        // Act
+        let (h, m, s) = degrees.to_hms();
+
+        // Assert
+        assert_eq!(14, h);
+        assert_eq!(48, m);
+        assert_approx_eq!(43.92, s, 0.001);
+    }
+
+    #[test]
+    fn degrees_to_hms_test_3() {
+        // Arrange
+        let angle = Degrees::new(134.688470);
+
+        // Act
+        let (h, m, s) = angle.to_hms();
+
+        // Assert
+        assert_eq!(8, h);
+        assert_eq!(58, m);
+        assert_approx_eq!(45.2328, s, 0.001)
+    }
+
+    #[test]
+    fn degrees_to_hms_test_4() {
+        // Arrange
+        let angle = Degrees::new(-130.94010921668462);
+
+        // Act
+        let (h, m, s) = angle.to_hms();
+
+        // Assert
+        assert_eq!(-8, h);
+        assert_eq!(43, m);
+        assert_approx_eq!(45.6262, s, 0.000_1)
     }
 
     #[test]
@@ -303,20 +346,6 @@ mod tests {
 
         // Assert
         assert_eq!(360.0 + angle.0, mapped.0)
-    }
-
-    #[test]
-    fn degrees_2_hms_test() {
-        // Arrange
-        let angle = Degrees::new(134.688470);
-
-        // Act
-        let (h, m, s) = angle.to_hms();
-
-        // Assert
-        assert_eq!(8, h);
-        assert_eq!(58, m);
-        assert_approx_eq!(45.2328, s, 0.001)
     }
 
     #[test]

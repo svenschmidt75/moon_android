@@ -32,8 +32,8 @@ pub(crate) fn ecliptical_2_equatorial(
     .asin();
 
     (
-        Degrees::from(Radians::new(alpha)),
-        Degrees::from(Radians::new(delta)),
+        Degrees::from(Radians::new(alpha)).map_to_0_to_360(),
+        Degrees::from(Radians::new(delta)).map_to_neg90_to_90(),
     )
 }
 

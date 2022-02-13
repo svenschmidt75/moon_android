@@ -27,7 +27,8 @@ pub(crate) fn rise(
 ) -> Kind {
     // SS: initial time is noon
     let midday = Date::new(date.year, date.month, date.day.trunc() + 0.5);
-    let mut jd2 = JD::from_date(midday);
+    let base_jd = JD::from_date(midday);
+    let mut offset_jd = JD::new(0.0);
 
     let latitude_observer_radians = Radians::from(latitude_observer);
     let sin_latitude_observer = latitude_observer_radians.0.sin();
@@ -42,13 +43,17 @@ pub(crate) fn rise(
     loop {
         print!("Iteration {iter}: ");
 
+        let jd = base_jd + offset_jd;
+
         // SS: ecliptical geocentric coordinates of the moon
-        let longitude = geocentric_longitude(jd2);
-        let latitude = geocentric_latitude(jd2);
+        let longitude = geocentric_longitude(base_jd + offset_jd);
+        let latitude = geocentric_latitude(base_jd + offset_jd);
 
         // SS: equatorial geocentric coordinates of the moon
-        let eps = ecliptic::true_obliquity(jd2);
+        let eps = ecliptic::true_obliquity(base_jd + offset_jd);
         let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
+
+        let ra_hours = ra.to_hms();
 
         let decl_radians = Radians::from(decl);
         let sin_decl = decl_radians.0.sin();
@@ -67,15 +72,20 @@ pub(crate) fn rise(
         }
 
         // SS: calculate time correction from our angle
-        let theta0 = earth::apparent_siderial_time(jd2);
+        let theta0 = earth::apparent_siderial_time(base_jd + offset_jd);
         let theta = earth::local_siderial_time(theta0, longitude_observer);
+        let theta_hours = theta.to_hms();
 
         // SS: calculate hour angle at time jd2
         let hour_angle2 = (theta - ra).map_neg180_to_180();
-        let delta_hour_angle = hour_angle2 + hour_angle;
+        let hour_angle_hours = hour_angle2.to_hms();
+
+        let delta_hour_angle = (hour_angle2 + hour_angle).map_neg180_to_180();
 
         // SS: convert degrees to time units
         let delta_t = delta_hour_angle.to_hours() * constants::SIDERIAL_TO_SOLAR_TIME;
+
+        let delta_t_hours = Degrees::new(delta_hour_angle.0 * constants::SIDERIAL_TO_SOLAR_TIME).to_hms();
 
         println!(
             "tau1 {:.2} -- tau2 {:.2} -- delta tau: {:.2} -- delta t {:.2}",
@@ -88,10 +98,10 @@ pub(crate) fn rise(
 
         iter += 1;
 
-        jd2.add_hours(delta_t);
+        offset_jd.add_hours(delta_t);
     }
 
-    Kind::Time(jd2)
+    Kind::Time(base_jd + offset_jd)
 }
 
 #[cfg(test)]

@@ -53,7 +53,7 @@ pub(crate) fn apparent_siderial_time(jd: JD) -> Degrees {
     let delta_psi = nutation_in_longitude(jd);
 
     let siderial_time = mean_siderial_time + Degrees::from(delta_psi) * Radians::from(eps).0.cos();
-    siderial_time
+    siderial_time.map_to_0_to_360()
 }
 
 /// Local siderial time

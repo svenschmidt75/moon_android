@@ -107,11 +107,23 @@ impl JD {
     }
 }
 
+impl std::ops::Add for JD {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self::Output {
+        Self {
+            // SS: in units of (fractions of) days
+            jd: self.jd + other.jd,
+        }
+    }
+}
+
 impl std::ops::Sub for JD {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self::Output {
         Self {
+            // SS: in units of (fractions of) days
             jd: self.jd - other.jd,
         }
     }
