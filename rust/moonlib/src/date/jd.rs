@@ -127,10 +127,18 @@ impl std::ops::Sub for JD {
     }
 }
 
+impl From<Date> for JD {
+    fn from(date: Date) -> Self {
+        JD::from_date(date)
+    }
+}
+
+
 #[cfg(test)]
 mod tests {
-    use super::*;
     use assert_approx_eq::assert_approx_eq;
+
+    use super::*;
 
     #[test]
     fn julian_day_gregorian_date() {

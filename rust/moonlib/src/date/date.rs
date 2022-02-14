@@ -72,6 +72,12 @@ impl Date {
     }
 }
 
+impl From<JD> for Date {
+    fn from(jd: JD) -> Self {
+        jd.to_calendar_date()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use assert_approx_eq::assert_approx_eq;
