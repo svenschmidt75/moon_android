@@ -25,4 +25,4 @@ pub(crate) const DEGREES_TO_HOURS: f64 = 24.0 / 360.0;
 pub(crate) const HOURS_TO_DAYS: f64 = 1.0 / 24.0;
 
 /// Moon's height above the horizon when it sets
-pub(crate) const MOON_SET_HEIGHT: f64 = -0.213;//-0.583;
+pub(crate) const MOON_SET_HEIGHT: f64 = -0.2255;//-0.583;

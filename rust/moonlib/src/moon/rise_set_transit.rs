@@ -28,8 +28,6 @@ pub(crate) fn rise(
     // SS: initial time is noon
     let midday = Date::new(date.year, date.month, date.day.trunc() + 0.5);
     let base_jd = JD::from_date(midday);
-//    let base_jd = JD::from_date(Date::from_date_hms(2000, 3, 23, 21, 14, 2.0));
-    let mut offset_jd = JD::new(0.0);
 
     let latitude_observer_radians = Radians::from(latitude_observer);
     let sin_latitude_observer = latitude_observer_radians.0.sin();
@@ -41,28 +39,27 @@ pub(crate) fn rise(
     let mut iter = 0;
     const MAX_ITER: u8 = 10;
 
+    let mut prev_jd = base_jd;
+
     loop {
         println!("Iteration {iter}: ");
         println!("-------------");
 
-        let jd = base_jd + offset_jd;
-        println!("base jd: {:.6}", base_jd.jd);
-        println!("offset jd: {:.6}", offset_jd.jd);
-        println!("jd: {:.6}", jd.jd);
+        println!("jd: {:.6}", prev_jd.jd);
 
-        let date = jd.to_calendar_date();
+        let date = prev_jd.to_calendar_date();
         let (h, m, s) = Date::from_fract_day(date.day);
         println!("Date: {}/{}/{} {}:{}:{:.2}", date.year, date.month,date.day.trunc() as u8, h, m, s);
 
         // SS: ecliptical geocentric coordinates of the moon
-        let longitude = geocentric_longitude(base_jd + offset_jd);
+        let longitude = geocentric_longitude(prev_jd);
         println!("Longitude: {:.2}", longitude.0);
 
-        let latitude = geocentric_latitude(base_jd + offset_jd);
+        let latitude = geocentric_latitude(prev_jd);
         println!("Latitude: {:.2}", latitude.0);
 
         // SS: equatorial geocentric coordinates of the moon
-        let eps = ecliptic::true_obliquity(base_jd + offset_jd);
+        let eps = ecliptic::true_obliquity(prev_jd);
         let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
 
         let ra_hours = ra.to_hms();
@@ -100,7 +97,7 @@ pub(crate) fn rise(
         println!("sin(altitude(tau1)): {:.8}", Radians::from(altitude).0.sin());
 
         // SS: calculate time correction from our angle
-        let theta0 = earth::apparent_siderial_time(base_jd + offset_jd);
+        let theta0 = earth::apparent_siderial_time(prev_jd);
         let theta = earth::local_siderial_time(theta0, longitude_observer);
         let theta_hours = theta.to_hms();
         println!("theta: {}:{}:{:.2}", theta_hours.0, theta_hours.1, theta_hours.2);
@@ -115,6 +112,7 @@ pub(crate) fn rise(
         println!("tau2: {:.2}", hour_angle2.0);
         println!("tau2: {}:{}:{:.2}", hour_angle2_hours.0, hour_angle2_hours.1, hour_angle2_hours.2);
 
+        // SS: + for rising time
         let delta_hour_angle = (hour_angle2 + hour_angle).map_neg180_to_180();
 
         // SS: convert degrees to time units
@@ -123,18 +121,25 @@ pub(crate) fn rise(
         let delta_t_hours = Degrees::new(delta_hour_angle.0 * constants::SIDERIAL_TO_SOLAR_TIME).to_hms();
         println!("delta t: {}:{}:{:.2}", delta_t_hours.0, delta_t_hours.1, delta_t_hours.2);
 
-        if delta_t.abs() < 0.008 || iter > MAX_ITER {
+        let mut ojd = prev_jd;
+        ojd.add_hours(-delta_t);
+        let date = ojd.to_calendar_date();
+        let (h, m, s) = Date::from_fract_day(date.day);
+        println!("Date: {}/{}/{} {}:{}:{:.2}", date.year, date.month,date.day.trunc() as u8, h, m, s);
+
+        // SS: set new Julian Day
+        prev_jd = ojd;
+
+        if delta_t.abs() < 0.000008 || iter > MAX_ITER {
             break;
         }
 
         iter += 1;
 
-        offset_jd.add_hours(delta_t);
-
         println!();
     }
 
-    Kind::Time(base_jd + offset_jd)
+    Kind::Time(prev_jd)
 }
 
 pub(crate) fn rise2(
@@ -220,8 +225,10 @@ pub(crate) fn rise2(
 
 
 
+        let ha = ra - theta;// + longitude_observer;
+
         // SS: - hour angle in time units
-        let ut_moon_in_south = (ra - theta + longitude_observer).0 / 15.04107;
+        let ut_moon_in_south = ha.0 / 15.04107;
         let ut_moon_rise = ut_moon_in_south - hour_angle.0 / 15.0;
 
         let mut ojd = prev_jd;
@@ -272,7 +279,7 @@ mod tests {
         let target_altitude = Degrees::new(constants::MOON_SET_HEIGHT);
 
         // Act
-        let k = rise2(date, longitude_observer, latitude_observer, target_altitude);
+        let k = rise(date, longitude_observer, latitude_observer, target_altitude);
 
         // Assert
 
