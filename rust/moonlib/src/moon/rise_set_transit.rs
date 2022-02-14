@@ -115,19 +115,13 @@ pub(crate) fn rise(
         println!("tau2: {:.2}", hour_angle2.0);
         println!("tau2: {}:{}:{:.2}", hour_angle2_hours.0, hour_angle2_hours.1, hour_angle2_hours.2);
 
-        let delta_hour_angle = (hour_angle2 + hour_angle);//.map_neg180_to_180();
+        let delta_hour_angle = (hour_angle2 + hour_angle).map_neg180_to_180();
 
         // SS: convert degrees to time units
         let delta_t = delta_hour_angle.to_hours() * constants::SIDERIAL_TO_SOLAR_TIME;
 
         let delta_t_hours = Degrees::new(delta_hour_angle.0 * constants::SIDERIAL_TO_SOLAR_TIME).to_hms();
         println!("delta t: {}:{}:{:.2}", delta_t_hours.0, delta_t_hours.1, delta_t_hours.2);
-
-
-
-        let dt = constants::SIDERIAL_TO_SOLAR_TIME * 12.0 / std::f64::consts::PI * ((delta_hour_angle.0 + std::f64::consts::PI) % (2.0 * std::f64::consts::PI) - std::f64::consts::PI);
-
-        let delta_t = dt;
 
         if delta_t.abs() < 0.008 || iter > MAX_ITER {
             break;
@@ -141,6 +135,123 @@ pub(crate) fn rise(
     }
 
     Kind::Time(base_jd + offset_jd)
+}
+
+pub(crate) fn rise2(
+    date: Date,
+    longitude_observer: Degrees,
+    latitude_observer: Degrees,
+    target_altitude: Degrees,
+) -> Kind {
+    // SS: initial time is noon
+    let midday = Date::new(date.year, date.month, date.day.trunc() + 0.5);
+    let base_jd = JD::from_date(midday);
+//    let base_jd = JD::from_date(Date::from_date_hms(2000, 3, 23, 21, 14, 2.0));
+    let mut offset_jd = JD::new(0.0);
+
+    let latitude_observer_radians = Radians::from(latitude_observer);
+    let sin_latitude_observer = latitude_observer_radians.0.sin();
+    let cos_latitude_observer = latitude_observer_radians.0.cos();
+
+    let target_altitude_radians = Radians::from(target_altitude);
+    let sin_h0 = target_altitude_radians.0.sin();
+
+    let mut iter = 0;
+    const MAX_ITER: u8 = 10;
+
+    let mut prev_jd = base_jd;
+
+    loop {
+        println!("Iteration {iter}: ");
+        println!("-------------");
+
+        // SS: ecliptical geocentric coordinates of the moon
+        let longitude = geocentric_longitude(prev_jd);
+        let latitude = geocentric_latitude(prev_jd);
+
+        // SS: equatorial geocentric coordinates of the moon
+        let eps = ecliptic::true_obliquity(prev_jd);
+        let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
+
+        let ra_hours = ra.to_hms();
+        println!("RA: {}:{}:{:.2}", ra_hours.0, ra_hours.1, ra_hours.2);
+
+        let decl_radians = Radians::from(decl);
+        let sin_decl = decl_radians.0.sin();
+        let cos_decl = decl_radians.0.cos();
+        let cos_hour_angle =
+            (sin_h0 - sin_latitude_observer * sin_decl) / (cos_latitude_observer * cos_decl);
+
+        let hour_angle;
+
+        if cos_hour_angle < -1.0 {
+            return Kind::NeverRises;
+        } else if cos_hour_angle > 1.0 {
+            return Kind::NeverSets;
+        } else {
+            hour_angle = Degrees::from(Radians::new(cos_hour_angle.acos()));
+        }
+
+        let (azimuth, mut altitude) = coordinates::equatorial_2_horizontal(
+            decl,
+            hour_angle,
+            latitude_observer,
+        );
+
+        let hour_angle_hours = hour_angle.to_hms();
+
+        // SS: calculate time correction from our angle
+        let theta0 = earth::apparent_siderial_time(prev_jd);
+        let theta = earth::local_siderial_time(theta0, longitude_observer);
+        let theta_hours = theta.to_hms();
+
+        // SS: calculate hour angle at time jd2
+        let hour_angle2 = (theta - ra).map_neg180_to_180();
+        let hour_angle2_hours = hour_angle2.to_hms();
+
+        let delta_hour_angle = (hour_angle2 + hour_angle);//.map_neg180_to_180();
+
+        // SS: convert degrees to time units
+        let delta_t = delta_hour_angle.to_hours() * constants::SIDERIAL_TO_SOLAR_TIME;
+
+        let delta_t_hours = Degrees::new(delta_hour_angle.0 * constants::SIDERIAL_TO_SOLAR_TIME).to_hms();
+        println!("delta t: {}:{}:{:.2}", delta_t_hours.0, delta_t_hours.1, delta_t_hours.2);
+
+
+
+
+        // SS: - hour angle in time units
+        let ut_moon_in_south = (ra - theta + longitude_observer).0 / 15.04107;
+        let ut_moon_rise = ut_moon_in_south - hour_angle.0 / 15.0;
+
+        let mut ojd = prev_jd;
+        ojd.add_hours(ut_moon_rise);
+        let date = ojd.to_calendar_date();
+        let (h, m, s) = Date::from_fract_day(date.day);
+        println!("Date: {}/{}/{} {}:{}:{:.2}", date.year, date.month,date.day.trunc() as u8, h, m, s);
+
+
+        let dt= ojd - prev_jd;
+
+        if dt.jd.abs() < 0.000008 || iter > MAX_ITER {
+
+            let date = ojd.to_calendar_date();
+            let (h, m, s) = Date::from_fract_day(date.day);
+            println!("Date: {}/{}/{} {}:{}:{:.2}", date.year, date.month,date.day.trunc() as u8, h, m, s);
+
+            break;
+        }
+
+        iter += 1;
+
+//        offset_jd.add_hours(delta_t);
+
+        prev_jd = ojd;
+
+        println!();
+    }
+
+    Kind::Time(prev_jd)
 }
 
 #[cfg(test)]
@@ -161,9 +272,10 @@ mod tests {
         let target_altitude = Degrees::new(constants::MOON_SET_HEIGHT);
 
         // Act
-        let k = rise(date, longitude_observer, latitude_observer, target_altitude);
+        let k = rise2(date, longitude_observer, latitude_observer, target_altitude);
 
         // Assert
+
         //        assert_approx_eq!(-180.0 + (d.0 - 180.0), angle.0, 0.000_001)
     }
 }
