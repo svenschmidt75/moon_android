@@ -51,15 +51,13 @@ impl JD {
     pub(crate) fn centuries_from_epoch_j2000(self) -> f64 {
         // SS: convert to dynamical time TD
         // 365.25 = 1 year => 36525 = 100 years
-        let t = (self.jd - constants::J2000) / 36_525.0;
-        t
+        (self.jd - constants::J2000) / 36_525.0
     }
 
     pub(crate) fn millennia_from_epoch_j2000(self) -> f64 {
         // SS: convert to dynamical time TD
         // 365.25 = 1 year => 365_250 = 1000 years = 1 millennium
-        let t = (self.jd - constants::J2000) / 365_250.0;
-        t
+        (self.jd - constants::J2000) / 365_250.0
     }
 
     /// Convert Julian Day to Modified Julian Day MJD
@@ -218,6 +216,10 @@ mod tests {
         jd.add_hours(4.809);
 
         // assert
-        assert_approx_eq!(JD::from_date(Date::from_date_hms(2000, 3, 23, 16, 48, 32.7)).jd, jd.jd, 0.000_01)
+        assert_approx_eq!(
+            JD::from_date(Date::from_date_hms(2000, 3, 23, 16, 48, 32.7)).jd,
+            jd.jd,
+            0.000_01
+        )
     }
 }

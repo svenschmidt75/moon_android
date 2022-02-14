@@ -258,7 +258,7 @@ pub fn apparent_geometric_longitude(jd: JD) -> Degrees {
     let delta_lambda = Degrees::from(variation_geocentric_longitude(jd));
     let aberration_correction = delta_lambda * (-0.005_775_518 * r);
 
-    Degrees::from(long + delta_psi + aberration_correction).map_to_0_to_360()
+    (long + delta_psi + aberration_correction).map_to_0_to_360()
 }
 
 /// Apparent geocentric latitude of the sun. Meeus, chapter 25, pages 167, 168

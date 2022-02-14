@@ -41,15 +41,13 @@ impl Date {
     /// For Julian calendar dates, we check whether the year is divisible by 4.
     /// For Gregorian calendar dates, see https://en.wikipedia.org/wiki/Leap_year
     fn is_leap(y: i16) -> bool {
-        return if Date::is_julian_calendar(Date::new(y, 1, 1.0)) {
+        if Date::is_julian_calendar(Date::new(y, 1, 1.0)) {
             y % 4 == 0
+        } else if y % 100 == 0 {
+            y % 400 == 0
         } else {
-            if y % 100 == 0 {
-                y % 400 == 0
-            } else {
-                y % 4 == 0
-            }
-        };
+            y % 4 == 0
+        }
     }
 
     /// The Gregorian calendar reform implies that any date before
@@ -76,8 +74,9 @@ impl Date {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use assert_approx_eq::assert_approx_eq;
+
+    use super::*;
 
     #[test]
     fn fractional_year_test() {

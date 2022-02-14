@@ -9,7 +9,7 @@
 //! Copy the content in the output file finals2000A.all.rs to file
 //! tabular/src/time/delta_t_table.rs
 use clap::{App, Arg};
-use moonlib::date::{date::Date, jd::JD};
+use moonlib::date::jd::JD;
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter, Write};
 
@@ -55,7 +55,7 @@ fn main() -> Result<(), std::io::Error> {
 
         let dest_line = format!("DeltaTValue{{jd: {0:.2}, delta_t: {delta_t:.7}}}, // {1} {month_text} {2}, UT1-UTC={delta_ut:.7}, Cumulative leap seconds={cumulative_leap_secs}"
         , jd.jd, date.day, date.year);
-        write!(writer, "{}\n", dest_line)?;
+        writeln!(writer, "{}", dest_line)?;
     }
 
     println!("Processed {lines_count} lines...");

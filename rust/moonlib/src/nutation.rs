@@ -1,4 +1,6 @@
 //! Solar system related calculations.
+#![allow(clippy::type_complexity)]
+
 use crate::date::jd::JD;
 use crate::util::{arcsec::ArcSec, degrees::Degrees, radians::Radians};
 

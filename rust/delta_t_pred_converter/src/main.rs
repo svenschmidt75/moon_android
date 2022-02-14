@@ -38,7 +38,7 @@ fn main() -> Result<(), std::io::Error> {
 
     while reader.read_line(&mut line)? > 0 {
         line = line.trim_end().to_string();
-        if line.len() == 0 {
+        if line.is_empty() {
             break;
         }
 
@@ -60,7 +60,7 @@ fn main() -> Result<(), std::io::Error> {
             "DeltaTValue{{jd: {0:.2}, delta_t: {delta_t:.7}}}, // {1} {month_text} {2}",
             jd.jd, date.day, date.year
         );
-        write!(writer, "{}\n", dest_line)?;
+        writeln!(writer, "{}", dest_line)?;
     }
 
     println!("Processed {lines_count} lines...");

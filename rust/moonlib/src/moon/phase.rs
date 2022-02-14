@@ -51,8 +51,7 @@ pub fn phase_angle_360(jd: JD) -> Degrees {
     // SS: position of the sun, from Earth
     let longitude_sun = apparent_geometric_longitude(jd);
 
-    let phase_angle = (longitude_moon - longitude_sun).map_to_0_to_360();
-    phase_angle
+    (longitude_moon - longitude_sun).map_to_0_to_360()
 }
 
 /// Textual description of the moon's phase
@@ -63,26 +62,24 @@ pub fn phase_description(jd: JD) -> &'static str {
 
     const SECTION: f64 = 360.0 / (2.0 * 8.0);
 
-    let desc = if phase_angle < SECTION {
+    if phase_angle < SECTION {
         "New Moon"
-    } else if phase_angle >= SECTION && phase_angle < 45.0 + SECTION {
+    } else if (SECTION..45.0 + SECTION).contains(&phase_angle) {
         "Waxing Crescent"
-    } else if phase_angle >= 45.0 + SECTION && phase_angle < 90.0 + SECTION {
+    } else if (45.0 + SECTION..90.0 + SECTION).contains(&phase_angle) {
         "First Quarter"
-    } else if phase_angle >= 90.0 + SECTION && phase_angle < 180.0 - SECTION {
+    } else if (90.0 + SECTION..180.0 - SECTION).contains(&phase_angle) {
         "Waxing Gibbous"
-    } else if phase_angle >= 180.0 - SECTION && phase_angle < 180.0 + SECTION {
+    } else if (180.0 - SECTION..180.0 + SECTION).contains(&phase_angle) {
         "Full Moon"
-    } else if phase_angle >= 180.0 + SECTION && phase_angle < 270.0 - SECTION {
+    } else if (180.0 + SECTION..270.0 - SECTION).contains(&phase_angle) {
         "Waning Gibbous"
-    } else if phase_angle >= 270.0 - SECTION && phase_angle < 270.0 + SECTION {
+    } else if (270.0 - SECTION..270.0 + SECTION).contains(&phase_angle) {
         "Last Quarter"
     } else {
         //if phase_angle >= 270.0 + SECTION && phase_angle < 180.0 + 45.0 - SECTION {
         "Waning Crescent"
-    };
-
-    desc
+    }
 }
 
 pub fn fraction_illuminated(jd: JD) -> f64 {

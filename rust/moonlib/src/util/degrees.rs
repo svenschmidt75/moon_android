@@ -51,7 +51,7 @@ impl Degrees {
 
     pub fn to_hms(&self) -> (i8, u8, f64) {
         // SS: convert right ascension to h:m:s
-        let sign = if self.0 < 0.0 { -1 } else { 1};
+        let sign = if self.0 < 0.0 { -1 } else { 1 };
         let h = self.0.abs() / 360.0 * 24.0;
 
         let remainder = h - h.trunc();
@@ -91,7 +91,7 @@ impl Degrees {
     /// In: angle in degrees, [0..360)
     /// Out: angle, in degrees [-180, 180)
     pub fn map_neg180_to_180(self: Self) -> Self {
-        return if self.0 < -180.0 {
+        if self.0 < -180.0 {
             let tmp = self.0 % 180.0;
             Self(180.0 + tmp)
         } else if self.0 > 180.0 {
@@ -99,7 +99,7 @@ impl Degrees {
             Self(-180.0 + tmp)
         } else {
             self
-        };
+        }
     }
 }
 

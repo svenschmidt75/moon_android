@@ -1,4 +1,6 @@
 #![allow(clippy::excessive_precision)]
+#![allow(clippy::approx_constant)]
+#![allow(clippy::type_complexity)]
 
 // VSOPT97D coefficients for earth
 // from http://cdsarc.u-strasbg.fr/viz-bin/Cat?cat=VI/81#/article

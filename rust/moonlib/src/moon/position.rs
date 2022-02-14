@@ -18,8 +18,7 @@ fn mean_longitude(jd: JD) -> Degrees {
     let mean_longitude =
         218.3164477 + 481_267.88123421 * t - 0.0015786 * t2 + t3 / 538_841.0 - t4 / 65_194_000.0;
 
-    let mapped = Degrees::new(mean_longitude).map_to_0_to_360();
-    mapped
+    Degrees::new(mean_longitude).map_to_0_to_360()
 }
 
 /// Calculate the moon's mean elongation, eq (47.2).
@@ -35,8 +34,7 @@ fn mean_elongation(jd: JD) -> Degrees {
     let mean_elongation =
         297.8501921 + 445_267.1114034 * t - 0.0018819 * t2 + t3 / 545_868.0 - t4 / 113_065_000.0;
 
-    let mapped = Degrees::new(mean_elongation).map_to_0_to_360();
-    mapped
+    Degrees::new(mean_elongation).map_to_0_to_360()
 }
 
 /// Calculate the moon's mean anomaly, eq (47.4).
@@ -52,8 +50,7 @@ fn mean_anomaly(jd: JD) -> Degrees {
     let mean_anomaly =
         134.9633964 + 477198.8675055 * t + 0.0087414 * t2 + t3 / 69_699.0 - t4 / 14_712_000.0;
 
-    let mapped = Degrees::new(mean_anomaly).map_to_0_to_360();
-    mapped
+    Degrees::new(mean_anomaly).map_to_0_to_360()
 }
 
 /// Calculate the moon's argument of latitude, eq (47.5).
@@ -69,8 +66,7 @@ fn argument_of_latitude(jd: JD) -> Degrees {
     let argument_of_latitude =
         93.2720950 + 483202.0175233 * t - 0.0036539 * t2 - t3 / 3_526_000.0 + t4 / 863_310_000.0;
 
-    let mapped = Degrees::new(argument_of_latitude).map_to_0_to_360();
-    mapped
+    Degrees::new(argument_of_latitude).map_to_0_to_360()
 }
 
 /// Calculate the moon's longitude (lambda), page 342
