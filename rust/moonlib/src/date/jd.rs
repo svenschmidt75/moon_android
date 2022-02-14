@@ -196,9 +196,7 @@ mod tests {
     }
 
     #[test]
-    fn add_hours_test() {
-        // Meeus, page 62
-
+    fn add_hours_test_1() {
         // arrange
         let date = Date::new(2000, 1, 1.5);
         let mut jd = JD::from_date(date);
@@ -208,5 +206,18 @@ mod tests {
 
         // assert
         assert_approx_eq!(constants::J2000 + 0.5, jd.jd, 0.000_01)
+    }
+
+    #[test]
+    fn add_hours_test_2() {
+        // arrange
+        let date = Date::new(2000, 3, 23.5);
+        let mut jd = JD::from_date(date);
+
+        // act
+        jd.add_hours(4.809);
+
+        // assert
+        assert_approx_eq!(JD::from_date(Date::from_date_hms(2000, 3, 23, 16, 48, 32.7)).jd, jd.jd, 0.000_01)
     }
 }

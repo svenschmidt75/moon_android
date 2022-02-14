@@ -61,7 +61,7 @@ impl Date {
     }
 
     /// Convert fractional day to hh:mm:s
-    fn from_fract_day(day: f64) -> (u8, u8, f64) {
+    pub(crate) fn from_fract_day(day: f64) -> (u8, u8, f64) {
         let hours1 = 24.0 * day.fract();
         let hours = hours1.trunc();
 

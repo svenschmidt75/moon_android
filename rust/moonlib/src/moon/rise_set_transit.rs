@@ -28,6 +28,7 @@ pub(crate) fn rise(
     // SS: initial time is noon
     let midday = Date::new(date.year, date.month, date.day.trunc() + 0.5);
     let base_jd = JD::from_date(midday);
+//    let base_jd = JD::from_date(Date::from_date_hms(2000, 3, 23, 21, 14, 2.0));
     let mut offset_jd = JD::new(0.0);
 
     let latitude_observer_radians = Radians::from(latitude_observer);
@@ -41,19 +42,32 @@ pub(crate) fn rise(
     const MAX_ITER: u8 = 10;
 
     loop {
-        print!("Iteration {iter}: ");
+        println!("Iteration {iter}: ");
+        println!("-------------");
 
         let jd = base_jd + offset_jd;
+        println!("base jd: {:.6}", base_jd.jd);
+        println!("offset jd: {:.6}", offset_jd.jd);
+        println!("jd: {:.6}", jd.jd);
+
+        let date = jd.to_calendar_date();
+        let (h, m, s) = Date::from_fract_day(date.day);
+        println!("Date: {}/{}/{} {}:{}:{:.2}", date.year, date.month,date.day.trunc() as u8, h, m, s);
 
         // SS: ecliptical geocentric coordinates of the moon
         let longitude = geocentric_longitude(base_jd + offset_jd);
+        println!("Longitude: {:.2}", longitude.0);
+
         let latitude = geocentric_latitude(base_jd + offset_jd);
+        println!("Latitude: {:.2}", latitude.0);
 
         // SS: equatorial geocentric coordinates of the moon
         let eps = ecliptic::true_obliquity(base_jd + offset_jd);
         let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
 
         let ra_hours = ra.to_hms();
+        println!("RA: {}:{}:{:.2}", ra_hours.0, ra_hours.1, ra_hours.2);
+        println!("Decl: {:.2}", decl.0);
 
         let decl_radians = Radians::from(decl);
         let sin_decl = decl_radians.0.sin();
@@ -71,26 +85,49 @@ pub(crate) fn rise(
             hour_angle = Degrees::from(Radians::new(cos_hour_angle.acos()));
         }
 
+        let (azimuth, mut altitude) = coordinates::equatorial_2_horizontal(
+            decl,
+            hour_angle,
+            latitude_observer,
+        );
+
+        let hour_angle_hours = hour_angle.to_hms();
+
+
+        let sin_h0_check = sin_decl * sin_latitude_observer + cos_latitude_observer * cos_decl * Radians::from(hour_angle).0.cos();
+        println!("sin_h0: {:.8}", sin_h0);
+        println!("sin_h0(tau1): {:.8}", sin_h0_check);
+        println!("sin(altitude(tau1)): {:.8}", Radians::from(altitude).0.sin());
+
         // SS: calculate time correction from our angle
         let theta0 = earth::apparent_siderial_time(base_jd + offset_jd);
         let theta = earth::local_siderial_time(theta0, longitude_observer);
         let theta_hours = theta.to_hms();
+        println!("theta: {}:{}:{:.2}", theta_hours.0, theta_hours.1, theta_hours.2);
 
         // SS: calculate hour angle at time jd2
         let hour_angle2 = (theta - ra).map_neg180_to_180();
-        let hour_angle_hours = hour_angle2.to_hms();
+        let hour_angle2_hours = hour_angle2.to_hms();
 
-        let delta_hour_angle = (hour_angle2 + hour_angle).map_neg180_to_180();
+        println!("tau1: {:.2}", hour_angle.0);
+        println!("tau1: {}:{}:{:.2}", hour_angle_hours.0, hour_angle_hours.1, hour_angle_hours.2);
+
+        println!("tau2: {:.2}", hour_angle2.0);
+        println!("tau2: {}:{}:{:.2}", hour_angle2_hours.0, hour_angle2_hours.1, hour_angle2_hours.2);
+
+        let delta_hour_angle = (hour_angle2 + hour_angle);//.map_neg180_to_180();
 
         // SS: convert degrees to time units
         let delta_t = delta_hour_angle.to_hours() * constants::SIDERIAL_TO_SOLAR_TIME;
 
         let delta_t_hours = Degrees::new(delta_hour_angle.0 * constants::SIDERIAL_TO_SOLAR_TIME).to_hms();
+        println!("delta t: {}:{}:{:.2}", delta_t_hours.0, delta_t_hours.1, delta_t_hours.2);
 
-        println!(
-            "tau1 {:.2} -- tau2 {:.2} -- delta tau: {:.2} -- delta t {:.2}",
-            hour_angle.0, hour_angle2.0, delta_hour_angle.0, delta_t
-        );
+
+
+        let dt = constants::SIDERIAL_TO_SOLAR_TIME * 12.0 / std::f64::consts::PI * ((delta_hour_angle.0 + std::f64::consts::PI) % (2.0 * std::f64::consts::PI) - std::f64::consts::PI);
+
+        let delta_t = dt;
 
         if delta_t.abs() < 0.008 || iter > MAX_ITER {
             break;
@@ -99,6 +136,8 @@ pub(crate) fn rise(
         iter += 1;
 
         offset_jd.add_hours(delta_t);
+
+        println!();
     }
 
     Kind::Time(base_jd + offset_jd)
