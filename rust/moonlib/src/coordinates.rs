@@ -106,10 +106,12 @@ pub(crate) fn equatorial_2_topocentric(
     let ra_radians = Radians::from(ra);
     let decl_radians = Radians::from(decl);
 
+    // SS: eq (40.2)
     let delta_ra = (-rho_cos_p * sin_pi * hour_angle_radians.0.sin())
         .atan2(decl_radians.0.cos() - rho_cos_p * sin_pi * hour_angle_radians.0.cos());
     let ra_topocentric = ra_radians + Radians::new(delta_ra);
 
+    // SS: eq (40.3)
     let decl_topocentric = ((decl_radians.0.sin() - rho_sin_p * sin_pi) * delta_ra.cos())
         .atan2(decl_radians.0.cos() - rho_cos_p * sin_pi * hour_angle_radians.0.cos());
     let decl_topocentric = Radians::new(decl_topocentric);

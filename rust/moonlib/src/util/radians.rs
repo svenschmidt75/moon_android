@@ -1,6 +1,7 @@
 use crate::constants;
 use crate::util::degrees::Degrees;
 use std::ops::{Add, Mul, Sub};
+use crate::util::arcsec::ArcSec;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Radians(pub(crate) f64);
@@ -27,14 +28,6 @@ impl Sub for Radians {
     }
 }
 
-// pub trait Mul<Rhs = Self> {
-//     312 | |     /// The resulting type after applying the `*` operator.
-//     313 | |     #[stable(feature = "rust1", since = "1.0.0")]
-//     314 | |     type Output;
-//     ...   |
-//     325 | |     fn mul(self, rhs: Rhs) -> Self::Output;
-//     326 | | }
-
 impl Mul for Radians {
     type Output = Self;
 
@@ -46,6 +39,14 @@ impl Mul for Radians {
 impl From<Degrees> for Radians {
     fn from(degrees: Degrees) -> Self {
         let radians = degrees.0 * constants::DEGREES_TO_RADIANS;
+        Self(radians)
+    }
+}
+
+impl From<ArcSec> for Radians {
+    fn from(arcsec: ArcSec) -> Self {
+        let degrees = arcsec.0 / (60.0 * 60.0);
+        let radians = degrees * constants::DEGREES_TO_RADIANS;
         Self(radians)
     }
 }

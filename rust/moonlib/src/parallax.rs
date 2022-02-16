@@ -6,11 +6,11 @@ use crate::util::radians::Radians;
 /// Calculate the corrections needed to convert from geographical observer
 /// latitude to the geocentric observer latitude.
 /// Meeus, page 82, chapter 11
-/// In: geographical latitude of the observer, in degrees [-90, 90)
+/// In: geocentric latitude of the observer, in degrees [-90, 90)
 /// height: Height of observer above sea level, in meters
 /// Out: (rho * sin phi_p, rho * cos phi_p)
-pub(crate) fn rho_phi_prime(latitude_geographical: Degrees, height: f64) -> (f64, f64) {
-    let phi_p_radians = Radians::from(latitude_geographical);
+pub(crate) fn rho_phi_prime(latitude_geocentric: Degrees, height: f64) -> (f64, f64) {
+    let phi_p_radians = Radians::from(latitude_geocentric);
 
     const B_OVER_A: f64 = 0.996_647_19;
 
