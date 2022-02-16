@@ -5,7 +5,12 @@ use crate::util::arcsec::ArcSec;
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;
 
-fn parallax_altitude(distance_delta: f64, altitude: Degrees, latitude_observer: Degrees, height_observer: f64) -> ArcSec {
+fn parallax_altitude(
+    distance_delta: f64,
+    altitude: Degrees,
+    latitude_observer: Degrees,
+    height_observer: f64,
+) -> ArcSec {
     let altitude_rad = Radians::from(altitude);
     let latitude_observer_rad = Degrees::from(latitude_observer);
 

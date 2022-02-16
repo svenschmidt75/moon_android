@@ -133,7 +133,6 @@ impl From<Date> for JD {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use assert_approx_eq::assert_approx_eq;

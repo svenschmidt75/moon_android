@@ -1,7 +1,7 @@
 use crate::constants;
+use crate::util::arcsec::ArcSec;
 use crate::util::degrees::Degrees;
 use std::ops::{Add, Mul, Sub};
-use crate::util::arcsec::ArcSec;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Radians(pub(crate) f64);

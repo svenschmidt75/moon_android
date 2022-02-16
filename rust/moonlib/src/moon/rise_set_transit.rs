@@ -16,7 +16,7 @@ pub(crate) enum OutputKind {
 enum InputKind {
     Rise,
     Set,
-    Transit
+    Transit,
 }
 
 /// Compute the time the moon rises
@@ -31,7 +31,13 @@ pub(crate) fn rise(
     latitude_observer: Degrees,
     target_altitude: Degrees,
 ) -> OutputKind {
-    calculate_rise_set_transit(InputKind::Rise, date, longitude_observer, latitude_observer, target_altitude)
+    calculate_rise_set_transit(
+        InputKind::Rise,
+        date,
+        longitude_observer,
+        latitude_observer,
+        target_altitude,
+    )
 }
 
 /// Compute the time the moon sets
@@ -46,7 +52,13 @@ pub(crate) fn set(
     latitude_observer: Degrees,
     target_altitude: Degrees,
 ) -> OutputKind {
-    calculate_rise_set_transit(InputKind::Set, date, longitude_observer, latitude_observer, target_altitude)
+    calculate_rise_set_transit(
+        InputKind::Set,
+        date,
+        longitude_observer,
+        latitude_observer,
+        target_altitude,
+    )
 }
 
 /// Compute the time the moon transits (i.e. is in the meridian)
@@ -61,7 +73,13 @@ pub(crate) fn transit(
     latitude_observer: Degrees,
     target_altitude: Degrees,
 ) -> OutputKind {
-    calculate_rise_set_transit(InputKind::Transit, date, longitude_observer, latitude_observer, target_altitude)
+    calculate_rise_set_transit(
+        InputKind::Transit,
+        date,
+        longitude_observer,
+        latitude_observer,
+        target_altitude,
+    )
 }
 
 fn calculate_rise_set_transit(
@@ -100,7 +118,8 @@ fn calculate_rise_set_transit(
         let decl_radians = Radians::from(decl);
         let sin_decl = decl_radians.0.sin();
         let cos_decl = decl_radians.0.cos();
-        let cos_hour_angle = (sin_h0 - sin_latitude_observer * sin_decl) / (cos_latitude_observer * cos_decl);
+        let cos_hour_angle =
+            (sin_h0 - sin_latitude_observer * sin_decl) / (cos_latitude_observer * cos_decl);
 
         let hour_angle;
         if cos_hour_angle < -1.0 {

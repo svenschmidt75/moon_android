@@ -26,7 +26,13 @@ fn geocentric_semidiameter(distance_delta: f64) -> ArcSec {
 /// height: observer's height above sea level
 /// Out:
 /// Moon's semidiameter in arcsec
-pub(crate) fn topocentric_semidiameter(distance_delta: f64, hour_angle: Degrees, decl: Degrees, latitude_observer: Degrees, height_observer: f64) -> ArcSec {
+pub(crate) fn topocentric_semidiameter(
+    distance_delta: f64,
+    hour_angle: Degrees,
+    decl: Degrees,
+    latitude_observer: Degrees,
+    height_observer: f64,
+) -> ArcSec {
     let hour_angle_rad = Radians::from(hour_angle);
     let decl_rad = Radians::from(decl);
 
