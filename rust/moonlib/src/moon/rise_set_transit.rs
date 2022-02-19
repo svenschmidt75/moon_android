@@ -148,9 +148,6 @@ fn calculate_rise_set_transit(
         prev_jd.add_hours(-delta_t);
 
         if delta_t.abs() < delta_t_threshold || iter > MAX_ITER {
-
-
-
             break;
         }
 

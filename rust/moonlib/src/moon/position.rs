@@ -345,7 +345,7 @@ mod tests {
         altitude += refraction_correction;
 
         // Assert
-        assert_approx_eq!(108.74082230643148, azimuth.0, 0.000_1);
+        assert_approx_eq!(180.0 + 108.74082230643148, azimuth.0, 0.02);
         assert_approx_eq!(-5.7132731871712839, altitude.0, 0.001);
     }
 
@@ -398,7 +398,7 @@ mod tests {
         altitude += refraction_correction;
 
         // Assert
-        assert_approx_eq!(303.5642283477215, azimuth.0, 0.000_1);
+        assert_approx_eq!((180.0 + 303.5642283477215) % 360.0, azimuth.0, 0.001);
         assert_approx_eq!(1.6965870451518825, altitude.0, 0.001);
     }
 }
