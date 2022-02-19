@@ -227,18 +227,6 @@ mod tests {
     }
 
     #[test]
-    fn sun_mean_anomaly_test() {
-        // SS: 1992 April 12, 0h TD
-        let jd = JD::from_date(Date::new(1992, 4, 12.0));
-
-        // Act
-        let mean_elongation = sun::mean_anomaly(jd);
-
-        // Assert
-        assert_approx_eq!(97.643514, mean_elongation.0, 0.000_001)
-    }
-
-    #[test]
     fn mean_anomaly_test() {
         // SS: 1992 April 12, 0h TD
         let jd = JD::from_date(Date::new(1992, 4, 12.0));
@@ -341,7 +329,7 @@ mod tests {
 
         // SS: add correction for atmospheric refraction
         let refraction_correction =
-            refraction::refraction_from_apparent_altitude(altitude, 1013.0, 10.0);
+            refraction::refraction_for_true_altitude(altitude, 1013.0, 10.0);
         altitude += refraction_correction;
 
         // Assert
@@ -394,7 +382,7 @@ mod tests {
 
         // SS: add correction for atmospheric refraction
         let refraction_correction =
-            refraction::refraction_from_apparent_altitude(altitude, 1013.0, 10.0);
+            refraction::refraction_for_true_altitude(altitude, 1013.0, 10.0);
         altitude += refraction_correction;
 
         // Assert

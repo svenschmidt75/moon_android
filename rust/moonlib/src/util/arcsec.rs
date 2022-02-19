@@ -1,3 +1,4 @@
+use std::ops::{Add, Neg, Sub};
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;
 
@@ -12,6 +13,30 @@ impl ArcSec {
     pub fn from_dms(degrees: i16, minutes: i16, seconds: f64) -> Self {
         let arcsec = seconds + 60.0 * (minutes as f64 + 60.0 * degrees as f64);
         Self(arcsec)
+    }
+}
+
+impl Add for ArcSec {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0)
+    }
+}
+
+impl Sub for ArcSec {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self(self.0 - rhs.0)
+    }
+}
+
+impl Neg for ArcSec {
+    type Output = ArcSec;
+
+    fn neg(self) -> Self::Output {
+        Self(-self.0)
     }
 }
 

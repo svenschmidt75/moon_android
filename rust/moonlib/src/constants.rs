@@ -26,3 +26,9 @@ pub(crate) const HOURS_TO_DAYS: f64 = 1.0 / 24.0;
 
 /// Moon's height above the horizon when it sets
 pub(crate) const MOON_SET_HEIGHT: f64 = -0.2546389;
+
+/// Number of days for a Moon orbit around the Earth
+pub(crate) const MOON_YEAR: f64 = 360.0 / 29.5306;
+
+// Earth's radius in km
+pub(crate) const EARTH_RADIUS: f64 = 6378.14;

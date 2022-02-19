@@ -4,7 +4,7 @@ use crate::sun::position::{
     apparent_geometric_latitude, apparent_geometric_longitude, distance_earth_sun,
 };
 use crate::util::{degrees::Degrees, radians::Radians};
-use crate::{coordinates, ecliptic, moon};
+use crate::{constants, coordinates, ecliptic, moon};
 
 /// Calculate the phase angle or age of the moon.
 /// Meeus, chapter 48, eq. (48.1) or Duffett-Smith and Zwart, chapter 67, page 171
@@ -54,10 +54,22 @@ pub fn phase_angle_360(jd: JD) -> Degrees {
     (longitude_moon - longitude_sun).map_to_0_to_360()
 }
 
+/// Age of the moon phase in fractions of a day.
+/// In: Julian day
+/// Out: Phase age, in fractional days
+pub (crate) fn phase_age(jd: JD) -> f64 {
+    let phase_angle = phase_angle_360(jd);
+
+    // SS: Avg. degrees the Moon advances in its orbit around the Earth
+    // per day.
+    let degrees_per_day = 360.0 / constants::MOON_YEAR;
+    phase_angle.0 / degrees_per_day
+}
+
 /// Textual description of the moon's phase
 /// In: Julian day
 /// Out: Textual description
-pub fn phase_description(jd: JD) -> &'static str {
+pub(crate) fn phase_description(jd: JD) -> &'static str {
     let phase_angle = phase_angle_360(jd).0;
 
     const SECTION: f64 = 360.0 / (2.0 * 8.0);
@@ -95,7 +107,34 @@ mod tests {
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
-    fn phase_angle_test() {
+    fn phase_angle_test_1() {
+        // Arrange
+        let jd = JD::from_date(Date::new(1992, 4, 12.0));
+
+        // Act
+        let phase_angle = phase_angle(jd);
+
+        // Assert
+        assert_approx_eq!(69.07565471001595, phase_angle.0, 0.000_001)
+    }
+
+    #[test]
+    fn phase_angle_test_2() {
+        // J.L. Lawrence, Celestial Calculations, 2018, page 180
+
+        // Arrange
+        let date = Date::new(2015, 1, 1.0);
+        let jd = JD::from_date(date);
+
+        // Act
+        let phase_angle = phase_angle_360(jd);
+
+        // Assert
+        assert_approx_eq!(130.38, phase_angle.0, 0.1)
+    }
+
+    #[test]
+    fn phase_age_test() {
         // Arrange
         let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
@@ -147,6 +186,21 @@ mod tests {
     }
 
     #[test]
+    fn fraction_illuminated_test_4() {
+        // J.L. Lawrence, Celestial Calculations, 2018, page 180
+
+        // Arrange
+        let date = Date::new(2015, 1, 1.0);
+        let jd = JD::from_date(date);
+
+        // Act
+        let percent_illuminated = fraction_illuminated(jd) * 100.0;
+
+        // Assert
+        assert_approx_eq!(82.43, percent_illuminated, 0.01)
+    }
+
+    #[test]
     fn phase_description_test_1() {
         // Arrange
 
@@ -186,5 +240,20 @@ mod tests {
 
         // Assert
         assert_eq!("Waning Crescent", phase_desc)
+    }
+
+    #[test]
+    fn phase_description_test_4() {
+        // J.L. Lawrence, Celestial Calculations, 2018, page 180
+
+        // Arrange
+        let date = Date::new(2015, 1, 1.0);
+        let jd = JD::from_date(date);
+
+        // Act
+        let phase_desc = phase_description(jd);
+
+        // Assert
+        assert_eq!("Waxing Gibbous", phase_desc)
     }
 }

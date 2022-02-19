@@ -34,4 +34,5 @@ mod tests {
         // Assert
         assert_approx_eq!(97.643514, mean_elongation.0, 0.000_001)
     }
+
 }

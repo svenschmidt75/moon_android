@@ -5,7 +5,8 @@ use crate::util::radians::Radians;
 
 /// Given the true altitude of an object and atmospheric conditions,
 /// calculate the refraction, i.e. the correction in altitude to get the
-/// apparent altitude.
+/// apparent altitude. To do so, add the value returned to the true
+/// altitude of an object.
 /// Meeus, chapter 16, page 106
 /// In:
 /// altitude, in degrees [0, 90)
@@ -13,7 +14,7 @@ use crate::util::radians::Radians;
 /// temperature, in celsius
 /// Out:
 /// Correction for altitude, in degrees [0, 360)
-pub(crate) fn refraction_from_apparent_altitude(
+pub(crate) fn refraction_for_true_altitude(
     altitude: Degrees,
     pressure: f64,
     temperature: f64,
@@ -38,4 +39,22 @@ pub(crate) fn refraction_from_apparent_altitude(
     let refraction_degrees = refraction / 60.0;
 
     Degrees::new(refraction_degrees)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assert_approx_eq::assert_approx_eq;
+
+    #[test]
+    fn refraction_for_true_altitude_test_1() {
+        // Arrange
+        let height = Degrees::new(0.0);
+
+        // Act
+        let refraction = refraction_for_true_altitude(height, 1013.0, 10.0);
+
+        // Assert
+        assert_approx_eq!(0.4845, refraction.0, 0.001);
+    }
 }

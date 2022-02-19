@@ -198,7 +198,7 @@ pub mod android {
 
         // SS: add correction for atmospheric refraction
         let refraction_correction =
-            refraction::refraction_from_apparent_altitude(altitude, pressure, temperature);
+            refraction::refraction_for_true_altitude(altitude, pressure, temperature);
         altitude += refraction_correction;
 
         env.set_field(

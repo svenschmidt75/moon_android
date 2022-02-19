@@ -1,4 +1,6 @@
 //! Calculate corrections for parallax.
+//! The difference between geocentric and topocentric
+//! coordinates is due to parallax.
 
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;

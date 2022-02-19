@@ -5,7 +5,7 @@ use crate::date::jd::JD;
 use crate::moon::position::{geocentric_latitude, geocentric_longitude};
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;
-use crate::{constants, coordinates, earth, ecliptic};
+use crate::{constants, coordinates, earth, ecliptic, moon};
 
 pub(crate) enum OutputKind {
     Time(JD),
@@ -30,6 +30,8 @@ pub(crate) fn rise(
     longitude_observer: Degrees,
     latitude_observer: Degrees,
     target_altitude: Degrees,
+    pressure: f64,
+    temperature: f64
 ) -> OutputKind {
     calculate_rise_set_transit(
         InputKind::Rise,
@@ -37,6 +39,8 @@ pub(crate) fn rise(
         longitude_observer,
         latitude_observer,
         target_altitude,
+        pressure,
+        temperature
     )
 }
 
@@ -51,6 +55,8 @@ pub(crate) fn set(
     longitude_observer: Degrees,
     latitude_observer: Degrees,
     target_altitude: Degrees,
+    pressure: f64,
+    temperature: f64
 ) -> OutputKind {
     calculate_rise_set_transit(
         InputKind::Set,
@@ -58,6 +64,8 @@ pub(crate) fn set(
         longitude_observer,
         latitude_observer,
         target_altitude,
+        pressure,
+        temperature
     )
 }
 
@@ -72,6 +80,8 @@ pub(crate) fn transit(
     longitude_observer: Degrees,
     latitude_observer: Degrees,
     target_altitude: Degrees,
+    pressure: f64,
+    temperature: f64
 ) -> OutputKind {
     calculate_rise_set_transit(
         InputKind::Transit,
@@ -79,6 +89,8 @@ pub(crate) fn transit(
         longitude_observer,
         latitude_observer,
         target_altitude,
+        pressure,
+        temperature
     )
 }
 
@@ -88,6 +100,8 @@ fn calculate_rise_set_transit(
     longitude_observer: Degrees,
     latitude_observer: Degrees,
     target_altitude: Degrees,
+    pressure: f64,
+    temperature: f64
 ) -> OutputKind {
     let latitude_observer_radians = Radians::from(latitude_observer);
     let sin_latitude_observer = latitude_observer_radians.0.sin();
@@ -97,8 +111,23 @@ fn calculate_rise_set_transit(
     let midday = Date::new(date.year, date.month, date.day.trunc() + 0.5);
     let mut prev_jd = JD::from_date(midday);
 
-    let target_altitude_radians = Radians::from(target_altitude);
+    // SS:Moon's horizontal parallax
+    let parallax = moon::parallax::horizontal_equatorial_parallax(prev_jd);
+
+    // SS: Moon's topocentric semidiameter
+    let longitude = geocentric_longitude(prev_jd);
+    let latitude = geocentric_latitude(prev_jd);
+    let eps = ecliptic::true_obliquity(prev_jd);
+    let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
+    let theta0 = earth::apparent_siderial_time(prev_jd);
+    let theta = earth::local_siderial_time(theta0, longitude_observer);
+    let hour_angle = (theta - ra).map_neg180_to_180();
+    let semidiameter = moon::semidiameter::topocentric_semidiameter(prev_jd, hour_angle, decl, latitude_observer, 0.0);
+
+    let target_altitude_radians = Radians::from(-parallax - semidiameter);
     let sin_h0 = target_altitude_radians.0.sin();
+
+    let h0 = Degrees::from(Radians::new(sin_h0.asin()));
 
     // SS: if time change is less than a minute, we are done with iteration
     let delta_t_threshold = 1.0 / 60.0;
@@ -175,7 +204,7 @@ mod tests {
         let target_altitude = Degrees::new(constants::MOON_SET_HEIGHT);
 
         // Act
-        let k = rise(date, longitude_observer, latitude_observer, target_altitude);
+        let k = rise(date, longitude_observer, latitude_observer, target_altitude, 1013.0, 10.0);
 
         if let OutputKind::Time(jd) = k {
             let date = jd.to_calendar_date();
