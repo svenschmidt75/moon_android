@@ -59,9 +59,19 @@ pub(crate) fn equatorial_2_horizontal(
             - decl_radians.0.tan() * latitude_observer_radians.0.cos(),
     ) - std::f64::consts::PI;
 
-    let altitude = (latitude_observer_radians.0.sin() * decl_radians.0.sin()
-        + latitude_observer_radians.0.cos() * decl_radians.0.cos() * hour_angle_radians.0.cos())
-    .asin();
+    let sin_altitude = latitude_observer_radians.0.sin() * decl_radians.0.sin()
+        + latitude_observer_radians.0.cos() * decl_radians.0.cos() * hour_angle_radians.0.cos();
+
+    let altitude = sin_altitude.asin();
+
+    let sinH = hour_angle_radians.0.sin();
+
+    let mut azimuth = ((decl_radians.0.sin() - latitude_observer_radians.0.sin() * sin_altitude)/(latitude_observer_radians.0.cos() * sin_altitude.cos())).acos();
+    if sinH > 0.0 {
+        azimuth = 360.0 - altitude;
+    }
+
+
 
     (
         Degrees::from(Radians::new(azimuth)).map_to_0_to_360(),
