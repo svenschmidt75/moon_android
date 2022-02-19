@@ -57,7 +57,7 @@ pub fn phase_angle_360(jd: JD) -> Degrees {
 /// Age of the moon phase in fractions of a day.
 /// In: Julian day
 /// Out: Phase age, in fractional days
-pub (crate) fn phase_age(jd: JD) -> f64 {
+pub(crate) fn phase_age(jd: JD) -> f64 {
     let phase_angle = phase_angle_360(jd);
 
     // SS: Avg. degrees the Moon advances in its orbit around the Earth

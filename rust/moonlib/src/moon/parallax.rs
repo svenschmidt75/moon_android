@@ -1,6 +1,6 @@
 //! Moon's parallax
 
-use crate::{constants};
+use crate::constants;
 use crate::date::jd::JD;
 use crate::moon::position::distance_from_earth;
 use crate::util::arcsec::ArcSec;
@@ -21,21 +21,22 @@ pub(crate) fn horizontal_equatorial_parallax(jd: JD) -> ArcSec {
 /// In: Julian Day
 /// altitude: altitude, in degrees [-90, 90)
 /// Out: horizontal parallax, in arcsecs
-fn horizontal_parallax(jd: JD, altitude: Degrees) -> ArcSec {
+pub(crate) fn horizontal_parallax(jd: JD, altitude: Degrees) -> ArcSec {
     let altitude_rad = Radians::from(altitude);
 
-    let sin_pi = horizontal_equatorial_parallax(jd);
+    let sin_pi = Radians::from(horizontal_equatorial_parallax(jd));
     let sin_p = sin_pi.0 * altitude_rad.0.cos();
-    ArcSec::from(Radians::new(sin_p.asin()))
+    let p = sin_p.asin();
+    ArcSec::from(Radians::new(p))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_approx_eq::assert_approx_eq;
     use crate::date::date::Date;
     use crate::date::jd::JD;
     use crate::moon::position::distance_from_earth;
+    use assert_approx_eq::assert_approx_eq;
 
     #[test]
     fn horizontal_parallax_test_1() {
@@ -52,6 +53,10 @@ mod tests {
         let hor_parallax = horizontal_parallax(jd, Degrees::new(0.0));
 
         // Assert
-        assert_approx_eq!(Degrees::from_dms(1, 0, 0.12).0, Degrees::from(hor_parallax).0, 0.033);
+        assert_approx_eq!(
+            Degrees::from_dms(1, 0, 0.12).0,
+            Degrees::from(hor_parallax).0,
+            0.033
+        );
     }
 }

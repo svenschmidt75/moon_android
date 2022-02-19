@@ -1,6 +1,6 @@
-use std::ops::{Add, Neg, Sub};
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;
+use std::ops::{Add, Neg, Sub};
 
 #[derive(Debug, Clone, Copy)]
 pub struct ArcSec(pub(crate) f64);

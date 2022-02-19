@@ -31,7 +31,7 @@ pub(crate) fn rise(
     latitude_observer: Degrees,
     target_altitude: Degrees,
     pressure: f64,
-    temperature: f64
+    temperature: f64,
 ) -> OutputKind {
     calculate_rise_set_transit(
         InputKind::Rise,
@@ -40,7 +40,7 @@ pub(crate) fn rise(
         latitude_observer,
         target_altitude,
         pressure,
-        temperature
+        temperature,
     )
 }
 
@@ -56,7 +56,7 @@ pub(crate) fn set(
     latitude_observer: Degrees,
     target_altitude: Degrees,
     pressure: f64,
-    temperature: f64
+    temperature: f64,
 ) -> OutputKind {
     calculate_rise_set_transit(
         InputKind::Set,
@@ -65,7 +65,7 @@ pub(crate) fn set(
         latitude_observer,
         target_altitude,
         pressure,
-        temperature
+        temperature,
     )
 }
 
@@ -81,7 +81,7 @@ pub(crate) fn transit(
     latitude_observer: Degrees,
     target_altitude: Degrees,
     pressure: f64,
-    temperature: f64
+    temperature: f64,
 ) -> OutputKind {
     calculate_rise_set_transit(
         InputKind::Transit,
@@ -90,7 +90,7 @@ pub(crate) fn transit(
         latitude_observer,
         target_altitude,
         pressure,
-        temperature
+        temperature,
     )
 }
 
@@ -101,7 +101,7 @@ fn calculate_rise_set_transit(
     latitude_observer: Degrees,
     target_altitude: Degrees,
     pressure: f64,
-    temperature: f64
+    temperature: f64,
 ) -> OutputKind {
     let latitude_observer_radians = Radians::from(latitude_observer);
     let sin_latitude_observer = latitude_observer_radians.0.sin();
@@ -112,7 +112,7 @@ fn calculate_rise_set_transit(
     let mut prev_jd = JD::from_date(midday);
 
     // SS:Moon's horizontal parallax
-    let parallax = moon::parallax::horizontal_equatorial_parallax(prev_jd);
+    let parallax = moon::parallax::horizontal_parallax(prev_jd, Degrees::new(0.0));
 
     // SS: Moon's topocentric semidiameter
     let longitude = geocentric_longitude(prev_jd);
@@ -122,7 +122,13 @@ fn calculate_rise_set_transit(
     let theta0 = earth::apparent_siderial_time(prev_jd);
     let theta = earth::local_siderial_time(theta0, longitude_observer);
     let hour_angle = (theta - ra).map_neg180_to_180();
-    let semidiameter = moon::semidiameter::topocentric_semidiameter(prev_jd, hour_angle, decl, latitude_observer, 0.0);
+    let semidiameter = moon::semidiameter::topocentric_semidiameter(
+        prev_jd,
+        hour_angle,
+        decl,
+        latitude_observer,
+        0.0,
+    );
 
     let target_altitude_radians = Radians::from(-parallax - semidiameter);
     let sin_h0 = target_altitude_radians.0.sin();
@@ -204,7 +210,14 @@ mod tests {
         let target_altitude = Degrees::new(constants::MOON_SET_HEIGHT);
 
         // Act
-        let k = rise(date, longitude_observer, latitude_observer, target_altitude, 1013.0, 10.0);
+        let k = rise(
+            date,
+            longitude_observer,
+            latitude_observer,
+            target_altitude,
+            1013.0,
+            10.0,
+        );
 
         if let OutputKind::Time(jd) = k {
             let date = jd.to_calendar_date();

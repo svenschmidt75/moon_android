@@ -1,11 +1,11 @@
 //! Calculates the Moon's semidiameter
 
 use crate::date::jd::JD;
-use crate::{moon, parallax};
 use crate::moon::parallax::horizontal_equatorial_parallax;
 use crate::util::arcsec::ArcSec;
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;
+use crate::{moon, parallax};
 
 /// Calculates the geocentric semidiameter of the Moon
 /// Meeus, chapter 55, page 390
@@ -13,7 +13,7 @@ use crate::util::radians::Radians;
 /// Out: Moon's semidiameter in arcsec
 fn geocentric_semidiameter(jd: JD) -> ArcSec {
     const K: f64 = 0.272_481;
-    let sin_s = K * horizontal_equatorial_parallax(jd).0;
+    let sin_s = K * Radians::from(horizontal_equatorial_parallax(jd)).0;
     let s = sin_s.asin();
     ArcSec::from(Radians::new(s))
 }
@@ -41,7 +41,7 @@ pub(crate) fn topocentric_semidiameter(
     let (rho_sin_p, rho_cos_p) = parallax::rho_phi_prime(latitude_observer, height_observer);
 
     // SS: eq. (40.7), page 280
-    let sin_pi = horizontal_equatorial_parallax(jd);
+    let sin_pi = Radians::from(horizontal_equatorial_parallax(jd));
     let a = decl_rad.0.cos() * hour_angle_rad.0.sin();
     let b = decl_rad.0.cos() * hour_angle_rad.0.cos() - rho_cos_p * sin_pi.0;
     let c = decl_rad.0.sin() - rho_sin_p * sin_pi.0;
@@ -55,11 +55,11 @@ pub(crate) fn topocentric_semidiameter(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use assert_approx_eq::assert_approx_eq;
     use crate::date::date::Date;
     use crate::date::jd::JD;
-    use crate::{coordinates, ecliptic};
     use crate::moon::position::{geocentric_latitude, geocentric_longitude};
+    use crate::{coordinates, ecliptic};
+    use assert_approx_eq::assert_approx_eq;
 
     #[test]
     fn topocentric_semidiameter_test_1() {
@@ -79,7 +79,13 @@ mod tests {
         let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
 
         // Act
-        let semidiameter_topocentric = topocentric_semidiameter(jd, Degrees::new(65.46), decl, latitude_observer, height_above_sea_level_observer);
+        let semidiameter_topocentric = topocentric_semidiameter(
+            jd,
+            Degrees::new(65.46),
+            decl,
+            latitude_observer,
+            height_above_sea_level_observer,
+        );
 
         // Assert
         assert_approx_eq!(951.616, semidiameter_topocentric.0, 0.006);
