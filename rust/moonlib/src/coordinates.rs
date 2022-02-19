@@ -42,6 +42,9 @@ pub(crate) fn ecliptical_2_equatorial(
 /// declination, in degrees [-90, 90)
 /// hour_angle, in degrees [0, 360)
 /// observer's latitude, [-90, 90)
+/// Out:
+/// Azimuth, measured from North, increasing to the East, in degrees [0, 360)
+/// Altitude: in degrees [-90, 90)
 pub(crate) fn equatorial_2_horizontal(
     decl: Degrees,
     hour_angle: Degrees,
@@ -54,7 +57,8 @@ pub(crate) fn equatorial_2_horizontal(
     let azimuth = hour_angle_radians.0.sin().atan2(
         hour_angle_radians.0.cos() * latitude_observer_radians.0.sin()
             - decl_radians.0.tan() * latitude_observer_radians.0.cos(),
-    );
+    ) - std::f64::consts::PI;
+
     let altitude = (latitude_observer_radians.0.sin() * decl_radians.0.sin()
         + latitude_observer_radians.0.cos() * decl_radians.0.cos() * hour_angle_radians.0.cos())
     .asin();
@@ -150,7 +154,7 @@ mod tests {
     }
 
     #[test]
-    fn equatorial_2_horizontal_test() {
+    fn equatorial_2_horizontal_test_1() {
         // Meeus, page 96, example 13.b
 
         // Arrange
@@ -165,5 +169,23 @@ mod tests {
         // Assert
         assert_approx_eq!(68.0337, azimuth.0, 0.000_1);
         assert_approx_eq!(15.1249, altitude.0, 0.000_1);
+    }
+
+    #[test]
+    fn equatorial_2_horizontal_test_2() {
+        // J.L. Lawrence, Celestial Calculations, 2018, page 90
+
+        // Arrange
+        let declination = Degrees::from_dms(-0, 30, 30.0);
+        let hour_angle = Degrees::from_hms(16, 29, 45.0);
+        let latitude_observer = Degrees::from_dms(25, 0, 0.0);
+
+        // Act
+        let (azimuth, altitude) =
+            equatorial_2_horizontal(declination, hour_angle, latitude_observer);
+
+        // Assert
+        assert_approx_eq!(68.0337, azimuth.0, 0.000_1);
+        assert_approx_eq!(Degrees::from_dms(-20, 34, 40.0).0, altitude.0, 0.000_1);
     }
 }
