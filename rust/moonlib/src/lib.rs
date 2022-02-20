@@ -24,7 +24,7 @@ pub mod android {
     use crate::util::degrees::Degrees;
     use crate::*;
 
-    use self::jni::objects::{JClass, JString, JObject};
+    use self::jni::objects::{JClass, JString, JObject, JValue};
     use self::jni::sys::{jbyte, jdouble, jint, jobject, jstring};
     use self::jni::JNIEnv;
 
@@ -71,6 +71,9 @@ pub mod android {
         moon_input_data: jobject,
         moon_output_data: jobject,
     ) {
+        // SS: configure Android logger
+        android_logger::init_once(Config::default().with_min_level(Level::Trace));
+
         let jd: JD = JD::new(
             env.get_field(moon_input_data, "jd", "D")
                 .unwrap()
@@ -231,23 +234,20 @@ pub mod android {
         )
         .unwrap();
 
-        android_logger::init_once(
-            Config::default().with_min_level(Level::Trace));
-
-        trace!("this is a verbose {}", "message");
-        error!("this is printed by default");
-
         // SS: rise/transit/set times
-        let rise_date_time: JObject = env.get_field(moon_output_data, "riseTime", "Lcom/svenschmidt/kitana/core/NativeAccess/DateTime;").unwrap().l().unwrap();
-        env.set_field(
+        let rise_date_time = env.get_field(moon_output_data, "riseTime", "Lcom/svenschmidt/kitana/core/NativeAccess$DateTime;").unwrap().l().unwrap();
+        let a = env.set_field(
             rise_date_time,
             "year",
             "I",
             self::jni::objects::JValue::Int(11),
-        )
-            .unwrap();
+        );
 
-//        throw();
+        match a {
+            Ok(_) => { error!("got ok"); },
+            Err(_) => { error!("got error"); }
+        }
+
 
     }
 
