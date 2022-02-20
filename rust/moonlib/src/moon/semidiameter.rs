@@ -2,10 +2,10 @@
 
 use crate::date::jd::JD;
 use crate::moon::parallax::horizontal_equatorial_parallax;
+use crate::parallax;
 use crate::util::arcsec::ArcSec;
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;
-use crate::{moon, parallax};
 
 /// Calculates the geocentric semidiameter of the Moon
 /// Meeus, chapter 55, page 390
@@ -76,7 +76,7 @@ mod tests {
         let longitude = geocentric_longitude(jd);
         let latitude = geocentric_latitude(jd);
         let eps = ecliptic::true_obliquity(jd);
-        let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
+        let (_, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
 
         // Act
         let semidiameter_topocentric = topocentric_semidiameter(

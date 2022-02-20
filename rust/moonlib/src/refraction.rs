@@ -57,4 +57,22 @@ mod tests {
         // Assert
         assert_approx_eq!(0.4845, refraction.0, 0.001);
     }
+
+    #[test]
+    fn refraction_for_true_altitude_test_2() {
+        // Astronomie mit dem Personal Computer, Montenbruck, Pfleger, 2004
+        // On page 45, they mention the effect of refraction at the horizon
+        // is about 34'.
+
+        // Arrange
+        let height = Degrees::new(0.0);
+
+        // Act
+        let (d, m, s) = refraction_for_true_altitude(height, 1013.0, 10.0).to_dms();
+
+        // Assert
+        assert_eq!(0, d);
+        assert_eq!(29, m);
+        assert_approx_eq!(5.636, s, 0.001);
+    }
 }

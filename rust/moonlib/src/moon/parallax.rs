@@ -35,7 +35,6 @@ mod tests {
     use super::*;
     use crate::date::date::Date;
     use crate::date::jd::JD;
-    use crate::moon::position::distance_from_earth;
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
@@ -47,8 +46,6 @@ mod tests {
         let date = Date::new(1979, 9, 1.0);
         let jd = JD::from_date(date);
 
-        let distance = distance_from_earth(jd);
-
         // Act
         let hor_parallax = horizontal_parallax(jd, Degrees::new(0.0));
 
@@ -58,5 +55,24 @@ mod tests {
             Degrees::from(hor_parallax).0,
             0.033
         );
+    }
+
+    #[test]
+    fn horizontal_parallax_test_2() {
+        // Astronomie mit dem Personal Computer, Montenbruck, Pfleger, 2004
+        // On page 45, they mention the Moon's horizontal parallax is about
+        // 57'
+
+        // Arrange
+        let date = Date::new(1979, 9, 1.0);
+        let jd = JD::from_date(date);
+
+        // Act
+        let (d, m, s) = Degrees::from(horizontal_parallax(jd, Degrees::new(0.0))).to_dms();
+
+        // Assert
+        assert_eq!(0, d);
+        assert_eq!(58, m);
+        assert_approx_eq!(3.617, s, 0.001);
     }
 }

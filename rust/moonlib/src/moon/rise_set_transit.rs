@@ -3,6 +3,8 @@
 use crate::date::date::Date;
 use crate::date::jd::JD;
 use crate::moon::position::{geocentric_latitude, geocentric_longitude};
+use crate::refraction::refraction_for_true_altitude;
+use crate::util::arcsec::ArcSec;
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;
 use crate::{constants, coordinates, earth, ecliptic, moon};
@@ -29,7 +31,6 @@ pub(crate) fn rise(
     date: Date,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
-    target_altitude: Degrees,
     pressure: f64,
     temperature: f64,
 ) -> OutputKind {
@@ -38,7 +39,6 @@ pub(crate) fn rise(
         date,
         longitude_observer,
         latitude_observer,
-        target_altitude,
         pressure,
         temperature,
     )
@@ -54,7 +54,6 @@ pub(crate) fn set(
     date: Date,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
-    target_altitude: Degrees,
     pressure: f64,
     temperature: f64,
 ) -> OutputKind {
@@ -63,7 +62,6 @@ pub(crate) fn set(
         date,
         longitude_observer,
         latitude_observer,
-        target_altitude,
         pressure,
         temperature,
     )
@@ -79,7 +77,6 @@ pub(crate) fn transit(
     date: Date,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
-    target_altitude: Degrees,
     pressure: f64,
     temperature: f64,
 ) -> OutputKind {
@@ -88,10 +85,43 @@ pub(crate) fn transit(
         date,
         longitude_observer,
         latitude_observer,
-        target_altitude,
         pressure,
         temperature,
     )
+}
+
+fn target_altitude(
+    jd: JD,
+    altitude: Degrees,
+    longitude_observer: Degrees,
+    latitude_observer: Degrees,
+
+    pressure: f64,
+    temperature: f64,
+) -> Degrees {
+    // SS:Moon's horizontal  at 0 deg altitude (i.e. at the horizon)
+    let parallax = moon::parallax::horizontal_parallax(jd, altitude);
+
+    // SS: refraction effects
+    let refraction = ArcSec::from(refraction_for_true_altitude(
+        altitude,
+        pressure,
+        temperature,
+    ));
+
+    // SS: Moon's topocentric semidiameter
+    let longitude = geocentric_longitude(jd);
+    let latitude = geocentric_latitude(jd);
+    let eps = ecliptic::true_obliquity(jd);
+    let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
+    let theta0 = earth::apparent_siderial_time(jd);
+    let theta = earth::local_siderial_time(theta0, longitude_observer);
+    let hour_angle = (theta - ra).map_neg180_to_180();
+    let semidiameter =
+        moon::semidiameter::topocentric_semidiameter(jd, hour_angle, decl, latitude_observer, 0.0);
+
+    let target_altitude_radians = Radians::from(parallax - refraction - semidiameter);
+    Degrees::from(target_altitude_radians)
 }
 
 fn calculate_rise_set_transit(
@@ -99,7 +129,6 @@ fn calculate_rise_set_transit(
     date: Date,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
-    target_altitude: Degrees,
     pressure: f64,
     temperature: f64,
 ) -> OutputKind {
@@ -111,29 +140,15 @@ fn calculate_rise_set_transit(
     let midday = Date::new(date.year, date.month, date.day.trunc() + 0.5);
     let mut prev_jd = JD::from_date(midday);
 
-    // SS:Moon's horizontal parallax
-    let parallax = moon::parallax::horizontal_parallax(prev_jd, Degrees::new(0.0));
-
-    // SS: Moon's topocentric semidiameter
-    let longitude = geocentric_longitude(prev_jd);
-    let latitude = geocentric_latitude(prev_jd);
-    let eps = ecliptic::true_obliquity(prev_jd);
-    let (ra, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
-    let theta0 = earth::apparent_siderial_time(prev_jd);
-    let theta = earth::local_siderial_time(theta0, longitude_observer);
-    let hour_angle = (theta - ra).map_neg180_to_180();
-    let semidiameter = moon::semidiameter::topocentric_semidiameter(
+    let target_altitude = target_altitude(
         prev_jd,
-        hour_angle,
-        decl,
+        Degrees::new(0.0),
+        longitude_observer,
         latitude_observer,
-        0.0,
+        pressure,
+        temperature,
     );
-
-    let target_altitude_radians = Radians::from(-parallax - semidiameter);
-    let sin_h0 = target_altitude_radians.0.sin();
-
-    let h0 = Degrees::from(Radians::new(sin_h0.asin()));
+    let sin_h0 = Radians::from(target_altitude).0.sin();
 
     // SS: if time change is less than a minute, we are done with iteration
     let delta_t_threshold = 1.0 / 60.0;
@@ -207,34 +222,31 @@ mod tests {
         let longitude_observer = Degrees::new(-11.6);
 
         let latitude_observer = Degrees::new(48.1);
-        let target_altitude = Degrees::new(constants::MOON_SET_HEIGHT);
 
         // Act
-        let k = rise(
-            date,
-            longitude_observer,
-            latitude_observer,
-            target_altitude,
-            1013.0,
-            10.0,
-        );
+        match rise(date, longitude_observer, latitude_observer, 1013.0, 10.0) {
+            OutputKind::Time(jd) => {
+                let date = jd.to_calendar_date();
+                let (h, m, s) = Date::from_fract_day(date.day);
+                println!(
+                    "Date: {}/{}/{} {}:{}:{:.2}",
+                    date.year,
+                    date.month,
+                    date.day.trunc() as u8,
+                    h,
+                    m,
+                    s
+                );
 
-        if let OutputKind::Time(jd) = k {
-            let date = jd.to_calendar_date();
-            let (h, m, s) = Date::from_fract_day(date.day);
-            println!(
-                "Date: {}/{}/{} {}:{}:{:.2}",
-                date.year,
-                date.month,
-                date.day.trunc() as u8,
-                h,
-                m,
-                s
-            );
+                // Assert
+                let rise_date = Date::from_date_hms(2000, 3, 23, 21, 12, 13.0);
+                let rise_date_jd = JD::from_date(rise_date);
+                assert_approx_eq!(rise_date_jd.jd, jd.jd, 0.001)
+            }
+
+            OutputKind::NeverRises => {}
+
+            OutputKind::NeverSets => {}
         }
-
-        // Assert
-
-        //        assert_approx_eq!(-180.0 + (d.0 - 180.0), angle.0, 0.000_001)
     }
 }
