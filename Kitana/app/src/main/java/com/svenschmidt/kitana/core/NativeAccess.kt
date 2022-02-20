@@ -3,11 +3,12 @@ package com.svenschmidt.kitana.core
 class NativeAccess {
 
     data class DateTime(
-        var year: Int = 0,
-        var month: Int = 0,
-        var day: Int = 0,
-        var hours: Int = 0,
-        var minutes: Int = 0,
+        var isValid: Boolean = false,
+        var year: Short = 0,
+        var month: Short = 0,
+        var day: Short = 0,
+        var hours: Short = 0,
+        var minutes: Short = 0,
         var seconds: Double = 0.0,
     )
 
@@ -24,6 +25,8 @@ class NativeAccess {
         var azimuth: Double = 0.0,
         var altitude: Double = 0.0,
         var riseTime: DateTime = DateTime(),
+        var setTime: DateTime = DateTime(),
+        var transitTime: DateTime = DateTime(),
     )
 
     data class MoonInputData(

@@ -7,7 +7,7 @@ use crate::refraction::refraction_for_true_altitude;
 use crate::util::arcsec::ArcSec;
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;
-use crate::{constants, coordinates, earth, ecliptic, moon};
+use crate::{constants, coordinates, earth, ecliptic, moon, time};
 
 pub(crate) enum OutputKind {
     Time(JD),
@@ -98,7 +98,7 @@ pub(crate) fn transit(
 /// Out:
 /// altitude, geocentric, at which the Moon's upper limb touches the observer's horizon,
 /// in degrees [-90, 90). Typically, < 1 deg
-fn target_altitude(
+pub(crate) fn target_altitude(
     jd: JD,
     altitude: Degrees,
     longitude_observer: Degrees,
