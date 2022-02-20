@@ -58,7 +58,7 @@ mod tests {
     use crate::date::date::Date;
     use crate::date::jd::JD;
     use crate::moon::position::{geocentric_latitude, geocentric_longitude};
-    use crate::{coordinates, ecliptic};
+    use crate::{coordinates, ecliptic, moon};
     use assert_approx_eq::assert_approx_eq;
 
     #[test]
@@ -79,15 +79,30 @@ mod tests {
         let (_, decl) = coordinates::ecliptical_2_equatorial(longitude, latitude, eps);
 
         // Act
-        let semidiameter_topocentric = topocentric_semidiameter(
+        let (d, m, s) = Degrees::from(topocentric_semidiameter(
             jd,
             Degrees::new(65.46),
             decl,
             latitude_observer,
             height_above_sea_level_observer,
-        );
+        )).to_dms();
+
+        // SS: calculated using Duffett-Smith, Peter and Zwart, Jonathan, Practical Astronomy with
+        // your Calculator or Spreadsheet, 4th edition, page 176
+        let theta0 = 0.5181;
+        let a = 384_401.0;
+        let distance = moon::position::distance_from_earth(jd);
+        let rho_prime = distance / a;
+        let (d2, m2, s2) = Degrees::new((theta0 / rho_prime) / 2.0).to_dms();
 
         // Assert
-        assert_approx_eq!(951.616, semidiameter_topocentric.0, 0.006);
+        assert_eq!(0, d);
+        assert_eq!(0, d2);
+
+        assert_eq!(15, m);
+        assert_eq!(15, m2);
+
+        assert_approx_eq!(51.611, s, 0.001);
+        assert_approx_eq!(49.2075, s2, 0.001);
     }
 }

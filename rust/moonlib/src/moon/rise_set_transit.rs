@@ -23,73 +23,81 @@ enum InputKind {
 
 /// Compute the time the moon rises
 /// In:
-/// date: Date to compute the rise time for
+/// date: Julian Day to compute the rise time for
+/// target_altitude: altitude of Moon above horizon, in degrees [-90, 90)
 /// longitude_observer: in degrees [-180, 180)
 /// latitude_observer: in degrees, [-90, 90)
-/// target_altitude: altitude of moon above horizon, in degrees [0, 90]
 pub(crate) fn rise(
-    date: Date,
+    jd: JD,
+    target_altitude: Degrees,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
-    pressure: f64,
-    temperature: f64,
 ) -> OutputKind {
     calculate_rise_set_transit(
         InputKind::Rise,
-        date,
+        jd,
+        target_altitude,
         longitude_observer,
         latitude_observer,
-        pressure,
-        temperature,
     )
 }
 
 /// Compute the time the moon sets
 /// In:
-/// date: Date to compute the set time for
+/// date: Julian Day to compute the rise time for
+/// target_altitude: altitude of Moon above horizon, in degrees [-90, 90)
 /// longitude_observer: in degrees [-180, 180)
 /// latitude_observer: in degrees, [-90, 90)
-/// target_altitude: altitude of moon above horizon, in degrees [0, 90]
 pub(crate) fn set(
-    date: Date,
+    jd: JD,
+    target_altitude: Degrees,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
-    pressure: f64,
-    temperature: f64,
 ) -> OutputKind {
     calculate_rise_set_transit(
         InputKind::Set,
-        date,
+        jd,
+        target_altitude,
         longitude_observer,
         latitude_observer,
-        pressure,
-        temperature,
     )
 }
 
 /// Compute the time the moon transits (i.e. is in the meridian)
 /// In:
-/// date: Date to compute the transit time for
+/// date: Julian Day to compute the rise time for
+/// target_altitude: altitude of Moon above horizon, in degrees [-90, 90)
 /// longitude_observer: in degrees [-180, 180)
 /// latitude_observer: in degrees, [-90, 90)
-/// target_altitude: altitude of moon above horizon, in degrees [0, 90]
 pub(crate) fn transit(
-    date: Date,
+    jd: JD,
+    target_altitude: Degrees,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
-    pressure: f64,
-    temperature: f64,
 ) -> OutputKind {
     calculate_rise_set_transit(
         InputKind::Transit,
-        date,
+        jd,
+        target_altitude,
         longitude_observer,
         latitude_observer,
-        pressure,
-        temperature,
     )
 }
 
+/// Compute the geocentric altitude of the Moon at rise/set.
+/// It is defined to the that height at which the Moon's upper
+/// limb touches the horizon.
+/// In:
+/// jd: Julian Day
+/// altitude: Altitude at which to calculate the horizontal parallax effect for
+/// (typically 0 deg)
+/// longitude_observer: Observer's longitude, in degrees [-180, 180)
+/// latitude_observer: Observer's latitude, in degrees [-90, 90)
+/// pressure: Atmospheric pressure, in milibars. For atmospheric refraction effect
+/// temperature: Ait temperature, in celsius. For atmospheric refraction effect
+/// Out:
+/// altitude, geocentric, at which the Moon's upper limb touches the observer's horizon,
+/// in degrees [-90, 90). Typically, < 1 deg
 fn target_altitude(
     jd: JD,
     altitude: Degrees,
@@ -125,28 +133,18 @@ fn target_altitude(
 
 fn calculate_rise_set_transit(
     kind: InputKind,
-    date: Date,
+    jd: JD,
+    target_altitude: Degrees,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
-    pressure: f64,
-    temperature: f64,
 ) -> OutputKind {
     let latitude_observer_radians = Radians::from(latitude_observer);
     let sin_latitude_observer = latitude_observer_radians.0.sin();
     let cos_latitude_observer = latitude_observer_radians.0.cos();
 
     // SS: initial time is noon
-    let midday = Date::new(date.year, date.month, date.day.trunc() + 0.5);
-    let mut prev_jd = JD::from_date(midday);
+    let mut prev_jd = jd;
 
-    let target_altitude = target_altitude(
-        prev_jd,
-        Degrees::new(0.0),
-        longitude_observer,
-        latitude_observer,
-        pressure,
-        temperature,
-    );
     let sin_h0 = Radians::from(target_altitude).0.sin();
 
     // SS: if time change is less than a minute, we are done with iteration
@@ -217,14 +215,24 @@ mod tests {
     #[test]
     fn rise_test_1() {
         // Arrange
-        let date = Date::new(2000, 3, 23.0);
+        let date = Date::new(2000, 3, 23.5);
+        let jd = JD::from_date(date);
 
         // SS: Munich, 11.6 deg east from Greenwich meridian
         let longitude_observer = Degrees::new(-11.6);
         let latitude_observer = Degrees::new(48.1);
 
+        let target_altitude = target_altitude(
+            jd,
+            Degrees::new(0.0),
+            longitude_observer,
+            latitude_observer,
+            1013.0,
+            10.0,
+        );
+
         // Act
-        match rise(date, longitude_observer, latitude_observer, 1013.0, 10.0) {
+        match rise(jd, target_altitude, longitude_observer, latitude_observer) {
             OutputKind::Time(jd) => {
                 let date = jd.to_calendar_date();
                 let (h, m, s) = Date::from_fract_day(date.day);
@@ -257,14 +265,24 @@ mod tests {
     #[test]
     fn rise_test_2() {
         // Arrange
-        let date = Date::new(2000, 4, 22.0);
+        let date = Date::new(2000, 4, 22.5);
+        let jd = JD::from_date(date);
 
         // SS: Munich, 11.6 deg east from Greenwich meridian
         let longitude_observer = Degrees::new(-11.6);
         let latitude_observer = Degrees::new(48.1);
 
+        let target_altitude = target_altitude(
+            jd,
+            Degrees::new(0.0),
+            longitude_observer,
+            latitude_observer,
+            1013.0,
+            10.0,
+        );
+
         // Act
-        match rise(date, longitude_observer, latitude_observer, 1013.0, 10.0) {
+        match rise(jd, target_altitude, longitude_observer, latitude_observer) {
             OutputKind::Time(jd) => {
                 let date = jd.to_calendar_date();
                 let (h, m, s) = Date::from_fract_day(date.day);
@@ -294,14 +312,24 @@ mod tests {
     #[test]
     fn set_test_1() {
         // Arrange
-        let date = Date::new(2000, 3, 23.0);
+        let date = Date::new(2000, 3, 23.5);
+        let jd = JD::from_date(date);
 
         // SS: Munich, 11.6 deg east from Greenwich meridian
         let longitude_observer = Degrees::new(-11.6);
         let latitude_observer = Degrees::new(48.1);
 
+        let target_altitude = target_altitude(
+            jd,
+            Degrees::new(0.0),
+            longitude_observer,
+            latitude_observer,
+            1013.0,
+            10.0,
+        );
+
         // Act
-        match set(date, longitude_observer, latitude_observer, 1013.0, 10.0) {
+        match set(jd, target_altitude, longitude_observer, latitude_observer) {
             OutputKind::Time(jd) => {
                 let date = jd.to_calendar_date();
                 let (h, m, s) = Date::from_fract_day(date.day);
@@ -334,14 +362,24 @@ mod tests {
     #[test]
     fn transit_test_1() {
         // Arrange
-        let date = Date::new(2000, 3, 23.0);
+        let date = Date::new(2000, 3, 23.5);
+        let jd = JD::from_date(date);
 
         // SS: Munich, 11.6 deg east from Greenwich meridian
         let longitude_observer = Degrees::new(-11.6);
         let latitude_observer = Degrees::new(48.1);
 
+        let target_altitude = target_altitude(
+            jd,
+            Degrees::new(0.0),
+            longitude_observer,
+            latitude_observer,
+            1013.0,
+            10.0,
+        );
+
         // Act
-        match transit(date, longitude_observer, latitude_observer, 1013.0, 10.0) {
+        match transit(jd, target_altitude, longitude_observer, latitude_observer) {
             OutputKind::Time(jd) => {
                 let date = jd.to_calendar_date();
                 let (h, m, s) = Date::from_fract_day(date.day);
