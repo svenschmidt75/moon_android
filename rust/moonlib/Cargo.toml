@@ -11,7 +11,9 @@ assert_approx_eq = "1.1.0"
 
 [target.'cfg(target_os="android")'.dependencies]
 jni = { version = "0.19", default-features = false }
+android_logger = "0.10.1"
+log = "0.4.14"
 
 # SS: Rust doesn't like building exes linking to dylibs
-#[lib]
-#crate-type = ["dylib"]
+[lib]
+crate-type = ["dylib"]

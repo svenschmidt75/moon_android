@@ -2,6 +2,15 @@ package com.svenschmidt.kitana.core
 
 class NativeAccess {
 
+    data class DateTime(
+        var year: Int = 0,
+        var month: Int = 0,
+        var day: Int = 0,
+        var hours: Int = 0,
+        var minutes: Int = 0,
+        var seconds: Double = 0.0,
+    )
+
     data class MoonOutputData(
         var phaseAngle: Double = 0.0,
         var illuminatedFraction: Double = 0.0,
@@ -13,7 +22,8 @@ class NativeAccess {
         var rightAscension: Double = 0.0,
         var declination: Double = 0.0,
         var azimuth: Double = 0.0,
-        var altitude: Double = 0.0
+        var altitude: Double = 0.0,
+        var riseTime: DateTime = DateTime(),
     )
 
     data class MoonInputData(

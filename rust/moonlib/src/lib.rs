@@ -11,19 +11,25 @@ mod sun;
 pub mod time;
 mod util;
 
+#[macro_use] extern crate log;
+
 /// Expose the JNI interface for android below
 #[cfg(target_os = "android")]
 #[allow(non_snake_case)]
 pub mod android {
     extern crate jni;
+    extern crate android_logger;
 
     use crate::date::{date::Date, jd::JD};
     use crate::util::degrees::Degrees;
     use crate::*;
 
-    use self::jni::objects::{JClass, JString};
+    use self::jni::objects::{JClass, JString, JObject};
     use self::jni::sys::{jbyte, jdouble, jint, jobject, jstring};
     use self::jni::JNIEnv;
+
+    use log::Level;
+    use android_logger::Config;
 
     /*
      * Julian Day
@@ -224,6 +230,25 @@ pub mod android {
             self::jni::objects::JValue::Double(hour_angle.0),
         )
         .unwrap();
+
+        android_logger::init_once(
+            Config::default().with_min_level(Level::Trace));
+
+        trace!("this is a verbose {}", "message");
+        error!("this is printed by default");
+
+        // SS: rise/transit/set times
+        let rise_date_time: JObject = env.get_field(moon_output_data, "riseTime", "Lcom/svenschmidt/kitana/core/NativeAccess/DateTime;").unwrap().l().unwrap();
+        env.set_field(
+            rise_date_time,
+            "year",
+            "I",
+            self::jni::objects::JValue::Int(11),
+        )
+            .unwrap();
+
+//        throw();
+
     }
 
     #[no_mangle]
