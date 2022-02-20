@@ -223,6 +223,7 @@ mod tests {
     use assert_approx_eq::assert_approx_eq;
 
     use crate::date::date::Date;
+    use crate::time;
 
     use super::*;
 
@@ -303,6 +304,57 @@ mod tests {
             assert!(true);
         } else {
             assert!(false);
+        }
+    }
+
+    #[test]
+    fn rise_with_dynamical_time_test_1() {
+        // Arrange
+        let date = Date::new(2000, 3, 23.5);
+        let jd = JD::from_date(date);
+        let tt = time::utc_2_tt(jd);
+
+        // SS: Munich, 11.6 deg east from Greenwich meridian
+        let longitude_observer = Degrees::new(-11.6);
+        let latitude_observer = Degrees::new(48.1);
+
+        let target_altitude = target_altitude(
+            tt,
+            Degrees::new(0.0),
+            longitude_observer,
+            latitude_observer,
+            1013.0,
+            10.0,
+        );
+
+        // Act
+        match rise(tt, target_altitude, longitude_observer, latitude_observer) {
+            OutputKind::Time(jd) => {
+                let date = jd.to_calendar_date();
+                let (h, m, s) = Date::from_fract_day(date.day);
+                println!(
+                    "Date: {}/{}/{} {}:{}:{:.2}",
+                    date.year,
+                    date.month,
+                    date.day.trunc() as u8,
+                    h,
+                    m,
+                    s
+                );
+
+                // Assert
+                let rise_date = Date::from_date_hms(2000, 3, 23, 21, 12, 13.0);
+                let rise_date_jd = JD::from_date(rise_date);
+                assert_approx_eq!(rise_date_jd.jd, jd.jd, 0.001)
+            }
+
+            OutputKind::NeverRises => {
+                unreachable!()
+            }
+
+            OutputKind::NeverSets => {
+                unreachable!()
+            }
         }
     }
 

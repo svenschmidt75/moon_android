@@ -190,8 +190,8 @@ fn delta_t(jd: JD) -> f64 {
 
 /// Convert UTC to TT
 /// In: Julian Day, in UTC
-/// Out: TT, in seconds
-fn utc_2_tt(jd: JD) -> JD {
+/// Out: TT, in days
+pub(crate) fn utc_2_tt(jd: JD) -> JD {
     // SS: If the date falls outside the range we have leap second data for, we
     // interpret the input date in UT1 rather than UTC. Same as PJ Naughter
     if jd.jd < LEAP_SECOND_DATA[0].jd || jd.jd > LEAP_SECOND_DATA.last().unwrap().jd {
