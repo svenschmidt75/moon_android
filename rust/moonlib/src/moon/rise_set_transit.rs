@@ -7,7 +7,7 @@ use crate::refraction::refraction_for_true_altitude;
 use crate::util::arcsec::ArcSec;
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;
-use crate::{constants, coordinates, earth, ecliptic, moon, time};
+use crate::{constants, coordinates, earth, ecliptic, moon};
 
 pub(crate) enum OutputKind {
     Time(JD),

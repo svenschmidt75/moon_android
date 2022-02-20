@@ -15,5 +15,5 @@ android_logger = "0.10.1"
 log = "0.4.14"
 
 # SS: Rust doesn't like building exes linking to dylibs
-[lib]
-crate-type = ["dylib"]
+#[lib]
+#crate-type = ["dylib"]

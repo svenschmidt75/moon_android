@@ -11,26 +11,23 @@ mod sun;
 pub mod time;
 mod util;
 
-#[cfg(target_os = "android")]
-#[macro_use] extern crate log;
-
 /// Expose the JNI interface for android below
 #[cfg(target_os = "android")]
 #[allow(non_snake_case)]
 pub mod android {
-    extern crate jni;
     extern crate android_logger;
+    extern crate jni;
 
     use crate::date::{date::Date, jd::JD};
     use crate::util::degrees::Degrees;
     use crate::*;
 
-    use self::jni::objects::{JClass, JString, JObject, JValue};
+    use self::jni::objects::{JClass, JString};
     use self::jni::sys::{jbyte, jdouble, jint, jobject, jstring};
     use self::jni::JNIEnv;
 
-    use log::Level;
     use android_logger::Config;
+    use log::{debug, Level};
 
     /*
      * Julian Day
@@ -38,7 +35,7 @@ pub mod android {
 
     #[no_mangle]
     pub extern "system" fn Java_com_svenschmidt_kitana_core_NativeAccess_00024Companion_rust_1julian_1day(
-        env: JNIEnv,
+        _env: JNIEnv,
         _: JClass,
         year: jint,
         month: jint,
@@ -50,7 +47,7 @@ pub mod android {
 
     #[no_mangle]
     pub extern "system" fn Java_com_svenschmidt_kitana_core_NativeAccess_00024Companion_rust_1local_1siderial_1time(
-        env: JNIEnv,
+        _env: JNIEnv,
         _: JClass,
         jd_value: jdouble,
         longitude_observer: jdouble,
@@ -247,71 +244,101 @@ pub mod android {
             temperature,
         );
 
-        let rise_date_time = env.get_field(moon_output_data, "riseTime", "Lcom/svenschmidt/kitana/core/NativeAccess$DateTime;").unwrap().l().unwrap();
+        debug!("Calculating Moon's rise time");
+        let rise_date_time = env
+            .get_field(
+                moon_output_data,
+                "riseTime",
+                "Lcom/svenschmidt/kitana/core/NativeAccess$DateTime;",
+            )
+            .unwrap()
+            .l()
+            .unwrap();
 
-        match moon::rise_set_transit::rise(tt, target_altitude, longitude_observer, latitude_observer) {
+        match moon::rise_set_transit::rise(
+            tt,
+            target_altitude,
+            longitude_observer,
+            latitude_observer,
+        ) {
             moon::rise_set_transit::OutputKind::Time(jd) => {
                 let date = jd.to_calendar_date();
                 let (h, m, s) = Date::from_fract_day(date.day);
+
+                debug!(
+                    "Moon rises on {}/{}/{} at {h}:{m}:{s}",
+                    date.year,
+                    date.month,
+                    date.day.trunc() as u8
+                );
 
                 env.set_field(
                     rise_date_time,
                     "isValid",
                     "Z",
                     self::jni::objects::JValue::Bool(1),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     rise_date_time,
                     "year",
                     "S",
                     self::jni::objects::JValue::Short(date.year),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     rise_date_time,
                     "month",
                     "S",
                     self::jni::objects::JValue::Short(date.month as i16),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     rise_date_time,
                     "day",
                     "S",
                     self::jni::objects::JValue::Short(date.day.trunc() as i16),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     rise_date_time,
                     "hours",
                     "S",
                     self::jni::objects::JValue::Short(h as i16),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     rise_date_time,
                     "minutes",
                     "S",
                     self::jni::objects::JValue::Short(m as i16),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     rise_date_time,
                     "seconds",
                     "D",
                     self::jni::objects::JValue::Double(s),
-                );
-
+                )
+                .unwrap();
             }
 
             moon::rise_set_transit::OutputKind::NeverRises => {
+                debug!("Moon doesn't rise");
+
                 env.set_field(
                     rise_date_time,
                     "isValid",
                     "Z",
                     self::jni::objects::JValue::Bool(0),
-                );
+                )
+                .unwrap();
             }
 
             moon::rise_set_transit::OutputKind::NeverSets => {
@@ -320,66 +347,94 @@ pub mod android {
                     "isValid",
                     "Z",
                     self::jni::objects::JValue::Bool(0),
-                );
+                )
+                .unwrap();
             }
         }
 
-        let set_date_time = env.get_field(moon_output_data, "setTime", "Lcom/svenschmidt/kitana/core/NativeAccess$DateTime;").unwrap().l().unwrap();
+        debug!("Calculating Moon's set time");
+        let set_date_time = env
+            .get_field(
+                moon_output_data,
+                "setTime",
+                "Lcom/svenschmidt/kitana/core/NativeAccess$DateTime;",
+            )
+            .unwrap()
+            .l()
+            .unwrap();
 
-        match moon::rise_set_transit::set(tt, target_altitude, longitude_observer, latitude_observer) {
+        match moon::rise_set_transit::set(
+            tt,
+            target_altitude,
+            longitude_observer,
+            latitude_observer,
+        ) {
             moon::rise_set_transit::OutputKind::Time(jd) => {
                 let date = jd.to_calendar_date();
                 let (h, m, s) = Date::from_fract_day(date.day);
+
+                debug!(
+                    "Moon sets on {}/{}/{} at {h}:{m}:{s}",
+                    date.year,
+                    date.month,
+                    date.day.trunc() as u8
+                );
 
                 env.set_field(
                     set_date_time,
                     "isValid",
                     "Z",
                     self::jni::objects::JValue::Bool(1),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     set_date_time,
                     "year",
                     "S",
                     self::jni::objects::JValue::Short(date.year),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     set_date_time,
                     "month",
                     "S",
                     self::jni::objects::JValue::Short(date.month as i16),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     set_date_time,
                     "day",
                     "S",
                     self::jni::objects::JValue::Short(date.day.trunc() as i16),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     set_date_time,
                     "hours",
                     "S",
                     self::jni::objects::JValue::Short(h as i16),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     set_date_time,
                     "minutes",
                     "S",
                     self::jni::objects::JValue::Short(m as i16),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     set_date_time,
                     "seconds",
                     "D",
                     self::jni::objects::JValue::Double(s),
-                );
-
+                )
+                .unwrap();
             }
 
             moon::rise_set_transit::OutputKind::NeverRises => {
@@ -388,75 +443,106 @@ pub mod android {
                     "isValid",
                     "Z",
                     self::jni::objects::JValue::Bool(0),
-                );
+                )
+                .unwrap();
             }
 
             moon::rise_set_transit::OutputKind::NeverSets => {
+                debug!("Moon doesn't set");
+
                 env.set_field(
                     set_date_time,
                     "isValid",
                     "Z",
                     self::jni::objects::JValue::Bool(0),
-                );
+                )
+                .unwrap();
             }
         }
 
-        let transit_date_time = env.get_field(moon_output_data, "transitTime", "Lcom/svenschmidt/kitana/core/NativeAccess$DateTime;").unwrap().l().unwrap();
+        debug!("Calculating Moon's transit time");
+        let transit_date_time = env
+            .get_field(
+                moon_output_data,
+                "transitTime",
+                "Lcom/svenschmidt/kitana/core/NativeAccess$DateTime;",
+            )
+            .unwrap()
+            .l()
+            .unwrap();
 
-        match moon::rise_set_transit::transit(tt, target_altitude, longitude_observer, latitude_observer) {
+        match moon::rise_set_transit::transit(
+            tt,
+            target_altitude,
+            longitude_observer,
+            latitude_observer,
+        ) {
             moon::rise_set_transit::OutputKind::Time(jd) => {
                 let date = jd.to_calendar_date();
                 let (h, m, s) = Date::from_fract_day(date.day);
+
+                debug!(
+                    "Moon transits on {}/{}/{} at {h}:{m}:{s}",
+                    date.year,
+                    date.month,
+                    date.day.trunc() as u8
+                );
 
                 env.set_field(
                     transit_date_time,
                     "isValid",
                     "Z",
                     self::jni::objects::JValue::Bool(1),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     transit_date_time,
                     "year",
                     "S",
                     self::jni::objects::JValue::Short(date.year),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     transit_date_time,
                     "month",
                     "S",
                     self::jni::objects::JValue::Short(date.month as i16),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     transit_date_time,
                     "day",
                     "S",
                     self::jni::objects::JValue::Short(date.day.trunc() as i16),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     transit_date_time,
                     "hours",
                     "S",
                     self::jni::objects::JValue::Short(h as i16),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     transit_date_time,
                     "minutes",
                     "S",
                     self::jni::objects::JValue::Short(m as i16),
-                );
+                )
+                .unwrap();
 
                 env.set_field(
                     transit_date_time,
                     "seconds",
                     "D",
                     self::jni::objects::JValue::Double(s),
-                );
-
+                )
+                .unwrap();
             }
 
             moon::rise_set_transit::OutputKind::NeverRises => {
@@ -465,7 +551,8 @@ pub mod android {
                     "isValid",
                     "Z",
                     self::jni::objects::JValue::Bool(0),
-                );
+                )
+                .unwrap();
             }
 
             moon::rise_set_transit::OutputKind::NeverSets => {
@@ -474,10 +561,10 @@ pub mod android {
                     "isValid",
                     "Z",
                     self::jni::objects::JValue::Bool(0),
-                );
+                )
+                .unwrap();
             }
         }
-
     }
 
     #[no_mangle]
