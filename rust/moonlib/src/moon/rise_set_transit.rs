@@ -1,5 +1,6 @@
 //! Calculate rise, set and transit times for the moon
 
+use crate::{constants, coordinates, earth, ecliptic, moon};
 use crate::date::date::Date;
 use crate::date::jd::JD;
 use crate::moon::position::{geocentric_latitude, geocentric_longitude};
@@ -7,7 +8,6 @@ use crate::refraction::refraction_for_true_altitude;
 use crate::util::arcsec::ArcSec;
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;
-use crate::{constants, coordinates, earth, ecliptic, moon};
 
 pub(crate) enum OutputKind {
     Time(JD),
@@ -95,7 +95,6 @@ fn target_altitude(
     altitude: Degrees,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
-
     pressure: f64,
     temperature: f64,
 ) -> Degrees {
@@ -209,9 +208,11 @@ fn calculate_rise_set_transit(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::date::date::Date;
     use assert_approx_eq::assert_approx_eq;
+
+    use crate::date::date::Date;
+
+    use super::*;
 
     #[test]
     fn rise_test_1() {
@@ -220,7 +221,6 @@ mod tests {
 
         // SS: Munich, 11.6 deg east from Greenwich meridian
         let longitude_observer = Degrees::new(-11.6);
-
         let latitude_observer = Degrees::new(48.1);
 
         // Act
@@ -244,9 +244,130 @@ mod tests {
                 assert_approx_eq!(rise_date_jd.jd, jd.jd, 0.001)
             }
 
-            OutputKind::NeverRises => {}
+            OutputKind::NeverRises => {
+                unreachable!()
+            }
 
-            OutputKind::NeverSets => {}
+            OutputKind::NeverSets => {
+                unreachable!()
+            }
+        }
+    }
+
+    #[test]
+    fn rise_test_2() {
+        // Arrange
+        let date = Date::new(2000, 4, 22.0);
+
+        // SS: Munich, 11.6 deg east from Greenwich meridian
+        let longitude_observer = Degrees::new(-11.6);
+        let latitude_observer = Degrees::new(48.1);
+
+        // Act
+        match rise(date, longitude_observer, latitude_observer, 1013.0, 10.0) {
+            OutputKind::Time(jd) => {
+                let date = jd.to_calendar_date();
+                let (h, m, s) = Date::from_fract_day(date.day);
+                println!(
+                    "Date: {}/{}/{} {}:{}:{:.2}",
+                    date.year,
+                    date.month,
+                    date.day.trunc() as u8,
+                    h,
+                    m,
+                    s
+                );
+
+                unreachable!()
+            }
+
+            OutputKind::NeverRises => {
+                unreachable!()
+            }
+
+            OutputKind::NeverSets => {
+                unreachable!()
+            }
+        }
+    }
+
+    #[test]
+    fn set_test_1() {
+        // Arrange
+        let date = Date::new(2000, 3, 23.0);
+
+        // SS: Munich, 11.6 deg east from Greenwich meridian
+        let longitude_observer = Degrees::new(-11.6);
+        let latitude_observer = Degrees::new(48.1);
+
+        // Act
+        match set(date, longitude_observer, latitude_observer, 1013.0, 10.0) {
+            OutputKind::Time(jd) => {
+                let date = jd.to_calendar_date();
+                let (h, m, s) = Date::from_fract_day(date.day);
+                println!(
+                    "Date: {}/{}/{} {}:{}:{:.2}",
+                    date.year,
+                    date.month,
+                    date.day.trunc() as u8,
+                    h,
+                    m,
+                    s
+                );
+
+                // Assert
+                let set_date = Date::from_date_hms(2000, 3, 23, 7, 1, 3.0);
+                let set_date_jd = JD::from_date(set_date);
+                assert_approx_eq!(set_date_jd.jd, jd.jd, 0.001)
+            }
+
+            OutputKind::NeverRises => {
+                unreachable!()
+            }
+
+            OutputKind::NeverSets => {
+                unreachable!()
+            }
+        }
+    }
+
+    #[test]
+    fn transit_test_1() {
+        // Arrange
+        let date = Date::new(2000, 3, 23.0);
+
+        // SS: Munich, 11.6 deg east from Greenwich meridian
+        let longitude_observer = Degrees::new(-11.6);
+        let latitude_observer = Degrees::new(48.1);
+
+        // Act
+        match transit(date, longitude_observer, latitude_observer, 1013.0, 10.0) {
+            OutputKind::Time(jd) => {
+                let date = jd.to_calendar_date();
+                let (h, m, s) = Date::from_fract_day(date.day);
+                println!(
+                    "Date: {}/{}/{} {}:{}:{:.2}",
+                    date.year,
+                    date.month,
+                    date.day.trunc() as u8,
+                    h,
+                    m,
+                    s
+                );
+
+                // Assert
+                let transit_date = Date::from_date_hms(2000, 3, 23, 1, 38, 1.0);
+                let transit_date_jd = JD::from_date(transit_date);
+                assert_approx_eq!(transit_date_jd.jd, jd.jd, 0.001)
+            }
+
+            OutputKind::NeverRises => {
+                unreachable!()
+            }
+
+            OutputKind::NeverSets => {
+                unreachable!()
+            }
         }
     }
 }
