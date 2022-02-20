@@ -85,7 +85,8 @@ mod tests {
             decl,
             latitude_observer,
             height_above_sea_level_observer,
-        )).to_dms();
+        ))
+        .to_dms();
 
         // SS: calculated using Duffett-Smith, Peter and Zwart, Jonathan, Practical Astronomy with
         // your Calculator or Spreadsheet, 4th edition, page 176

@@ -1,6 +1,5 @@
 //! Calculate rise, set and transit times for the moon
 
-use crate::{constants, coordinates, earth, ecliptic, moon};
 use crate::date::date::Date;
 use crate::date::jd::JD;
 use crate::moon::position::{geocentric_latitude, geocentric_longitude};
@@ -8,6 +7,7 @@ use crate::refraction::refraction_for_true_altitude;
 use crate::util::arcsec::ArcSec;
 use crate::util::degrees::Degrees;
 use crate::util::radians::Radians;
+use crate::{constants, coordinates, earth, ecliptic, moon};
 
 pub(crate) enum OutputKind {
     Time(JD),
@@ -201,7 +201,21 @@ fn calculate_rise_set_transit(
         iter += 1;
     }
 
-    OutputKind::Time(prev_jd)
+    // SS: check whether we have the correct day
+    let initial_date = Date::from(jd);
+    let date = Date::from(prev_jd);
+
+    if initial_date.day.trunc() == date.day.trunc() {
+        OutputKind::Time(prev_jd)
+    } else {
+        match kind {
+            InputKind::Rise => OutputKind::NeverRises,
+            InputKind::Set => OutputKind::NeverSets,
+            InputKind::Transit => {
+                unreachable!()
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -265,12 +279,12 @@ mod tests {
     #[test]
     fn rise_test_2() {
         // Arrange
-        let date = Date::new(2000, 4, 22.5);
+        let date = Date::new(2000, 3, 25.5);
         let jd = JD::from_date(date);
 
-        // SS: Munich, 11.6 deg east from Greenwich meridian
-        let longitude_observer = Degrees::new(-11.6);
-        let latitude_observer = Degrees::new(48.1);
+        // SS: London, 0 deg, on Greenwich meridian
+        let longitude_observer = Degrees::from_dms(0, 6, 3.2);
+        let latitude_observer = Degrees::from_dms(51, 31, 54.8);
 
         let target_altitude = target_altitude(
             jd,
@@ -282,30 +296,13 @@ mod tests {
         );
 
         // Act
-        match rise(jd, target_altitude, longitude_observer, latitude_observer) {
-            OutputKind::Time(jd) => {
-                let date = jd.to_calendar_date();
-                let (h, m, s) = Date::from_fract_day(date.day);
-                println!(
-                    "Date: {}/{}/{} {}:{}:{:.2}",
-                    date.year,
-                    date.month,
-                    date.day.trunc() as u8,
-                    h,
-                    m,
-                    s
-                );
-
-                unreachable!()
-            }
-
-            OutputKind::NeverRises => {
-                unreachable!()
-            }
-
-            OutputKind::NeverSets => {
-                unreachable!()
-            }
+        if let OutputKind::NeverRises =
+            rise(jd, target_altitude, longitude_observer, latitude_observer)
+        {
+            // SS: The Moon does not rise in London on that day
+            assert!(true);
+        } else {
+            assert!(false);
         }
     }
 
@@ -356,6 +353,36 @@ mod tests {
             OutputKind::NeverSets => {
                 unreachable!()
             }
+        }
+    }
+
+    #[test]
+    fn set_test_2() {
+        // Arrange
+        let date = Date::new(2000, 4, 9.5);
+        let jd = JD::from_date(date);
+
+        // SS: London, 0 deg, on Greenwich meridian
+        let longitude_observer = Degrees::from_dms(0, 6, 3.2);
+        let latitude_observer = Degrees::from_dms(51, 31, 54.8);
+
+        let target_altitude = target_altitude(
+            jd,
+            Degrees::new(0.0),
+            longitude_observer,
+            latitude_observer,
+            1013.0,
+            10.0,
+        );
+
+        // Act
+        if let OutputKind::NeverSets =
+            set(jd, target_altitude, longitude_observer, latitude_observer)
+        {
+            // SS: The Moon does not rise in London on that day
+            assert!(true);
+        } else {
+            assert!(false);
         }
     }
 
