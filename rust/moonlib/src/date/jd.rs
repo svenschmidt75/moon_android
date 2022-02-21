@@ -2,7 +2,7 @@
 use crate::constants;
 use crate::date::date::Date;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
 pub struct JD {
     pub jd: f64,
 }

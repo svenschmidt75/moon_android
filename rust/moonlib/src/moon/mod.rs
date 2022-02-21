@@ -1,3 +1,4 @@
+pub(crate) mod jni_bridge;
 pub mod parallax;
 pub mod phase;
 pub mod position;

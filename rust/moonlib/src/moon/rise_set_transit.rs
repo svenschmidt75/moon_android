@@ -24,11 +24,13 @@ enum InputKind {
 /// Compute the time the moon rises
 /// In:
 /// date: Julian Day to compute the rise time for
+/// timezone_offset: Observer's time zone offset
 /// target_altitude: altitude of Moon above horizon, in degrees [-90, 90)
 /// longitude_observer: in degrees [-180, 180)
 /// latitude_observer: in degrees, [-90, 90)
 pub(crate) fn rise(
     jd: JD,
+    timezone_offset: i8,
     target_altitude: Degrees,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
@@ -36,6 +38,7 @@ pub(crate) fn rise(
     calculate_rise_set_transit(
         InputKind::Rise,
         jd,
+        timezone_offset,
         target_altitude,
         longitude_observer,
         latitude_observer,
@@ -45,11 +48,13 @@ pub(crate) fn rise(
 /// Compute the time the moon sets
 /// In:
 /// date: Julian Day to compute the rise time for
+/// timezone_offset: Observer's time zone offset
 /// target_altitude: altitude of Moon above horizon, in degrees [-90, 90)
 /// longitude_observer: in degrees [-180, 180)
 /// latitude_observer: in degrees, [-90, 90)
 pub(crate) fn set(
     jd: JD,
+    timezone_offset: i8,
     target_altitude: Degrees,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
@@ -57,6 +62,7 @@ pub(crate) fn set(
     calculate_rise_set_transit(
         InputKind::Set,
         jd,
+        timezone_offset,
         target_altitude,
         longitude_observer,
         latitude_observer,
@@ -66,11 +72,13 @@ pub(crate) fn set(
 /// Compute the time the moon transits (i.e. is in the meridian)
 /// In:
 /// date: Julian Day to compute the rise time for
+/// timezone_offset: Observer's time zone offset
 /// target_altitude: altitude of Moon above horizon, in degrees [-90, 90)
 /// longitude_observer: in degrees [-180, 180)
 /// latitude_observer: in degrees, [-90, 90)
 pub(crate) fn transit(
     jd: JD,
+    timezone_offset: i8,
     target_altitude: Degrees,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
@@ -78,6 +86,7 @@ pub(crate) fn transit(
     calculate_rise_set_transit(
         InputKind::Transit,
         jd,
+        timezone_offset,
         target_altitude,
         longitude_observer,
         latitude_observer,
@@ -134,6 +143,7 @@ pub(crate) fn target_altitude(
 fn calculate_rise_set_transit(
     kind: InputKind,
     jd: JD,
+    timezone_offset: i8,
     target_altitude: Degrees,
     longitude_observer: Degrees,
     latitude_observer: Degrees,
@@ -142,8 +152,8 @@ fn calculate_rise_set_transit(
     let sin_latitude_observer = latitude_observer_radians.0.sin();
     let cos_latitude_observer = latitude_observer_radians.0.cos();
 
-    // SS: initial time is noon
-    let mut prev_jd = jd;
+    // SS: bound time based on observer's timezone offset
+    let (jd_min, mut prev_jd, jd_max) = bound_julian_day(jd, timezone_offset);
 
     let sin_h0 = Radians::from(target_altitude).0.sin();
 
@@ -202,10 +212,7 @@ fn calculate_rise_set_transit(
     }
 
     // SS: check whether we have the correct day
-    let initial_date = Date::from(jd);
-    let date = Date::from(prev_jd);
-
-    if initial_date.day.trunc() == date.day.trunc() {
+    if prev_jd >= jd_min && prev_jd <= jd_max {
         OutputKind::Time(prev_jd)
     } else {
         match kind {
@@ -218,6 +225,34 @@ fn calculate_rise_set_transit(
     }
 }
 
+/// Calculate the min and max Julian Day the event has to be in
+/// to be on the same day as the observer due to local time zone
+/// offsets.
+/// In:
+/// jd: Julian Day to calculate the event for, in UTC
+/// timezone_offset: Observer's time zone offset
+fn bound_julian_day(jd: JD, timezone_offset: i8) -> (JD, JD, JD) {
+    // SS: calculate midday UTC for the event
+    let date = Date::from(jd);
+    let midday = Date::new(date.year, date.month, date.day.trunc() + 0.5);
+    let mut jd_midday = JD::from_date(midday);
+
+    // SS: We return events (rise, set, transit) in UTC, so the caller has to convert
+    // UTC to the local time by adding the timezone offset. Hence, here, we have to
+    // subtract it to shift the 24 hour day window accordingly.
+    jd_midday.add_hours(-timezone_offset as f64);
+
+    // SS: calculate midnight in local time zone expressed in UTC
+    let mut jd_min = jd_midday;
+    jd_min.add_hours(-12.0);
+
+    // SS: calculate midnight in local time zone expressed in UTC
+    let mut jd_max = jd_midday;
+    jd_max.add_hours(12.0);
+
+    (jd_min, jd_midday, jd_max)
+}
+
 #[cfg(test)]
 mod tests {
     use assert_approx_eq::assert_approx_eq;
@@ -226,6 +261,30 @@ mod tests {
     use crate::time;
 
     use super::*;
+
+    #[test]
+    fn timezone_offset_test_1() {
+        // Arrange
+        let date = Date::new(2022, 2, 21.0);
+        let jd = JD::from_date(date);
+        let timezone_offset = 1;
+
+        // Act
+        let (jd_min, jd_midday, jd_max) = bound_julian_day(jd, timezone_offset);
+
+        // Assert
+        let mut min = JD::from_date(date);
+        min.add_hours(-timezone_offset as f64);
+        assert_approx_eq!(min.jd, jd_min.jd, 0.001);
+
+        let mut mid = min;
+        mid.add_hours(12.0);
+        assert_approx_eq!(mid.jd, jd_midday.jd, 0.001);
+
+        let mut max = min;
+        max.add_hours(24.0);
+        assert_approx_eq!(max.jd, jd_max.jd, 0.001);
+    }
 
     #[test]
     fn rise_test_1() {
@@ -247,7 +306,13 @@ mod tests {
         );
 
         // Act
-        match rise(jd, target_altitude, longitude_observer, latitude_observer) {
+        match rise(
+            jd,
+            0,
+            target_altitude,
+            longitude_observer,
+            latitude_observer,
+        ) {
             OutputKind::Time(jd) => {
                 let date = jd.to_calendar_date();
                 let (h, m, s) = Date::from_fract_day(date.day);
@@ -297,13 +362,61 @@ mod tests {
         );
 
         // Act
-        if let OutputKind::NeverRises =
-            rise(jd, target_altitude, longitude_observer, latitude_observer)
-        {
+        if let OutputKind::NeverRises = rise(
+            jd,
+            0,
+            target_altitude,
+            longitude_observer,
+            latitude_observer,
+        ) {
             // SS: The Moon does not rise in London on that day
             assert!(true);
         } else {
             assert!(false);
+        }
+    }
+
+    #[test]
+    fn rise_with_timezone_offset_test_1() {
+        // Arrange
+        let date = Date::new(2000, 3, 25.0);
+        let jd = JD::from_date(date);
+
+        // SS: Munich, 11.6 deg east from Greenwich meridian
+        let longitude_observer = Degrees::new(-11.6);
+        let latitude_observer = Degrees::new(48.1);
+
+        let target_altitude = target_altitude(
+            jd,
+            Degrees::new(0.0),
+            longitude_observer,
+            latitude_observer,
+            1013.0,
+            10.0,
+        );
+
+        // SS: Munich time is MEZ, i.e. +1 GMT
+        let timezone_offset = 1;
+
+        // Act
+        match rise(
+            jd,
+            timezone_offset,
+            target_altitude,
+            longitude_observer,
+            latitude_observer,
+        ) {
+            OutputKind::Time(_) => {
+                unreachable!()
+            }
+
+            OutputKind::NeverRises => {
+                assert!(true);
+            }
+
+            OutputKind::NeverSets => {
+                unreachable!()
+            }
         }
     }
 
@@ -328,7 +441,13 @@ mod tests {
         );
 
         // Act
-        match rise(tt, target_altitude, longitude_observer, latitude_observer) {
+        match rise(
+            tt,
+            0,
+            target_altitude,
+            longitude_observer,
+            latitude_observer,
+        ) {
             OutputKind::Time(jd) => {
                 let date = jd.to_calendar_date();
                 let (h, m, s) = Date::from_fract_day(date.day);
@@ -378,7 +497,13 @@ mod tests {
         );
 
         // Act
-        match set(jd, target_altitude, longitude_observer, latitude_observer) {
+        match set(
+            jd,
+            0,
+            target_altitude,
+            longitude_observer,
+            latitude_observer,
+        ) {
             OutputKind::Time(jd) => {
                 let date = jd.to_calendar_date();
                 let (h, m, s) = Date::from_fract_day(date.day);
@@ -428,9 +553,13 @@ mod tests {
         );
 
         // Act
-        if let OutputKind::NeverSets =
-            set(jd, target_altitude, longitude_observer, latitude_observer)
-        {
+        if let OutputKind::NeverSets = set(
+            jd,
+            0,
+            target_altitude,
+            longitude_observer,
+            latitude_observer,
+        ) {
             // SS: The Moon does not rise in London on that day
             assert!(true);
         } else {
@@ -458,7 +587,13 @@ mod tests {
         );
 
         // Act
-        match transit(jd, target_altitude, longitude_observer, latitude_observer) {
+        match transit(
+            jd,
+            0,
+            target_altitude,
+            longitude_observer,
+            latitude_observer,
+        ) {
             OutputKind::Time(jd) => {
                 let date = jd.to_calendar_date();
                 let (h, m, s) = Date::from_fract_day(date.day);
