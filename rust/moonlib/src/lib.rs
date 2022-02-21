@@ -15,23 +15,22 @@ mod util;
 #[cfg(target_os = "android")]
 #[allow(non_snake_case)]
 pub mod android {
-    extern crate android_logger;
-    extern crate jni;
-
-    use crate::date::{date::Date, jd::JD};
-    use crate::util::degrees::Degrees;
-    use crate::*;
-
-    use self::jni::objects::{JClass, JString};
-    use self::jni::sys::{jbyte, jdouble, jint, jobject, jstring};
-    use self::jni::JNIEnv;
-
+    use android_logger;
     use android_logger::Config;
+    use jni;
     use log::{debug, Level};
 
+    use crate::*;
+    use crate::date::{date::Date, jd::JD};
+    use crate::util::degrees::Degrees;
+
+    use self::jni::JNIEnv;
+    use self::jni::objects::{JClass, JString};
+    use self::jni::sys::{jbyte, jdouble, jint, jobject, jstring};
+
     /*
-     * Julian Day
-     */
+         * Julian Day
+         */
 
     #[no_mangle]
     pub extern "system" fn Java_com_svenschmidt_kitana_core_NativeAccess_00024Companion_rust_1julian_1day(
