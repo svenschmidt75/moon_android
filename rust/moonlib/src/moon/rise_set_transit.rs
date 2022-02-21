@@ -106,7 +106,7 @@ pub(crate) fn target_altitude(
     pressure: f64,
     temperature: f64,
 ) -> Degrees {
-    // SS:Moon's horizontal  at 0 deg altitude (i.e. at the horizon)
+    // SS:Moon's horizontal parallax at 0 deg altitude (i.e. at the horizon)
     let parallax = moon::parallax::horizontal_parallax(jd, altitude);
 
     // SS: refraction effects
