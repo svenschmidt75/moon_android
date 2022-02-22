@@ -105,9 +105,12 @@ class NativeAccessTest {
         // SS: Mount Palomar height above sea level
         val heightAboveSea = 1706.0;
 
+        // SS: local timezone offset from GMT
+        val timezone_offset = -7;
+
         // Act
         val moonInputData =
-            NativeAccess.MoonInputData(jd, longitudeObserver, latitudeObserver, heightAboveSea, 1013.0, 10.0)
+            NativeAccess.MoonInputData(jd, timezone_offset, longitudeObserver, latitudeObserver, heightAboveSea, 1013.0, 10.0)
         val moonOutputData = NativeAccess.MoonOutputData()
         NativeAccess.rust_moon_data(moonInputData, moonOutputData);
 

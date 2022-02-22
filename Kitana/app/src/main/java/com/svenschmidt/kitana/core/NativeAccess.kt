@@ -31,6 +31,7 @@ class NativeAccess {
 
     data class MoonInputData(
         var jd: Double,
+        var timezoneOffset: Short,
         var longitudeObserver: Double,
         var latitudeObserver: Double,
         var heightAboveSeaObserver: Double,

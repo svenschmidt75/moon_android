@@ -44,7 +44,7 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
         val julianDay = NativeAccess.rust_julian_day(year, month, day)
 
         // TODO: pass in correct lat, long, height
-        val moonInputData = NativeAccess.MoonInputData(julianDay, 116.8625, 33.356111111111112, 1706.0, 1013.0, 10.0)
+        val moonInputData = NativeAccess.MoonInputData(julianDay, -7, 116.8625, 33.356111111111112, 1706.0, 1013.0, 10.0)
         val moonOutputData = NativeAccess.MoonOutputData()
         NativeAccess.rust_moon_data(moonInputData, moonOutputData);
 
