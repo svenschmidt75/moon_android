@@ -283,5 +283,89 @@ pub(crate) mod android {
             pressure,
             temperature,
         );
+
+        match moon::rise_set_transit::transit(
+            tt,
+            timezone_offset,
+            target_altitude,
+            longitude_observer,
+            latitude_observer,
+        ) {
+            moon::rise_set_transit::OutputKind::Time(jd) => {
+                let date = jd.to_calendar_date();
+                let (h, m, s) = Date::from_fract_day(date.day);
+
+                debug!(
+                    "Moon transits on {}/{}/{} at {h}:{m}:{s}",
+                    date.year,
+                    date.month,
+                    date.day.trunc() as u8
+                );
+
+                env.set_field(
+                    transit_date_time,
+                    "isValid",
+                    "Z",
+                    self::jni::objects::JValue::Bool(1),
+                )
+                .unwrap();
+
+                env.set_field(
+                    transit_date_time,
+                    "year",
+                    "S",
+                    self::jni::objects::JValue::Short(date.year),
+                )
+                .unwrap();
+
+                env.set_field(
+                    transit_date_time,
+                    "month",
+                    "S",
+                    self::jni::objects::JValue::Short(date.month as i16),
+                )
+                .unwrap();
+
+                env.set_field(
+                    transit_date_time,
+                    "day",
+                    "S",
+                    self::jni::objects::JValue::Short(date.day.trunc() as i16),
+                )
+                .unwrap();
+
+                env.set_field(
+                    transit_date_time,
+                    "hours",
+                    "S",
+                    self::jni::objects::JValue::Short(h as i16),
+                )
+                .unwrap();
+
+                env.set_field(
+                    transit_date_time,
+                    "minutes",
+                    "S",
+                    self::jni::objects::JValue::Short(m as i16),
+                )
+                .unwrap();
+
+                env.set_field(
+                    transit_date_time,
+                    "seconds",
+                    "D",
+                    self::jni::objects::JValue::Double(s),
+                )
+                .unwrap();
+            }
+
+            moon::rise_set_transit::OutputKind::NeverRises => {
+                unreachable!()
+            }
+
+            moon::rise_set_transit::OutputKind::NeverSets => {
+                unreachable!()
+            }
+        }
     }
 }
