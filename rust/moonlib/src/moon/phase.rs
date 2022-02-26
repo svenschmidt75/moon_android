@@ -1,7 +1,7 @@
 //! Phase of the moon
 use crate::date::jd::JD;
 use crate::sun::position::{
-    apparent_geometric_latitude, apparent_geometric_longitude, distance_earth_sun,
+    apparent_geocentric_longitude, apparent_geometric_latitude, distance_earth_sun,
 };
 use crate::util::{degrees::Degrees, radians::Radians};
 use crate::{constants, coordinates, ecliptic, moon};
@@ -20,7 +20,7 @@ pub fn phase_angle(jd: JD) -> Degrees {
     let (ra_moon, dec_moon) = (Radians::from(ra_moon), Radians::from(dec_moon));
 
     // SS: position of the sun, from Earth
-    let longitude = apparent_geometric_longitude(jd);
+    let longitude = apparent_geocentric_longitude(jd);
     let latitude = apparent_geometric_latitude(jd);
     let r = distance_earth_sun(jd);
     let (ra_sun, dec_sun) =
@@ -49,7 +49,7 @@ pub fn phase_angle_360(jd: JD) -> Degrees {
     let longitude_moon = moon::position::geocentric_longitude(jd);
 
     // SS: position of the sun, from Earth
-    let longitude_sun = apparent_geometric_longitude(jd);
+    let longitude_sun = apparent_geocentric_longitude(jd);
 
     (longitude_moon - longitude_sun).map_to_0_to_360()
 }
@@ -62,8 +62,7 @@ pub(crate) fn phase_age(jd: JD) -> f64 {
 
     // SS: Avg. degrees the Moon advances in its orbit around the Earth
     // per day.
-    let degrees_per_day = 360.0 / constants::MOON_YEAR;
-    phase_angle.0 / degrees_per_day
+    phase_angle.0 / constants::MOON_DAY
 }
 
 /// Textual description of the moon's phase
@@ -134,15 +133,27 @@ mod tests {
     }
 
     #[test]
-    fn phase_age_test() {
+    fn phase_age_test_1() {
         // Arrange
         let jd = JD::from_date(Date::new(1992, 4, 12.0));
 
         // Act
-        let phase_angle = phase_angle(jd);
+        let phase_age = phase_age(jd);
 
         // Assert
-        assert_approx_eq!(69.07565471001595, phase_angle.0, 0.000_001)
+        assert_approx_eq!(9.091, phase_age, 0.001)
+    }
+
+    #[test]
+    fn phase_age_test_2() {
+        // Arrange
+        let jd = JD::from_date(Date::new(2022, 2, 26.0));
+
+        // Act
+        let phase_age = phase_age(jd);
+
+        // Assert
+        assert_approx_eq!(24.37, phase_age, 0.01)
     }
 
     #[test]
