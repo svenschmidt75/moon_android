@@ -9,6 +9,7 @@ import com.svenschmidt.kitana.core.NativeAccess
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
@@ -33,7 +34,7 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
         updateDateTime(dateTime)
 
         // SS TODO: when activity stops or is suspended, ...
-        val subscriberToken = dateTimeProvider.subscribe {  now -> updateDateTime(now as LocalDateTime) }
+        val subscriberToken = dateTimeProvider.subscribe {  now -> updateDateTime(now) }
     }
 
     companion object {
@@ -60,9 +61,9 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    private fun updateDateTime(dateTime: LocalDateTime) {
+    private fun updateDateTime(localDateTime: ZonedDateTime) {
         // SS: get local time
-        var formatted = dateTime.format(
+        var formatted = localDateTime.format(
             DateTimeFormatter.ofPattern(
                 "yyyy-MMM-dd HH:mm:ss",
                 Locale.getDefault()
@@ -71,9 +72,7 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
         localTime.postValue(formatted)
 
         // SS: get UTC time
-        val utcDateTime =
-            dateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC)
-                .toLocalDateTime()
+        val utcDateTime: LocalDateTime = localDateTime.toLocalDateTime().atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()
         formatted = utcDateTime.format(
             DateTimeFormatter.ofPattern(
                 "yyyy-MMM-dd HH:mm:ss",
@@ -88,22 +87,25 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
         this.julianDay.postValue(julianDay.toString())
 
         // SS: Boulder longitude
-        val longitudeObserver = -116.8649959122331;
+        // TODO
+        val longitudeObserver = 105.2151;
 
         val siderialTime = NativeAccess.rust_local_siderial_time(julianDay, longitudeObserver)
         val siderialTimeStr = NativeAccess.rust_to_hms(siderialTime, 2)
-        this.siderialTime.postValue(siderialTimeStr.toString())
+        this.siderialTime.postValue(siderialTimeStr)
     }
 
     fun setDate(year: Int, month: Int, dayOfMonth: Int) {
         val dateTime = dateTimeProvider.getCurrentLocalDateTime()
-        val updatedDateTime = LocalDateTime.of(
+        val updatedDateTime = ZonedDateTime.of(
             year,
             month + 1,
             dayOfMonth,
             dateTime.hour,
             dateTime.minute,
-            dateTime.second
+            dateTime.second,
+            dateTime.nano,
+            dateTime.zone
         )
         dateTimeProvider.setCurrentLocalDateTime(updatedDateTime)
 
@@ -113,13 +115,15 @@ class DateTimeViewModel(application: Application) : AndroidViewModel(application
 
     fun setTime(hourOfDay: Int, minute: Int) {
         val dateTime = dateTimeProvider.getCurrentLocalDateTime()
-        val updatedDateTime = LocalDateTime.of(
+        val updatedDateTime = ZonedDateTime.of(
             dateTime.year,
-            dateTime.month,
+            dateTime.month.value,
             dateTime.dayOfMonth,
             hourOfDay,
             minute,
-            dateTime.second
+            dateTime.second,
+            dateTime.nano,
+            dateTime.zone
         )
         dateTimeProvider.setCurrentLocalDateTime(updatedDateTime)
 

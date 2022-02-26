@@ -1,6 +1,6 @@
 package com.svenschmidt.kitana.core
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.*
 
 class DateTimeProviderImpl : DateTimeProvider {
@@ -9,13 +9,13 @@ class DateTimeProviderImpl : DateTimeProvider {
         const val SECOND: Long = 1000
     }
 
-    private var subscribers = mutableListOf<(dateTime: LocalDateTime) -> Unit>()
+    private var subscribers = mutableListOf<(dateTime: ZonedDateTime) -> Unit>()
     private var isRunning = false
     private var timer = Timer()
-    var dateTime: LocalDateTime
+    var dateTime: ZonedDateTime
 
     init {
-        dateTime = LocalDateTime.now()
+        dateTime = ZonedDateTime.now()
     }
 
     override fun stop() {
@@ -23,19 +23,19 @@ class DateTimeProviderImpl : DateTimeProvider {
         isRunning = false
     }
 
-    override fun getSystemLocalDateTime(): LocalDateTime {
-        return LocalDateTime.now()
+    override fun getSystemLocalDateTime(): ZonedDateTime {
+        return ZonedDateTime.now()
     }
 
-    override fun getCurrentLocalDateTime(): LocalDateTime {
+    override fun getCurrentLocalDateTime(): ZonedDateTime {
         return dateTime
     }
 
-    override fun setCurrentLocalDateTime(dateTime: LocalDateTime) {
+    override fun setCurrentLocalDateTime(dateTime: ZonedDateTime) {
         this@DateTimeProviderImpl.dateTime = dateTime
     }
 
-    override fun subscribe(observer: (dateTime: LocalDateTime) -> Unit): () -> Unit {
+    override fun subscribe(observer: (dateTime: ZonedDateTime) -> Unit): () -> Unit {
         subscribers.add(observer)
         return {
             subscribers.remove(observer)

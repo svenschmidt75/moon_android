@@ -24,6 +24,7 @@ pub(crate) mod android {
         temperature: f64,
     ) {
         debug!("Calculating Moon's rise time");
+        debug!("Time zone offset: {timezone_offset}");
 
         // SS: calculate dynamical time
         let tt = time::utc_2_tt(jd);

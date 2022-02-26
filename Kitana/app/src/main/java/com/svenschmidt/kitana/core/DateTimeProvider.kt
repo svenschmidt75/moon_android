@@ -1,12 +1,12 @@
 package com.svenschmidt.kitana.core
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 interface DateTimeProvider {
     fun start()
     fun stop()
-    fun subscribe(observer: (dateTime: LocalDateTime) -> Unit): () -> Unit
-    fun getCurrentLocalDateTime(): LocalDateTime
-    fun setCurrentLocalDateTime(dateTime: LocalDateTime)
-    fun getSystemLocalDateTime(): LocalDateTime
+    fun subscribe(observer: (dateTime: ZonedDateTime) -> Unit): () -> Unit
+    fun getCurrentLocalDateTime(): ZonedDateTime
+    fun setCurrentLocalDateTime(dateTime: ZonedDateTime)
+    fun getSystemLocalDateTime(): ZonedDateTime
 }

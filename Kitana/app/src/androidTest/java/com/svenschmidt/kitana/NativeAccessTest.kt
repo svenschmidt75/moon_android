@@ -106,7 +106,7 @@ class NativeAccessTest {
         val heightAboveSea = 1706.0;
 
         // SS: local timezone offset from GMT
-        val timezone_offset = -7;
+        val timezone_offset: Short = -7;
 
         // Act
         val moonInputData =

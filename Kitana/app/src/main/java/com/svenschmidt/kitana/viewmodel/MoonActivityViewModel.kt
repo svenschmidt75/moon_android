@@ -7,6 +7,9 @@ import com.svenschmidt.kitana.InitApp
 import com.svenschmidt.kitana.core.DateTimeProvider
 import com.svenschmidt.kitana.core.NativeAccess
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 class MoonActivityViewModel(application: Application) : AndroidViewModel(application) {
@@ -29,7 +32,9 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
     val transits = MutableLiveData<String>()
     val sets = MutableLiveData<String>()
 
-    fun Double.format(digits: Int) = "%.${digits}f".format(this)
+    private fun Double.format(digits: Int) = "%.${digits}f".format(this)
+
+    private fun Int.toHours(): Double = this / (60.0 * 60.0)
 
     init {
         // SS: inject Dagger dependencies
@@ -39,12 +44,15 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
         onUpdateDateTime(dateTimeProvider.getCurrentLocalDateTime())
     }
 
-    private fun onUpdateDateTime(utcDateTime: LocalDateTime) {
+    private fun onUpdateDateTime(localDateTime: ZonedDateTime) {
+        // SS: get UTC time
+        val utcDateTime: LocalDateTime = localDateTime.toLocalDateTime().atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime()
         val (year, month, day) = DateTimeViewModel.fromLocalDateTime(utcDateTime)
         val julianDay = NativeAccess.rust_julian_day(year, month, day)
 
-        // TODO: pass in correct lat, long, height
-        val moonInputData = NativeAccess.MoonInputData(julianDay, -7, 116.8625, 33.356111111111112, 1706.0, 1013.0, 10.0)
+        // TODO: pass in correct lat, long, height -> location: Boulder, CO
+        val timezoneOffset = localDateTime.offset.totalSeconds.toHours().toInt().toShort()
+        val moonInputData = NativeAccess.MoonInputData(julianDay, timezoneOffset, 105.2151, 40.05972, 1624.0, 1013.0, 10.0)
         val moonOutputData = NativeAccess.MoonOutputData()
         NativeAccess.rust_moon_data(moonInputData, moonOutputData);
 
