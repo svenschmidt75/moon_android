@@ -18,7 +18,7 @@ pub mod android {
     use android_logger;
     use android_logger::Config;
     use jni;
-    use log::Level;
+    use log::{debug, Level};
 
     use crate::date::{date::Date, jd::JD};
     use crate::util::degrees::Degrees;
@@ -124,6 +124,18 @@ pub mod android {
             self::jni::objects::JValue::Double(phase_angle.0),
         )
         .unwrap();
+
+        let phase_age = moon::phase::phase_age(jd);
+        env.set_field(
+            moon_output_data,
+            "phaseAge",
+            "D",
+            self::jni::objects::JValue::Double(phase_age),
+        )
+        .unwrap();
+
+        debug!("Phase: {}", phase_angle.0);
+        debug!("Phase age: {phase_age}");
 
         let fraction_illuminated = moon::phase::fraction_illuminated(jd);
         env.set_field(
@@ -297,7 +309,7 @@ pub mod android {
         use crate::moon::jni_bridge::rise_set_transit::android::transit;
         transit(
             env,
-            set_date_time,
+            transit_date_time,
             jd,
             timezone_offset,
             longitude_observer,

@@ -245,7 +245,7 @@ fn variation_geocentric_longitude(jd: JD) -> ArcSec {
 /// both nutation and aberration. Meeus, chapter 25, pages 167, 168
 /// In: Julian day
 /// Out: Apparent geocentric longitude of the sun, in degrees [0, 360)
-pub fn apparent_geometric_longitude(jd: JD) -> Degrees {
+pub fn apparent_geocentric_longitude(jd: JD) -> Degrees {
     let longitude = geocentric_ecliptical_longitude(jd);
     let latitude = geocentric_ecliptical_latitude(jd);
     let (long, _) = geocentric_ecliptical_to_fk5(jd, longitude, latitude);
@@ -343,7 +343,7 @@ mod tests {
         let jd = JD::from_date(Date::new(1992, 10, 13.0));
 
         // Act
-        let longitude = apparent_geometric_longitude(jd);
+        let longitude = apparent_geocentric_longitude(jd);
 
         // Assert
         assert_approx_eq!(199.90598818016153, longitude.0, 0.000_001);
