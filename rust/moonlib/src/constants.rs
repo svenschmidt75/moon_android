@@ -25,7 +25,7 @@ pub(crate) const DEGREES_TO_HOURS: f64 = 24.0 / 360.0;
 pub(crate) const HOURS_TO_DAYS: f64 = 1.0 / 24.0;
 
 /// Number of days for a Moon orbit around the Earth
-pub(crate) const MOON_YEAR: f64 = 360.0 / 29.5306;
+pub(crate) const MOON_DAY: f64 = 360.0 / 29.5306;
 
 // Earth's radius in km
 pub(crate) const EARTH_RADIUS: f64 = 6378.14;
