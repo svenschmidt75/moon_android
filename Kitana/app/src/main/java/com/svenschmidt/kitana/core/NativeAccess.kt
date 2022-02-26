@@ -14,6 +14,7 @@ class NativeAccess {
 
     data class MoonOutputData(
         var phaseAngle: Double = 0.0,
+        var phaseAge: Double = 0.0,
         var illuminatedFraction: Double = 0.0,
         var phaseDesc: String = "",
         var geocentricLongitude: Double = 0.0,

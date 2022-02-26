@@ -18,6 +18,7 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
     lateinit var dateTimeProvider: DateTimeProvider
 
     val phaseAngle = MutableLiveData<String>()
+    val phaseAge = MutableLiveData<String>()
     val fractionIlluminated = MutableLiveData<String>()
     val phaseName = MutableLiveData<String>()
     val geocentricLongitude = MutableLiveData<String>()
@@ -32,7 +33,7 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
     val transits = MutableLiveData<String>()
     val sets = MutableLiveData<String>()
 
-    private fun Double.format(digits: Int) = "%.${digits}f".format(this)
+    private fun<T> T?.format(digits: Int) = "%.${digits}f".format(this)
 
     private fun Int.toHours(): Double = this / (60.0 * 60.0)
 
@@ -54,9 +55,10 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
         val timezoneOffset = localDateTime.offset.totalSeconds.toHours().toInt().toShort()
         val moonInputData = NativeAccess.MoonInputData(julianDay, timezoneOffset, 105.2151, 40.05972, 1624.0, 1013.0, 10.0)
         val moonOutputData = NativeAccess.MoonOutputData()
-        NativeAccess.rust_moon_data(moonInputData, moonOutputData);
+        NativeAccess.rust_moon_data(moonInputData, moonOutputData)
 
         phaseAngle.postValue("${moonOutputData.phaseAngle.format(2)}°")
+        phaseAge.postValue("${moonOutputData.phaseAge.format(2)} days")
         fractionIlluminated.postValue("${(moonOutputData.illuminatedFraction * 100).format(2)}%")
         phaseName.postValue(moonOutputData.phaseDesc)
 
@@ -83,10 +85,34 @@ class MoonActivityViewModel(application: Application) : AndroidViewModel(applica
         val altitudeStr = NativeAccess.rust_to_dms(moonOutputData.altitude, 2)
         altitude.postValue(altitudeStr)
 
-        rises.postValue("Waning Crescent")
-        transits.postValue("175.365")
-        sets.postValue("75.365")
-    }
+        // SS: set rise time
+        if (moonOutputData.riseTime.isValid) {
+            // SS: convert UTC to local time
+            val utcRiseTime = LocalDateTime.of(moonOutputData.riseTime.year.toInt(), moonOutputData.riseTime.month.toInt(), moonOutputData.riseTime.day.toInt(), moonOutputData.riseTime.hours.toInt(), moonOutputData.riseTime.minutes.toInt(), moonOutputData.riseTime.seconds.toInt())
+            val localRiseTime = utcRiseTime.atZone(ZoneOffset.UTC).withZoneSameInstant(localDateTime.zone).toLocalDateTime()
+            val formatted = "${String.format("%02d", localRiseTime.hour)}h:${String.format("%02d", localRiseTime.minute)}m${String.format("%02d", localRiseTime.second)}s"
+            rises.postValue(formatted)
+        }
+        else {
+            rises.postValue("does not rise")
+        }
 
+        // SS: set transit time
+        val utcTransitTime = LocalDateTime.of(moonOutputData.transitTime.year.toInt(), moonOutputData.transitTime.month.toInt(), moonOutputData.transitTime.day.toInt(), moonOutputData.transitTime.hours.toInt(), moonOutputData.transitTime.minutes.toInt(), moonOutputData.transitTime.seconds.toInt())
+        val localTransitTime = utcTransitTime.atZone(ZoneOffset.UTC).withZoneSameInstant(localDateTime.zone).toLocalDateTime()
+        val formatted = "${String.format("%02d", localTransitTime.hour)}h:${String.format("%02d", localTransitTime.minute)}m${String.format("%02d", localTransitTime.second)}s"
+        transits.postValue(formatted)
+
+        // SS: set rise time
+        if (moonOutputData.setTime.isValid) {
+            val utcSetTime = LocalDateTime.of(moonOutputData.setTime.year.toInt(), moonOutputData.setTime.month.toInt(), moonOutputData.setTime.day.toInt(), moonOutputData.setTime.hours.toInt(), moonOutputData.setTime.minutes.toInt(), moonOutputData.setTime.seconds.toInt())
+            val localSetTime = utcSetTime.atZone(ZoneOffset.UTC).withZoneSameInstant(localDateTime.zone).toLocalDateTime()
+            val formatted = "${String.format("%02d", localSetTime.hour)}h:${String.format("%02d", localSetTime.minute)}m${String.format("%02d", localSetTime.second)}s"
+            sets.postValue(formatted)
+        }
+        else {
+            sets.postValue("does not set")
+        }
+    }
 
 }
